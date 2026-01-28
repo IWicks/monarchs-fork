@@ -3,7 +3,7 @@ Define the model grid datatype. This is a Numpy structured array.
 """
 
 import numpy as np
-
+import os.path
 
 def initialise_iceshelf(
     num_rows,
@@ -48,6 +48,7 @@ def initialise_iceshelf(
     numba=False,
     size_dx=1000,
     size_dy=1000,
+    RVf
 ):
     """
     Initialize a NumPy structured array representing the ice shelf.
@@ -149,11 +150,15 @@ def initialise_iceshelf(
     iceshelf["size_dx"][:] = size_dx
     iceshelf["size_dy"][:] = size_dy
     iceshelf["water_direction"] = np.zeros((num_rows, num_cols, 8))  # 8 possible directions
+    if os.path.isfile(model_setup.RVf_input_filepath) is True:
+        iceshelf["RVf"] = load_RVf(model_setup.RVf_input_filepath) # Calling load_RVf function
+    else:
+        iceshelf["RVf"] = np.zeros((num_rows, num_cols, vert_grid))
 
     return iceshelf
 
 
-def get_spec( vert_grid_size, vert_grid_lid, vert_grid_lake):
+def get_spec(vert_grid_size, vert_grid_lid, vert_grid_lake):
     """
     Define the structured array dtype for the model grid, with explicit sizes for dimensions.
 
@@ -233,6 +238,7 @@ def get_spec( vert_grid_size, vert_grid_lid, vert_grid_lake):
             ("size_dy", np.float64),
             ("numba", np.bool_),
             ("water_direction", np.int32, 8),
+            ("RVf", np.float64)
         ]
     )
     return dtype
