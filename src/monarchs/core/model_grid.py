@@ -17,6 +17,7 @@ def initialise_iceshelf(
     firn_depth,
     rho,
     firn_temperature,
+    RVf,
     Sfrac=np.array([np.nan]),
     Lfrac=np.array([np.nan]),
     meltflag=np.array([np.nan]),
@@ -48,7 +49,6 @@ def initialise_iceshelf(
     numba=False,
     size_dx=1000,
     size_dy=1000,
-    RVf,
 ):
     """
     Initialize a NumPy structured array representing the ice shelf.
@@ -75,6 +75,10 @@ def initialise_iceshelf(
     iceshelf["rho"] = rho
     iceshelf["rho_lid"] = 917.0 * np.ones((num_rows, num_cols, vert_grid_lid))
     iceshelf["firn_temperature"] = firn_temperature
+    if os.path.isfile(model_setup.RVf_input_filepath) is True:
+        iceshelf["RVf"] = load_RVf(model_setup.RVf_input_filepath) # Calling load_RVf function
+    else:
+        iceshelf["RVf"] = np.zeros((num_rows, num_cols, vert_grid))
     if np.isnan(Sfrac).all():
         iceshelf["Sfrac"] = np.ones((num_rows, num_cols, vert_grid)) * rho / 917
     else:
@@ -150,10 +154,6 @@ def initialise_iceshelf(
     iceshelf["size_dx"][:] = size_dx
     iceshelf["size_dy"][:] = size_dy
     iceshelf["water_direction"] = np.zeros((num_rows, num_cols, 8))  # 8 possible directions
-    if os.path.isfile(model_setup.RVf_input_filepath) is True:
-        iceshelf["RVf"] = load_RVf(model_setup.RVf_input_filepath) # Calling load_RVf function
-    else:
-        iceshelf["RVf"] = np.zeros((num_rows, num_cols, vert_grid))
 
     return iceshelf
 
@@ -192,6 +192,7 @@ def get_spec(vert_grid_size, vert_grid_lid, vert_grid_lake):
             ("rho", np.float64, vert_grid_size),
             ("rho_lid", np.float64, vert_grid_lid),
             ("firn_temperature", np.float64, vert_grid_size),
+            ("RVf", np.float64),
             ("Sfrac", np.float64, vert_grid_size),
             ("Lfrac", np.float64, vert_grid_size),
             ("meltflag", np.float64, vert_grid_size),
@@ -238,7 +239,6 @@ def get_spec(vert_grid_size, vert_grid_lid, vert_grid_lake):
             ("size_dy", np.float64),
             ("numba", np.bool_),
             ("water_direction", np.int32, 8),
-            ("RVf", np.float64),
         ]
     )
     return dtype
