@@ -48,7 +48,7 @@ def initialise_iceshelf(
     numba=False,
     size_dx=1000,
     size_dy=1000,
-    RVf
+    RVf,
 ):
     """
     Initialize a NumPy structured array representing the ice shelf.
@@ -238,7 +238,7 @@ def get_spec(vert_grid_size, vert_grid_lid, vert_grid_lake):
             ("size_dy", np.float64),
             ("numba", np.bool_),
             ("water_direction", np.int32, 8),
-            ("RVf", np.float64)
+            ("RVf", np.float64),
         ]
     )
     return dtype
