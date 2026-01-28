@@ -200,11 +200,13 @@ Rock view fraction grid
         The grid must be the same size as the model grid specified in row_amount, col_amount. Currently only square grids are supported.
         If this is a relative filepath, then you should ensure that is relative to the folder in which
         you are running MONARCHS from, not the source code directory.
+        Must be set to NaN if not used.
         # TO DO (Izzy) - add to model_setup_reference.rst
 """
 
 # RVf_input_filepath = "data/RVf_matrix.csv"
 RVf_input_filepath = "data/RVf_matrix.csv"
+# Set RVf_input_filepath to NaN if not using a rock view fraction grid.
 
 """
 Model output
