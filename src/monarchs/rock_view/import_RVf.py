@@ -1,5 +1,5 @@
 """
-Load in the rock view fraction CSV to be used by the model grid.
+Import the rock view fraction CSV to be used by the model grid.
 """
 
 import numpy as np
