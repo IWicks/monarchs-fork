@@ -4,7 +4,7 @@ Define the model grid datatype. This is a Numpy structured array.
 
 import numpy as np
 import os.path
-from .rock_view.import_RVf import load_RVf # TO DO (Izzy) - check that this function imports correctly
+from ..rock_view.import_RVf import load_RVf # TO DO (Izzy) - check that this function imports correctly
 
 def initialise_iceshelf(
     num_rows,
