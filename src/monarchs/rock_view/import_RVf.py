@@ -1,5 +1,5 @@
 """
-Import the rock view fraction CSV to be used by the model grid.
+Load in the rock view fraction CSV to be used by the model grid.
 """
 
 import numpy as np
@@ -21,6 +21,14 @@ def load_RVf(RVf_filepath):
     -------
     RVf : np.array
         A NumPy array of rock view fraction values.
+        
+    Raises
+    ------
+    IOError
+        If the supplied file is not readable.
+        
+    ValueError
+        If the grid is the wrong shape or if any values in the grid are not between 0 and 1.
     """
     
     # Checking for the existence of the file and that it can be read.
@@ -32,7 +40,6 @@ def load_RVf(RVf_filepath):
     # Checking that the RVf grid is the same shape as the model grid.
     if RVf.shape != (num_rows, num_cols): # TO DO: Need to include intiliase_iceshelf? Or grid[num_rows, num_cols]?
         raise ValueError("The RVf grid is the wrong shape!")
-    
     
     # Checking that all values in the grid are between 0 and 1.
     if np.any((RVf<0) | (RVf>1)):
