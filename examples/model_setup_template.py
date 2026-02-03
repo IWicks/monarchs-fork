@@ -201,7 +201,7 @@ Rock view fraction grid
         If this is a relative filepath, then you should ensure that is relative to the folder in which
         you are running MONARCHS from, not the source code directory.
         Must be set to NaN if not used.
-        # TO DO (Izzy) - add to model_setup_reference.rst
+        # TODO (Izzy) - add to model_setup_reference.rst
 """
 
 # RVf_input_filepath = "data/RVf_matrix.csv"
