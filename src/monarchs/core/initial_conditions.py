@@ -189,6 +189,7 @@ def rho_init_emp(z, rho_sfc, z_t):
 
 
 def create_model_grid(
+        model_setup, # Added to match no. of args in initialise_iceshelf().
         row_amount,
         col_amount,
         firn_depth,
