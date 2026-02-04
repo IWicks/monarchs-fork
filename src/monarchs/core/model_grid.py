@@ -18,7 +18,7 @@ def initialise_iceshelf(
     firn_depth,
     rho,
     firn_temperature,
-    RVf,
+    RVf=np.array([np.nan),
     Sfrac=np.array([np.nan]),
     Lfrac=np.array([np.nan]),
     meltflag=np.array([np.nan]),
