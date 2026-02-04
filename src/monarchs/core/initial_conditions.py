@@ -197,7 +197,7 @@ def create_model_grid(
         vert_grid_lid,
         rho,
         firn_temperature,
-        RVf,
+        RVf=np.array([np.nan]),
         Sfrac=np.array([np.nan]),
         Lfrac=np.array([np.nan]),
         meltflag=np.array([np.nan]),
