@@ -547,6 +547,7 @@ def initialise(model_setup):
         setup_met_data.prescribed_met_data(model_setup)
 
     grid = initial_conditions.create_model_grid(
+        model_setup, # Added to match arg no. from initialise_iceshelf()
         model_setup.row_amount,
         model_setup.col_amount,
         firn_depth,
