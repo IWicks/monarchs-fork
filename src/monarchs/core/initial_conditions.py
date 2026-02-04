@@ -249,7 +249,7 @@ def create_model_grid(
         firn_depth,
         rho,
         firn_temperature,
-        RVf,
+        RVf=RVf,
         Sfrac=Sfrac,
         Lfrac=Lfrac,
         meltflag=meltflag,
