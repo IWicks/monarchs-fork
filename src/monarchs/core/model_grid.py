@@ -7,6 +7,7 @@ import os.path
 from ..rock_view.import_RVf import load_RVf # TO DO (Izzy) - check that this function imports correctly
 
 def initialise_iceshelf(
+    model_setup,
     num_rows,
     num_cols,
     vert_grid,
