@@ -546,6 +546,9 @@ def initialise(model_setup):
     elif model_setup.met_data_source == "user_defined":
         setup_met_data.prescribed_met_data(model_setup)
 
+    if hasattr(model_setup, "RVf_input_path"):
+        print("monarchs.core.driver.initialise: Reading in RVf from CSV.")
+
     grid = initial_conditions.create_model_grid(
         model_setup, # Added to match arg no. from initialise_iceshelf()
         model_setup.row_amount,
