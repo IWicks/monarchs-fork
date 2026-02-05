@@ -40,7 +40,7 @@ def load_RVf(model_setup, RVf_filepath):
         raise IOError(f"The file {RVf_filepath} is not readable.")
     
     # Checking that the RVf grid is the same shape as the model grid.
-    if RVf.shape != (model_setup.num_rows, model_setup.num_cols): # TO DO: Need to include intiliase_iceshelf? Or grid[num_rows, num_cols]?
+    if RVf.shape != (model_setup.col_amount, model_setup.row_amount):
         raise ValueError("The RVf grid is the wrong shape!")
     
     # Checking that all values in the grid are between 0 and 1.
