@@ -68,7 +68,7 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
             firn_depth_under_35_flag = True
 
     if hasattr(model_setup, "RVf_input_filepath"):
-        valid_cells[np.where(RVf == 1)] = False # Flagging cells that are entirely exposed rock as invalid.
+        valid_cells[np.where(model_setup.RVf == 1)] = False # Flagging cells that are entirely exposed rock as invalid.
         print(f"monarchs.core.initial_conditions.initialise_firn_profile: Filtering out cells according to the following mask (False = filtered out), since they are entirely exposed rock.")
         print("Valid cells = ", valid_cells)
 
