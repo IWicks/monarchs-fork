@@ -67,7 +67,7 @@ def sfc_flux(
     alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth)
     Flat, Fsens = bulk_fluxes(wind, T_air, xsurf, p_air, T_dp)
     epsilon_ice = 0.98
-    epsilon_rock = 0.95 # (from Caselles and Badenas (1997), reflective of geology of Amery Ice Shelf)
+    epsilon_rock = 0.95 # (from Rubio et al. (1997), reflective of geology of Amery Ice Shelf)
     sigma = 5.670374e-8
     if cell['RVf'] = 0:
         Q = epsilon * LW_in + (1 - alpha) * SW_in + Flat + Fsens
