@@ -21,7 +21,7 @@ def sfc_flux(
     Calculate the surface heat flux from the input shortwave and longwave fluxes
     and latent/sensible heat fluxes.
 
-    TODO (Izzy) - Import T_rock timeseries and call to function, flag RVf = 1 cells as invalid for Q calculation
+    TODO (Izzy) - Import T_rock timeseries and call to function
 
     Parameters
     ----------
@@ -73,8 +73,6 @@ def sfc_flux(
         Q = epsilon * LW_in + (1 - alpha) * SW_in + Flat + Fsens
     elif cell['RVf'] < 1:
         Q = ((1 - cell['RVf']) * epsilon_ice * LW_in) + ((1 - alpha) * (1 - cell['RVf']) * SW_in) + F_lat + F_sens + (epsilon_rock * T_rock**4 * sigma * cell['RVf'] * LW_in)
-    else:
-        # Don't calculate Q, cell is invalid - how?
     return Q
 
 
