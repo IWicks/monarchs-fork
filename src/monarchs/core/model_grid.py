@@ -77,7 +77,7 @@ def initialise_iceshelf(
     iceshelf["rho"] = rho
     iceshelf["rho_lid"] = 917.0 * np.ones((num_rows, num_cols, vert_grid_lid))
     iceshelf["firn_temperature"] = firn_temperature
-    if os.path.isfile(model_setup.RVf_input_filepath) is True:
+    if hasattr(model_setup, "RVf_input_filepath"):
         iceshelf["RVf"] = load_RVf(model_setup, model_setup.RVf_input_filepath) # Calling load_RVf function
     else:
         iceshelf["RVf"] = np.zeros((num_rows, num_cols, vert_grid))
