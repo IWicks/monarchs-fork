@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def sfc_flux(
     melt,
     exposed_water,
@@ -125,6 +124,8 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     """
     Calculate the latent and sensible heat fluxes given the wind speed and
     surface meteorology.
+
+    TODO (Izzy) - add consideration for rock heating T_air?
 
     Parameters
     ----------
