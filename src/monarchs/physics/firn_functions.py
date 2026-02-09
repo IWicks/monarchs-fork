@@ -18,7 +18,6 @@ def firn_column(
     p_air,
     T_dp,
     wind,
-    RVf,
     toggle_dict,
     prescribed_height_change=False,
 ):
@@ -60,8 +59,6 @@ def firn_column(
         Dewpoint temperature of the air at the surface at the current timestep. [K]
     wind : float
         Wind speed at the surface at the current timestep. [m s^-1]
-    RVf : float
-        Rock view fraction (between 0 and 1).
     toggle_dict : dict
         Dictionary containing some switches that affect the running of the model.
 
@@ -79,7 +76,7 @@ def firn_column(
     heateqn_solver = 'hybr'
     x = cell["firn_temperature"]
     #x = np.clip(x, 0, 273.15)
-    args = [cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind, RVf]
+    args = [cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind]
     root, fvec, success, info = solver.firn_heateqn_solver(
         x, args, fixed_sfc=False, solver_method=heateqn_solver
     )
@@ -98,7 +95,7 @@ def firn_column(
             raise ValueError("Height change is NaN")
 
         dz = cell["firn_depth"] / cell["vert_grid"]
-        args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind, RVf
+        args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind
         root, fvec, success_fixedsfc, info = solver.firn_heateqn_solver(
             x, args, fixed_sfc=True, solver_method=heateqn_solver
         )
@@ -291,7 +288,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
     """
     epsilon_ice = 0.98
     epsilon_rock = 0.95 # (from Rubio et al. (1997), reflective of geology of Amery Ice Shelf)
-    sigma = 5.670373 * 10**-8
+    sigma = 5.670374e-8
     dz = cell["firn_depth"] / cell["vert_grid"]
     L_fus = 334000
     if cell["firn_temperature"][0] > 273.14999999 and cell["firn_temperature"][0] < 273.151:
