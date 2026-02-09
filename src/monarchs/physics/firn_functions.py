@@ -8,7 +8,6 @@ from monarchs.physics import surface_fluxes
 from monarchs.physics import solver
 from monarchs.core import utils
 
-
 def firn_column(
     cell,
     dt,
@@ -19,6 +18,7 @@ def firn_column(
     p_air,
     T_dp,
     wind,
+    RVf,
     toggle_dict,
     prescribed_height_change=False,
 ):
@@ -60,6 +60,8 @@ def firn_column(
         Dewpoint temperature of the air at the surface at the current timestep. [K]
     wind : float
         Wind speed at the surface at the current timestep. [m s^-1]
+    RVf : float
+        Rock view fraction (between 0 and 1).
     toggle_dict : dict
         Dictionary containing some switches that affect the running of the model.
 
@@ -77,7 +79,7 @@ def firn_column(
     heateqn_solver = 'hybr'
     x = cell["firn_temperature"]
     #x = np.clip(x, 0, 273.15)
-    args = [cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind]
+    args = [cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind, RVf]
     root, fvec, success, info = solver.firn_heateqn_solver(
         x, args, fixed_sfc=False, solver_method=heateqn_solver
     )
@@ -88,7 +90,7 @@ def firn_column(
         cell["melt"] = True
         height_change = calc_height_change(
             cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind, root[0]
-        )
+        ) # TODO (Izzy) - incorporate RVf into height change calculations
 
         if prescribed_height_change is not False:
             height_change = 0.05
@@ -96,7 +98,7 @@ def firn_column(
             raise ValueError("Height change is NaN")
 
         dz = cell["firn_depth"] / cell["vert_grid"]
-        args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind
+        args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind, RVf
         root, fvec, success_fixedsfc, info = solver.firn_heateqn_solver(
             x, args, fixed_sfc=True, solver_method=heateqn_solver
         )
@@ -287,7 +289,8 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
     -------
 
     """
-    epsilon = 0.98
+    epsilon_ice = 0.98
+    epsilon_rock = 0.95 # (from Rubio et al. (1997), reflective of geology of Amery Ice Shelf)
     sigma = 5.670373 * 10**-8
     dz = cell["firn_depth"] / cell["vert_grid"]
     L_fus = 334000
@@ -308,6 +311,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
+        cell['RVf'],
         LW_in,
         SW_in,
         T_air,
@@ -316,15 +320,28 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
         wind,
         surf_T,
     )
-    dHdt = (
+    if cell['RVf'] = 0:
+        dHdt = (
+            timestep
+            * (
+                Q
+                - epsilon_ice * sigma * cell["firn_temperature"][0] ** 4
+                - k_sfc * ((cell["firn_temperature"][0] - cell["firn_temperature"][1]) / dz)
+            )
+            / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
+        )
+    """
+    else cell['RVf'] < 1:
+        dHdt = (
         timestep
         * (
             Q
-            - epsilon * sigma * cell["firn_temperature"][0] ** 4
+            - epsilon_ice * sigma * cell["firn_temperature"][0] ** 4
             - k_sfc * ((cell["firn_temperature"][0] - cell["firn_temperature"][1]) / dz)
         )
         / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
-    )
+    ) TODO (Izzy) - Finish implementation of RVf into Q calculations for cell height change
+    """
     if 0 > dHdt > -0.01:
         dHdt = 0
     elif dHdt < -0.01:
