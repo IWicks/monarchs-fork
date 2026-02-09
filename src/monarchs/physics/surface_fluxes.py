@@ -81,6 +81,7 @@ def sfc_albedo(melt, exposed_water, lid, lake, lake_depth):
     top of the ice shelf (i.e. is there exposed water, firn or snow etc.)
 
     TODO - snow albedo, add later
+    TODO (Izzy) - add consideration for albedo of partial cells? Depends on impact of rocks on melting...
 
     Parameters
     ----------
