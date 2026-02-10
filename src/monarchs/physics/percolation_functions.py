@@ -7,15 +7,23 @@ import numpy as np
 
 def calc_solid_mass(cell):
     """Calculate the mass of the solid part of the column."""
-    return np.sum(
-        cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
+    if cell['RVf'] = 0:
+        return np.sum(
+            cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
+    else cell['RVf'] < 1:
+        return np.sum(
+            (cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])) * (1 - cell['RVf'])
     )
 
 
 def calc_liquid_mass(cell):
     """Calculate the mass of the liquid part of the column."""
-    return np.sum(
-        cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
+    if cell['RVf'] = 0:
+        return np.sum(
+            cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
+    else cell['RVf'] < 1:
+        return np.sum(
+            (cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])) * (1 - cell['RVf'])
     )
 
 
