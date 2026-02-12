@@ -220,9 +220,6 @@ def heateqn_lid(
     -------
     Output : array_like, float, dimension(cell.vert_grid)
         Roots of the function, used by scipy.optimize.fsolve to determine the new firn temperature
-
-    TODO (Izzy) - Need to check if lid formation accounts for partial cell, only forms lid on non-rock part of cell?
-    
     """
     cp_ice = 1000 * (0.00716 * cell["lid_temperature"] + 0.138)
     cp = Sfrac_lid * cp_ice + (1 - Sfrac_lid) * cell["cp_air"]
@@ -236,7 +233,7 @@ def heateqn_lid(
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
-        cell{"RVf"],
+        cell["RVf"],
         LW_in,
         SW_in,
         T_air,
@@ -246,7 +243,6 @@ def heateqn_lid(
         x[0],
     )
     output = np.zeros(cell["vert_grid_lid"])
-    # TODO (Izzy) - Check calculation for partial cells is as below? Or is rock inclusion covered by sfc_flux() calculation?
     if cell['RVf'] = 0:
         output[0] = k_lid * ((x[0] - x[1]) / dz) - (Q - epsilon_ice * sigma * x[0] ** 4)
     else cell['RVf'] < 1:
