@@ -327,18 +327,17 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
             )
             / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
         )
-    """
     else cell['RVf'] < 1:
         dHdt = (
         timestep
         * (
             Q
-            - epsilon_ice * sigma * cell["firn_temperature"][0] ** 4
+            - (epsilon_ice * sigma * cell["firn_temperature"][0] ** 4 * (1-cell['RVf']))
+            - (epsilon_rock * sigma * cell["firn_temperature"][0] ** 4 * cell['RVf']))
             - k_sfc * ((cell["firn_temperature"][0] - cell["firn_temperature"][1]) / dz)
         )
         / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
-    ) TODO (Izzy) - Finish implementation of RVf into Q calculations for cell height change
-    """
+    )
     if 0 > dHdt > -0.01:
         dHdt = 0
     elif dHdt < -0.01:
