@@ -146,22 +146,34 @@ def calc_refreezing(cell, v_lev):
         * cell["rho_water"]
         / (cell["rho_ice"] * cp * cell["Sfrac"][v_lev])
     )
-    Vol_Rfrz_Max = (
-        (1 - cell["Sfrac"][v_lev])
+    
+    if cell["RVf"] = 0:
+        Vol_Rfrz_Max = (
+            (1 - cell["Sfrac"][v_lev])
+            * (cell["firn_depth"] / cell["vert_grid"])
+            / (cell["rho_water"] / cell["rho_ice"])
+        )
+    else cell["RVf"] < 1:
+        Vol_Rfrz_Max = (
+        ((1 - cell["Sfrac"][v_lev])
         * (cell["firn_depth"] / cell["vert_grid"])
-        / (cell["rho_water"] / cell["rho_ice"])
-    )
+        / (cell["rho_water"] / cell["rho_ice"]))
+        * (1 - cell["RVf"])
+        )
+    
     if Vol_Rfrz_Max < cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"]):
         excess_water = (
             cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"])
             - Vol_Rfrz_Max
         )
         cell["Lfrac"][v_lev] = Vol_Rfrz_Max / (cell["firn_depth"] / cell["vert_grid"])
+        
     if T_change_all >= T_change_max:
         Vol_Change = (
             cell["rho_ice"]
             * cp
             * cell["Sfrac"][v_lev]
+            * (1 - cell["RVf"])
             * T_change_max
             * (cell["firn_depth"] / cell["vert_grid"])
             / (cell["L_ice"] * cell["rho_water"])
@@ -170,7 +182,7 @@ def calc_refreezing(cell, v_lev):
             Vol_Change = Vol_Rfrz_Max
         cell["firn_temperature"][v_lev] = 273.15
         if cell["Lfrac"][v_lev] - Vol_Change < 0:
-            Vol_Change = cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"])
+            Vol_Change = cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"]) * (1 - cell["RVf"])
             cell["Lfrac"][v_lev] = 0
         else:
             cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] - Vol_Change / (
@@ -187,6 +199,7 @@ def calc_refreezing(cell, v_lev):
         )
         cell["firn_temperature"][v_lev] = cell["firn_temperature"][v_lev] + T_change_all
         cell["Lfrac"][v_lev] = 0
+        
     if cell["Lfrac"][v_lev] < 0:
         raise ValueError("Lfrac < 0 in saturation Sfrac > 1 calculation")
     cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] + excess_water / (
