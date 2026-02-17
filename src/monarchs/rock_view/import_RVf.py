@@ -1,4 +1,6 @@
 """
+Isabelle Wicks, Northumbria University (05/02/2026)
+
 Load in the rock view fraction CSV to be used by the model grid.
 """
 
