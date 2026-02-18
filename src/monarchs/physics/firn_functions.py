@@ -87,7 +87,7 @@ def firn_column(
         cell["melt"] = True
         height_change = calc_height_change(
             cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind, root[0]
-        ) # TODO (Izzy) - incorporate RVf into height change calculations
+        )
 
         if prescribed_height_change is not False:
             height_change = 0.05
