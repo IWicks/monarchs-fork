@@ -80,8 +80,6 @@ def heateqn(
     k, kappa = get_k_and_kappa(T_old, Sfrac, Lfrac, cp_air, cp_water, k_air, k_water)
     residual = np.zeros_like(x)
     # Surface temperature equation (residual)
-    # TODO (Izzy) - Check calculation for partial cells is as below? Or is rock inclusion covered by sfc_flux() calculation?
-    # Surface temperature equation (residual)
     if cell['RVf'] = 0:
         residual[0] = k[0] * ((x[0] - x[1]) / dz) - (Q - epsilon_ice * sigma * x[0] ** 4)
     else cell['RVf'] < 1:
