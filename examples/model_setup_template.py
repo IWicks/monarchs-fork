@@ -218,8 +218,8 @@ Rock parameters and input
         MONARCHS how often the meteorological input data should be run for.
         If str - the value should be 'hourly', 'three-hourly' or 'daily'. For other resolutions, please 
         specify an integer, corresponding to how many hours each point in your data corresponds to. 
-        In this integer form, 'hourly' corresponds to met_timestep = 1, 'three_hourly' to met_timestep = 3, and 
-        'daily' to met_timestep = 24.
+        In this integer form, 'hourly' corresponds to t_rock_timestep = 1, 'three_hourly' to t_rock_timestep = 3,
+        and 'daily' to t_rock_timestep = 24.
 """
 
 # RVf_input_filepath = "data/RVf_matrix.csv"
