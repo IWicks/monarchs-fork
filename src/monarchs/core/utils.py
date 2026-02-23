@@ -219,7 +219,7 @@ def calc_mass_sum(cell):
         + cell["lake_depth"] * cell["rho_water"]
         + cell["lid_depth"] * cell["rho_ice"]
         + cell["v_lid_depth"] * cell["rho_ice"])
-    * (1 - cell["RVf"])
+        * (1 - cell["RVf"])
     )
     return total_mass
 
