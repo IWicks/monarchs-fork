@@ -161,6 +161,7 @@ def calc_refreezing(cell, v_lev):
         / (cell["rho_water"] / cell["rho_ice"]))
         * (1 - cell["RVf"])
         )
+# TODO (Izzy) - check the RVf consideration is needed here?
     
     if Vol_Rfrz_Max < cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"]):
         excess_water = (
@@ -183,7 +184,7 @@ def calc_refreezing(cell, v_lev):
             Vol_Change = Vol_Rfrz_Max
         cell["firn_temperature"][v_lev] = 273.15
         if cell["Lfrac"][v_lev] - Vol_Change < 0:
-            Vol_Change = cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"]) * (1 - cell["RVf"])
+            Vol_Change = cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"]) * (1 - cell["RVf"]) # TODO (Izzy) - does RVf need to be included here?
             cell["Lfrac"][v_lev] = 0
         else:
             cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] - Vol_Change / (
