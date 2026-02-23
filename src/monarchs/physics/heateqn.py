@@ -84,7 +84,8 @@ def heateqn(
         residual[0] = k[0] * ((x[0] - x[1]) / dz) - (Q - epsilon_ice * sigma * x[0] ** 4)
     else cell['RVf'] < 1:
         residual[0] = k[0] * ((x[0] - x[1]) / dz) - (Q - (epsilon_ice * sigma * x[0] ** 4 * (1-cell['RVf'])) - (epsilon_rock * sigma * x[0] ** 4 * cell['RVf']))
-
+# TODO (Izzy) - check RVf consideration is needed for residual calculation?
+    
     # Calculate the temperature profile for the first 10 layers
     idx = np.arange(1, len(x) - 1)
 
@@ -245,6 +246,7 @@ def heateqn_lid(
         output[0] = k_lid * ((x[0] - x[1]) / dz) - (Q - epsilon_ice * sigma * x[0] ** 4)
     else cell['RVf'] < 1:
         output[0] = k_lid * ((x[0] - x[1])) / dz - (Q - (epsilon_ice * sigma * x[0] ** 4 * (1-cell['RVf'])) - (epsilon_rock * sigma * x[0] ** 4 * cell['RVf']))
+# TODO (Izzy) - check RVf consideration is needed for Q calculation of lid?
     
     idx = np.arange(1, cell["vert_grid_lid"] - 1)
     output[idx] = (
