@@ -338,7 +338,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
         )
         / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
     )
-# TODO (Izzy) - check that RVf consideration is needed here for height change?
+# TODO (Izzy) - check that epsilon_rock term and RVf consideration are needed here for height change? If not, can remove if..else statements
 
     if 0 > dHdt > -0.01:
         dHdt = 0
