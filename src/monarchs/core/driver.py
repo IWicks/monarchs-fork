@@ -551,7 +551,10 @@ def initialise(model_setup):
     else:
         print("No RVf grid provided.")
         
-# TODO (Izzy) - add similar logic print statements for T_rock when ready to be loaded, based on provision of RVf grid
+    if hasattr(model_setup, "t_rock_input_filepath"):
+        print("monarchs.core.driver.initialise: Reading in T_rock from .nc file.")
+    else:
+        print("No T_rock .nc file provided.")
     
     grid = initial_conditions.create_model_grid(
         model_setup, # Added to match arg no. from initialise_iceshelf()
