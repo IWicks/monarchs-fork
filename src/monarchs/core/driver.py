@@ -550,7 +550,9 @@ def initialise(model_setup):
         print("monarchs.core.driver.initialise: Reading in RVf from CSV.")
     else:
         print("No RVf grid provided.")
-
+        
+# TODO (Izzy) - add similar logic print statements for T_rock when ready to be loaded, based on provision of RVf grid
+    
     grid = initial_conditions.create_model_grid(
         model_setup, # Added to match arg no. from initialise_iceshelf()
         model_setup.row_amount,
