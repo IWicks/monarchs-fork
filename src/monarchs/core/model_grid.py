@@ -3,7 +3,6 @@ Define the model grid datatype. This is a Numpy structured array.
 """
 
 import numpy as np
-import os.path
 from monarchs.rock_view.import_RVf import load_RVf
 
 def initialise_iceshelf(
