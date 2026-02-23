@@ -26,6 +26,7 @@ def calc_liquid_mass(cell):
             (cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])) * (1 - cell['RVf'])
     )
 
+# TODO (Izzy) - check if the above calculations are correct or need to be moved to lateral_functions?
 
 def percolation(cell, timestep, lateral_refreeze_flag=False, perc_time_toggle=True):
     """
