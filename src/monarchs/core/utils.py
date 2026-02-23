@@ -209,31 +209,18 @@ def calc_mass_sum(cell):
     total_mass : float
         Amount of mass in the system, in arbitrary units.
     """
-    if cell["RVf"] = 0:
-        total_mass = (
-            np.sum(
-                cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
-            )
-            + np.sum(
-                cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
-            )
-            + cell["lake_depth"] * cell["rho_water"]
-            + cell["lid_depth"] * cell["rho_ice"]
-            + cell["v_lid_depth"] * cell["rho_ice"]
+    total_mass = (
+        (np.sum(
+            cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
         )
-    else cell["RVf"] < 1:
-        total_mass = (
-            (np.sum(
-                cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
-            )
-            + np.sum(
-                cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
-            )
-            + cell["lake_depth"] * cell["rho_water"]
-            + cell["lid_depth"] * cell["rho_ice"]
-            + cell["v_lid_depth"] * cell["rho_ice"])
-        * (1 - cell["RVf"])
+        + np.sum(
+            cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
         )
+        + cell["lake_depth"] * cell["rho_water"]
+        + cell["lid_depth"] * cell["rho_ice"]
+        + cell["v_lid_depth"] * cell["rho_ice"])
+    * (1 - cell["RVf"])
+    )
     return total_mass
 
 
