@@ -287,7 +287,6 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
 
     """
     epsilon_ice = 0.98
-    epsilon_rock = 0.95 # (from Rubio et al. (1997), reflective of geology of Amery Ice Shelf)
     sigma = 5.670374e-8
     dz = cell["firn_depth"] / cell["vert_grid"]
     L_fus = 334000
@@ -317,28 +316,15 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
         wind,
         surf_T,
     )
-    if cell['RVf'] = 0:
-        dHdt = (
-            timestep
-            * (
-                Q
-                - epsilon_ice * sigma * cell["firn_temperature"][0] ** 4
-                - k_sfc * ((cell["firn_temperature"][0] - cell["firn_temperature"][1]) / dz)
-            )
-            / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
-        )
-    else cell['RVf'] < 1:
-        dHdt = (
+    dHdt = (
         timestep
         * (
             Q
-            - (epsilon_ice * sigma * cell["firn_temperature"][0] ** 4 * (1-cell['RVf']))
-            - (epsilon_rock * sigma * cell["firn_temperature"][0] ** 4 * cell['RVf']))
+            - epsilon_ice * sigma * cell["firn_temperature"][0] ** 4
             - k_sfc * ((cell["firn_temperature"][0] - cell["firn_temperature"][1]) / dz)
         )
         / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
     )
-# TODO (Izzy) - check that epsilon_rock term and RVf consideration are needed here for height change? If not, can remove if..else statements
 
     if 0 > dHdt > -0.01:
         dHdt = 0
