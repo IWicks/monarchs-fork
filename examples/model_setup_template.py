@@ -206,7 +206,7 @@ Rock parameters and input
         
     t_rock_input_filepath : str
          Path to a file of rock surface temperature data to be used as a driver to MONARCHS.
-         Currently only NetCDF format is supported. 
+         Currently only CSV format is supported. 
          If this is a relative filepath, then you should ensure that is relative to the folder in which
          you are running MONARCHS from, not the source code directory.
          
@@ -226,8 +226,8 @@ Rock parameters and input
 RVf_input_filepath = "data/RVf_matrix.csv"
 # Set RVf_input_filepath to NaN if not using a rock view fraction grid.
 
-# t_rock_input_filepath = "data/t_rock.nc"
-t_rock_input_filepath = 'data/t_rock.nc'
+# t_rock_input_filepath = "data/t_rock.csv"
+t_rock_input_filepath = 'data/t_rock.csv'
 t_rock_timestep = 'hourly'
 
 """
