@@ -274,7 +274,7 @@ def water_fraction(cell, m, timestep, direction, flow_speed_scaling=1.0):
     """
     # first calculate the distance the water has to move
     if direction in ["NW", "NE", "SW", "SE"]:
-        cell_size = np.sqrt((cell["size_dx"] ** 2 + cell["size_dy"] ** 2) * (1 - cell["RVf"]))
+        cell_size = np.sqrt(cell["size_dx"] ** 2 + cell["size_dy"] ** 2) * (1 - cell["RVf"])
     elif direction in ["N", "S"]:
         cell_size = cell["size_dy"] * (1 - cell["RVf"])
     elif direction in ["E", "W"]:
