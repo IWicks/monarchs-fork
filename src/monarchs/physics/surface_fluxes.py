@@ -71,7 +71,7 @@ def sfc_flux(
     if cell['RVf'] = 0:
         Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens
     else cell['RVf'] < 1:
-        Q = ((1 - cell['RVf']) * epsilon_ice * LW_in) + ((1 - alpha) * (1 - cell['RVf']) * SW_in) + F_lat + F_sens + (epsilon_rock * T_rock**4 * sigma * cell['RVf'] * LW_in)
+        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + F_lat + F_sens + (epsilon_rock * T_rock**4 * sigma * cell['RVf'] * LW_in)
     return Q
 
 
