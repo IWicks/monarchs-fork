@@ -8,16 +8,14 @@ import numpy as np
 def calc_solid_mass(cell):
     """Calculate the mass of the solid part of the column."""
     return np.sum(
-            (cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])) * (1 - cell['RVf'])
+            cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
     )
 
 def calc_liquid_mass(cell):
     """Calculate the mass of the liquid part of the column."""
     return np.sum(
-            (cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])) * (1 - cell['RVf'])
+            cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
     )
-
-# TODO (Izzy) - check if the above calculations are correct or need to be moved to lateral_functions?
 
 def percolation(cell, timestep, lateral_refreeze_flag=False, perc_time_toggle=True):
     """
@@ -139,12 +137,10 @@ def calc_refreezing(cell, v_lev):
         / (cell["rho_ice"] * cp * cell["Sfrac"][v_lev])
     )
     Vol_Rfrz_Max = (
-    ((1 - cell["Sfrac"][v_lev])
+    (1 - cell["Sfrac"][v_lev])
     * (cell["firn_depth"] / cell["vert_grid"])
-    / (cell["rho_water"] / cell["rho_ice"]))
-    * (1 - cell["RVf"])
+    / (cell["rho_water"] / cell["rho_ice"])
     )
-# TODO (Izzy) - check the RVf consideration is needed here?
     
     if Vol_Rfrz_Max < cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"]):
         excess_water = (
@@ -158,7 +154,6 @@ def calc_refreezing(cell, v_lev):
             cell["rho_ice"]
             * cp
             * cell["Sfrac"][v_lev]
-            * (1 - cell["RVf"])
             * T_change_max
             * (cell["firn_depth"] / cell["vert_grid"])
             / (cell["L_ice"] * cell["rho_water"])
@@ -167,7 +162,7 @@ def calc_refreezing(cell, v_lev):
             Vol_Change = Vol_Rfrz_Max
         cell["firn_temperature"][v_lev] = 273.15
         if cell["Lfrac"][v_lev] - Vol_Change < 0:
-            Vol_Change = cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"]) * (1 - cell["RVf"]) # TODO (Izzy) - does RVf need to be included here?
+            Vol_Change = cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"])
             cell["Lfrac"][v_lev] = 0
         else:
             cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] - Vol_Change / (
