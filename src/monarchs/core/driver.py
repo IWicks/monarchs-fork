@@ -25,7 +25,6 @@ from monarchs.core.model_output import setup_output, update_model_output
 from monarchs.core.utils import get_2d_grid, calc_grid_mass, check_grid_correctness
 from monarchs.met_data.met_data_grid import initialise_met_data, get_spec
 from monarchs.physics import lateral_functions
-from monarchs.rock_view import T_rock_functions
 
 
 
@@ -552,14 +551,12 @@ def initialise(model_setup):
     else:
         print("No RVf grid provided.")
         
-    if hasattr(model_setup, "t_rock_input_filepath"):
-        T_rock_functions.setup_T_rock(model_setup)
-        print("monarchs.core.driver.initialise: Reading in T_rock data from .nc file.")
+    if hasattr(model_setup, "T_rock_input_filepath"):
+        print("monarchs.core.driver.initialise: T_rock data idenfitied.")
     else:
-        print("No T_rock .nc file provided.")
+        print("No T_rock .csv file provided.")
     
     grid = initial_conditions.create_model_grid(
-        model_setup, # Added to match arg no. from initialise_iceshelf()
         model_setup.row_amount,
         model_setup.col_amount,
         firn_depth,
