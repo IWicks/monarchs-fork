@@ -25,6 +25,7 @@ from monarchs.core.model_output import setup_output, update_model_output
 from monarchs.core.utils import get_2d_grid, calc_grid_mass, check_grid_correctness
 from monarchs.met_data.met_data_grid import initialise_met_data, get_spec
 from monarchs.physics import lateral_functions
+from monarchs.rock_view.import_T_rock import load_T_rock
 
 
 
