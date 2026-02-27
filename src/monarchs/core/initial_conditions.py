@@ -8,7 +8,6 @@ import numpy as np
 from monarchs.DEM.load_DEM import export_DEM
 from monarchs.core.model_grid import initialise_iceshelf, get_spec
 from monarchs.rock_view.import_RVf import load_RVf
-from monarchs.rock_view.import_T_rock import load_T_rock
 
 def initialise_firn_profile(model_setup, diagnostic_plots=False):
     """
