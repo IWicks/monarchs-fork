@@ -207,19 +207,9 @@ Rock parameters and input
     t_rock_input_filepath : str
          Path to a file of rock surface temperature data to be used as a driver to MONARCHS.
          Currently only CSV format is supported. 
+         Timestep interval must be the same as meteorological data.
          If this is a relative filepath, then you should ensure that is relative to the folder in which
          you are running MONARCHS from, not the source code directory.
-         
-    t_rock_timestep : str, or int
-        Default 'hourly'.
-        Temporal resolution of your input rock temperature data. 
-        Ideally, MONARCHS would read in hourly gridded data. However, it is possible that the user may want
-        to run long climate simulation runs, which may necessitate lower temporal resolution. This flag tells
-        MONARCHS how often the meteorological input data should be run for.
-        If str - the value should be 'hourly', 'three-hourly' or 'daily'. For other resolutions, please 
-        specify an integer, corresponding to how many hours each point in your data corresponds to. 
-        In this integer form, 'hourly' corresponds to t_rock_timestep = 1, 'three_hourly' to t_rock_timestep = 3,
-        and 'daily' to t_rock_timestep = 24.
 """
 
 # RVf_input_filepath = "data/RVf_matrix.csv"
@@ -228,7 +218,6 @@ RVf_input_filepath = "data/RVf_matrix.csv"
 
 # t_rock_input_filepath = "data/t_rock.csv"
 t_rock_input_filepath = 'data/t_rock.csv'
-t_rock_timestep = 'hourly'
 
 """
 Model output
