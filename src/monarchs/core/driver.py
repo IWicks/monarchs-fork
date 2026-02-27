@@ -574,7 +574,7 @@ def initialise(model_setup):
         size_dx=dx,
         size_dy=dy,
     )
-    return grid
+    return grid, T_rock
 
 
 def monarchs():
