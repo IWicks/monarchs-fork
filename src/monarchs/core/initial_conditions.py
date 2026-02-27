@@ -7,7 +7,8 @@ interpolating it, and loading in/interpolating the digital elevation model (DEM)
 import numpy as np
 from monarchs.DEM.load_DEM import export_DEM
 from monarchs.core.model_grid import initialise_iceshelf, get_spec
-from monarchs.rock_view.import_RVf import load_RVf 
+from monarchs.rock_view.import_RVf import load_RVf
+from monarchs.rock_view.import_T_rock import load_T_rock
 
 def initialise_firn_profile(model_setup, diagnostic_plots=False):
     """
@@ -68,12 +69,12 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
             firn_depth_under_35_flag = True
 
     if hasattr(model_setup, "RVf_input_filepath"):
-        valid_cells[np.where(load_RVf(model_setup, model_setup.RVf_input_filepath)) == 1] = False 
+        valid_cells[np.where(load_RVf(model_setup)) == 1] = False 
         print("monarchs.core.initial_conditions.initialise_firn_profile: Filtering out cells according to the following mask (False = filtered out), since they are entirely exposed rock.")
         print("Valid cells = ", valid_cells)
 
     if hasattr(model_setup, "T_rock_input_filepath"):
-         T_rock_data = np.loadtxt(model_setup.T_rock_input_filepath, delimiter=',', skiprows=1, usecols=1) # Skip header row, only use temperature data column and not time column
+         T_rock_data = load_T_rock(model_setup)
 
     valid_cells_old = valid_cells
     valid_cells = check_for_isolated_cells(valid_cells)
