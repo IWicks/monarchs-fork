@@ -552,7 +552,8 @@ def initialise(model_setup):
         print("No RVf grid provided.")
         
     if hasattr(model_setup, "T_rock_input_filepath"):
-        print("monarchs.core.driver.initialise: T_rock data idenfitied.")
+        T_rock = load_T_rock(model_setup)
+        print("monarchs.core.driver.initialise: Reading in T_rock data from CSV.")
     else:
         print("No T_rock .csv file provided.")
     
