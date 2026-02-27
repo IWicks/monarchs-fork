@@ -192,5 +192,8 @@ def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict):
 
     cell["day"] += 1
 
+    # cell["day_in_year"] = cell["day"] % 365 
+    # TODO (Izzy) - check this functions as expected and can be called within other functions
+
     if parallel and not use_numba:
         return cell
