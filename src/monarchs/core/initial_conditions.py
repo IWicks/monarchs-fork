@@ -72,6 +72,9 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
         print("monarchs.core.initial_conditions.initialise_firn_profile: Filtering out cells according to the following mask (False = filtered out), since they are entirely exposed rock.")
         print("Valid cells = ", valid_cells)
 
+    if hasattr(model_setup, "T_rock_input_filepath"):
+         T_rock_data = np.loadtxt(model_setup.T_rock_input_filepath, delimiter=',', skiprows=1, usecols=1) # Skip header row, only use temperature data column and not time column
+
     valid_cells_old = valid_cells
     valid_cells = check_for_isolated_cells(valid_cells)
 
