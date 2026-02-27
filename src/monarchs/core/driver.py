@@ -598,6 +598,6 @@ def monarchs():
     configuration.create_output_folders(model_setup)
     configuration.handle_incompatible_flags(model_setup)
     configuration.create_defaults_for_missing_flags(model_setup)
-    grid = initialise(model_setup)
-    grid = main(model_setup, grid)
+    grid, T_rock = initialise(model_setup)
+    grid = main(model_setup, grid) # TODO (Izzy) - do I need to add T_rock here and below?
     return grid
