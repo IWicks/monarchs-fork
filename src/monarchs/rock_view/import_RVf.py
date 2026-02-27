@@ -8,7 +8,7 @@ import numpy as np
 import os
 import os.path 
 
-def load_RVf(model_setup, RVf_filepath):
+def load_RVf(model_setup, RVf_input_filepath):
     """
     Load in the rock view fraction (RVf) CSV and convert to a NumPy array, perform logic checks.
     
@@ -16,7 +16,7 @@ def load_RVf(model_setup, RVf_filepath):
     ----------
     model_setup : .py file
         MONARCHS model_setup.py file used to define the model grid.
-    RVf_filepath : str
+    RVf_input_filepath : str
         Filepath for the rock view fraction CSV.
         The file specified must be a .csv, with all values being between 0 and 1.
         The grid must be the same size as the model grid specified in model_setup.py. Currently only square grids are supported.
@@ -36,10 +36,10 @@ def load_RVf(model_setup, RVf_filepath):
     """
     
     # Checking for the existence of the file and that it can be read.
-    if os.access(RVf_filepath, os.R_OK):
-        RVf = np.loadtxt(RVf_filepath, dtype=np.float64, delimiter=',')
+    if os.access(RVf_input_filepath, os.R_OK):
+        RVf = np.loadtxt(RVf_input_filepath, dtype=np.float64, delimiter=',')
     else:
-        raise IOError(f"The file {RVf_filepath} is not readable.")
+        raise IOError(f"The file {RVf_input_filepath} is not readable.")
     
     # Checking that the RVf grid is the same shape as the model grid.
     if RVf.shape != (model_setup.col_amount, model_setup.row_amount):
