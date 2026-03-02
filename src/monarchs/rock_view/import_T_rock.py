@@ -6,7 +6,7 @@ Function to load T_rock CSV dataset into timeseries that MONARCHS can use.
 
 import os
 import numpy as np
-from datetime import datetime
+import datetime
 
 def load_T_rock(model_setup):
      
