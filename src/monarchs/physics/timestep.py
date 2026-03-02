@@ -87,6 +87,9 @@ def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict):
         T_air = met_data['temperature'][t_step]
         p_air = met_data['surf_pressure'][t_step]
 
+        # T_rock = T_rock_data[t_step - 1] # Accounts for no header on T_rock data
+        # TODO (Izzy) - check this works as expected?
+
         cell["daily_melt"] = 0.0 # TODO (Izzy) - check this is in the right place?
 
         """
