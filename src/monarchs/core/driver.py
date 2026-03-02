@@ -553,7 +553,7 @@ def initialise(model_setup):
         print("No RVf grid provided.")
         
     if hasattr(model_setup, "T_rock_input_filepath"):
-        T_rock = load_T_rock(model_setup)
+        T_rock_data = load_T_rock(model_setup)
         print("monarchs.core.driver.initialise: Reading in T_rock data from CSV.")
     else:
         print("No T_rock .csv file provided.")
@@ -574,7 +574,7 @@ def initialise(model_setup):
         size_dx=dx,
         size_dy=dy,
     )
-    return grid, T_rock
+    return grid, T_rock_data
 
 
 def monarchs():
@@ -598,6 +598,6 @@ def monarchs():
     configuration.create_output_folders(model_setup)
     configuration.handle_incompatible_flags(model_setup)
     configuration.create_defaults_for_missing_flags(model_setup)
-    grid, T_rock = initialise(model_setup)
-    grid = main(model_setup, grid) # TODO (Izzy) - do I need to add T_rock here and below?
+    grid, T_rock_data = initialise(model_setup)
+    grid = main(model_setup, grid) # TODO (Izzy) - do I need to add T_rock_data here and below?
     return grid
