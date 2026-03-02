@@ -19,8 +19,8 @@ def load_T_rock(model_setup):
 
      Returns
      -------
-     T_rock : float
-         Timeseries of T_rock data.
+     T_rock : df
+         Pandas DataFrame of T_rock data.
          
      Raises
      ------
