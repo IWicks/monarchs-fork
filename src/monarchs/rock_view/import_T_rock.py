@@ -29,7 +29,7 @@ def load_T_rock(model_setup):
          If the supplied file is not readable.
      """
      
-     str2date = lambda x: datetime.strptime(x, '%d/%m/%YT%H:%M:%S') # Change formatting to match datetime format in your CSV file if required.
+     str2date = lambda x: datetime.strptime(x, '%Y/%m/%d %H:%M:%S') # Change formatting to match datetime format in your CSV file if required.
      
      # Checking for the existence of the file and that it can be read.
      if os.access(model_setup.T_rock_input_filepath, os.R_OK):
