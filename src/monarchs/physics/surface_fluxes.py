@@ -20,8 +20,6 @@ def sfc_flux(
     Calculate the surface heat flux from the input shortwave and longwave fluxes
     and latent/sensible heat fluxes.
 
-    TODO (Izzy) - Import T_rock timeseries and call to function
-
     Parameters
     ----------
     melt : bool
