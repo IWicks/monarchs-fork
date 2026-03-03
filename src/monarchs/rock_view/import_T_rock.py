@@ -5,7 +5,7 @@ Function to load T_rock CSV dataset into timeseries that MONARCHS can use.
 """
 
 import os
-import pandas as pd
+import numpy as np
 
 def load_T_rock(model_setup):
      
@@ -19,8 +19,8 @@ def load_T_rock(model_setup):
 
      Returns
      -------
-     T_rock : df
-         Pandas DataFrame of T_rock data.
+     T_rock : NumPy array
+         Array of T_rock values.
          
      Raises
      ------
@@ -30,7 +30,8 @@ def load_T_rock(model_setup):
      
      # Checking for the existence of the file and that it can be read.
      if os.access(model_setup.T_rock_input_filepath, os.R_OK):
-         T_rock_data = pd.read_csv(model_setup.T_rock_input_filepath, delimiter=',', header='infer', parse_dates=['valid_time']) # Change column header if required.
+         T_rock_data = np.genfromtxt(model_setup.T_rock_input_filepath, delimiter=',', skip_header=1, usecols=1)
+         # Skip header and time column, change if required.
      else:
          raise IOError(f"The file {model_setup.T_rock_input_filepath} is not readable.")
     
