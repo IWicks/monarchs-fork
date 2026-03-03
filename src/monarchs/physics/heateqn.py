@@ -1,5 +1,7 @@
 """
+Module containing functions relating to the heat equation.
 
+TODO - Add function descriptions to get_k_and_kappa(), heateqn(), propagate_temperature(), and solve_tridiagonal()
 """
 
 import numpy as np
@@ -10,7 +12,7 @@ import numpy.testing as npt
 
 
 def get_k_and_kappa(T, sfrac, lfrac, cp_air, cp_water, k_air, k_water):
-    # precompute some values
+    # Precompute some values
     rho = sfrac * 917 + lfrac * 1000
     k_ice = np.zeros(np.shape(T), dtype=np.float64)
     k_ice[T < 273.15] = 1000 * (
@@ -46,10 +48,10 @@ def heateqn(
     wind,
     dz,
     dt,
-    epsilon=0.98,
-    sigma=5.670374e-8,
+    epsilon_ice = 0.98,
+    sigma = 5.670374e-8,
 ):
-
+    
     # Calculate Q for the given T_sfc
     Q = sfc_flux(
         cell["melt"],
@@ -57,6 +59,7 @@ def heateqn(
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
+        cell["RVf"],
         LW_in,
         SW_in,
         T_air,
@@ -76,8 +79,8 @@ def heateqn(
     k, kappa = get_k_and_kappa(T_old, Sfrac, Lfrac, cp_air, cp_water, k_air, k_water)
     residual = np.zeros_like(x)
     # Surface temperature equation (residual)
-    residual[0] = k[0] * ((x[0] - x[1]) / dz) - (Q - epsilon * sigma * x[0] ** 4)
-
+    residual[0] = k[0] * ((x[0] - x[1]) / dz) - (Q - (epsilon_ice * sigma * x[0] ** 4)
+    
     # Calculate the temperature profile for the first 10 layers
     idx = np.arange(1, len(x) - 1)
 
@@ -94,8 +97,6 @@ def heateqn(
     # print(f"Residual for T_sfc = {x}: {residual}")
 
     return residual
-
-
 
 
 def propagate_temperature(cell, dz, dt, T_bc_top, N=10):
@@ -211,20 +212,21 @@ def heateqn_lid(
 
     Returns
     -------
-    output : array_like, float, dimension(cell.vert_grid)
-        roots of the function, used by scipy.optimize.fsolve to determine the new firn temperature
+    Output : array_like, float, dimension(cell.vert_grid)
+        Roots of the function, used by scipy.optimize.fsolve to determine the new firn temperature
     """
     cp_ice = 1000 * (0.00716 * cell["lid_temperature"] + 0.138)
     cp = Sfrac_lid * cp_ice + (1 - Sfrac_lid) * cell["cp_air"]
     kappa = k_lid / (cp * cell["rho_ice"])
-    epsilon = 0.98
-    sigma = 5.670374 * 10**-8
+    epsilon_ice = 0.98,
+    sigma = 5.670374e-8,
     Q = sfc_flux(
         cell["melt"],
         cell["exposed_water"],
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
+        cell["RVf"],
         LW_in,
         SW_in,
         T_air,
@@ -234,7 +236,8 @@ def heateqn_lid(
         x[0],
     )
     output = np.zeros(cell["vert_grid_lid"])
-    output[0] = k_lid * (x[0] - x[1]) / dz - (Q - epsilon * sigma * x[0] ** 4)
+    output[0] = k_lid * ((x[0] - x[1]) / dz) - (Q - epsilon_ice * sigma * x[0] ** 4)
+
     idx = np.arange(1, cell["vert_grid_lid"] - 1)
     output[idx] = (
         cell["lid_temperature"][idx]

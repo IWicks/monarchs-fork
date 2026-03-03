@@ -8,16 +8,14 @@ import numpy as np
 def calc_solid_mass(cell):
     """Calculate the mass of the solid part of the column."""
     return np.sum(
-        cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
+            cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
     )
-
 
 def calc_liquid_mass(cell):
     """Calculate the mass of the liquid part of the column."""
     return np.sum(
-        cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
+            cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
     )
-
 
 def percolation(cell, timestep, lateral_refreeze_flag=False, perc_time_toggle=True):
     """
@@ -139,16 +137,18 @@ def calc_refreezing(cell, v_lev):
         / (cell["rho_ice"] * cp * cell["Sfrac"][v_lev])
     )
     Vol_Rfrz_Max = (
-        (1 - cell["Sfrac"][v_lev])
-        * (cell["firn_depth"] / cell["vert_grid"])
-        / (cell["rho_water"] / cell["rho_ice"])
+    (1 - cell["Sfrac"][v_lev])
+    * (cell["firn_depth"] / cell["vert_grid"])
+    / (cell["rho_water"] / cell["rho_ice"])
     )
+    
     if Vol_Rfrz_Max < cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"]):
         excess_water = (
             cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"])
             - Vol_Rfrz_Max
         )
         cell["Lfrac"][v_lev] = Vol_Rfrz_Max / (cell["firn_depth"] / cell["vert_grid"])
+        
     if T_change_all >= T_change_max:
         Vol_Change = (
             cell["rho_ice"]
@@ -179,6 +179,7 @@ def calc_refreezing(cell, v_lev):
         )
         cell["firn_temperature"][v_lev] = cell["firn_temperature"][v_lev] + T_change_all
         cell["Lfrac"][v_lev] = 0
+        
     if cell["Lfrac"][v_lev] < 0:
         raise ValueError("Lfrac < 0 in saturation Sfrac > 1 calculation")
     cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] + excess_water / (

@@ -8,7 +8,6 @@ from monarchs.physics import surface_fluxes
 from monarchs.physics import solver
 from monarchs.core import utils
 
-
 def firn_column(
     cell,
     dt,
@@ -287,8 +286,8 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
     -------
 
     """
-    epsilon = 0.98
-    sigma = 5.670373 * 10**-8
+    epsilon_ice = 0.98
+    sigma = 5.670374e-8
     dz = cell["firn_depth"] / cell["vert_grid"]
     L_fus = 334000
     if cell["firn_temperature"][0] > 273.14999999 and cell["firn_temperature"][0] < 273.151:
@@ -308,6 +307,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
+        cell['RVf'],
         LW_in,
         SW_in,
         T_air,
@@ -320,11 +320,12 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
         timestep
         * (
             Q
-            - epsilon * sigma * cell["firn_temperature"][0] ** 4
+            - epsilon_ice * sigma * cell["firn_temperature"][0] ** 4
             - k_sfc * ((cell["firn_temperature"][0] - cell["firn_temperature"][1]) / dz)
         )
         / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
     )
+
     if 0 > dHdt > -0.01:
         dHdt = 0
     elif dHdt < -0.01:

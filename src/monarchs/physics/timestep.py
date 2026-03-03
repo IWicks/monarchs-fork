@@ -9,7 +9,7 @@ from monarchs.physics import snow_accumulation
 from monarchs.physics import firn_functions, lake_functions, solver, lid_functions
 from monarchs.core import utils
 
-def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict):
+def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict):
     """
     Main timestepping loop applied to an instance of the model grid.
     Called by loop_over_grid to work in parallel over multiple instances.
@@ -38,6 +38,9 @@ def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict):
             Dew-point temperature [K]
         wind : int32 or float64
             Surface wind speed. [m s^-1]
+
+    T_rock_data : numpy array
+        Element of the T_rock array.
 
     toggle_dict : dict
         A dictionary containing toggles that determine whether certain features are enabled.
@@ -86,8 +89,10 @@ def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict):
         T_dp = met_data['dew_point_temperature'][t_step]
         T_air = met_data['temperature'][t_step]
         p_air = met_data['surf_pressure'][t_step]
+        T_rock = T_rock_data[t_step]
+        # TODO (Izzy) - check this works as expected?
 
-        cell["daily_melt"]=0.0
+        cell["daily_melt"] = 0.0 # TODO (Izzy) - check this is in the right place?
 
         """
         # Two main paths - either no exposed water, in which case the dry firn evolves, or we have exposed water,

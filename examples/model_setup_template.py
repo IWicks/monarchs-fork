@@ -192,21 +192,32 @@ met_timestep = "hourly"
 met_output_filepath = "met_data.nc"
 
 """
-Rock view fraction grid
+Rock parameters and input
+# TODO (Izzy) - add to model_setup_reference.rst
+ 
     RVf_input_filepath : str
         Path to a file of rock view fraction data to inform MONARCHS.
-        Only CSV format is supported. 
+        Currently only CSV format is supported. 
         All values must be between 0 and 1.
         The grid must be the same size as the model grid specified in row_amount, col_amount. Currently only square grids are supported.
         If this is a relative filepath, then you should ensure that is relative to the folder in which
         you are running MONARCHS from, not the source code directory.
         Must be set to NaN if not used.
-        # TODO (Izzy) - add to model_setup_reference.rst
+        
+    t_rock_input_filepath : str
+         Path to a file of rock surface temperature data to be used as a driver to MONARCHS.
+         Currently only CSV format is supported. 
+         Timestep interval must be the same as meteorological data.
+         If this is a relative filepath, then you should ensure that is relative to the folder in which
+         you are running MONARCHS from, not the source code directory.
 """
 
 # RVf_input_filepath = "data/RVf_matrix.csv"
 RVf_input_filepath = "data/RVf_matrix.csv"
 # Set RVf_input_filepath to NaN if not using a rock view fraction grid.
+
+# t_rock_input_filepath = "data/t_rock.csv"
+t_rock_input_filepath = 'data/t_rock.csv'
 
 """
 Model output

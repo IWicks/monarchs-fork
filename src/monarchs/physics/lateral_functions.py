@@ -274,11 +274,11 @@ def water_fraction(cell, m, timestep, direction, flow_speed_scaling=1.0):
     """
     # first calculate the distance the water has to move
     if direction in ["NW", "NE", "SW", "SE"]:
-        cell_size = np.sqrt(cell["size_dx"] ** 2 + cell["size_dy"] ** 2)
+        cell_size = np.sqrt(cell["size_dx"] ** 2 + cell["size_dy"] ** 2) * (1 - cell["RVf"])
     elif direction in ["N", "S"]:
-        cell_size = cell["size_dy"]
+        cell_size = cell["size_dy"] * (1 - cell["RVf"])
     elif direction in ["E", "W"]:
-        cell_size = cell["size_dx"]
+        cell_size = cell["size_dx"] * (1 - cell["RVf"])
     else:
         raise ValueError("Direction not recognised")
     # TODO - should cell_size be divided by 2? Since water is moving from the centre of the cell. But if

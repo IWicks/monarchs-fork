@@ -3,7 +3,6 @@ Define the model grid datatype. This is a Numpy structured array.
 """
 
 import numpy as np
-import os.path
 from monarchs.rock_view.import_RVf import load_RVf
 
 def initialise_iceshelf(
@@ -78,7 +77,8 @@ def initialise_iceshelf(
     iceshelf["rho_lid"] = 917.0 * np.ones((num_rows, num_cols, vert_grid_lid))
     iceshelf["firn_temperature"] = firn_temperature
     if hasattr(model_setup, "RVf_input_filepath"):
-        iceshelf["RVf"] = load_RVf(model_setup, model_setup.RVf_input_filepath) # Calling load_RVf function
+        iceshelf["RVf"] = load_RVf(model_setup) # Calling load_RVf function
+        print("Loading RVf grid from CSV.")
     else:
         iceshelf["RVf"] = np.zeros((num_rows, num_cols, vert_grid))
     if np.isnan(Sfrac).all():

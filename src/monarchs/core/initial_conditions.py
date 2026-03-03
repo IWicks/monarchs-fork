@@ -7,7 +7,7 @@ interpolating it, and loading in/interpolating the digital elevation model (DEM)
 import numpy as np
 from monarchs.DEM.load_DEM import export_DEM
 from monarchs.core.model_grid import initialise_iceshelf, get_spec
-from monarchs.rock_view.import_RVf import load_RVf 
+from monarchs.rock_view.import_RVf import load_RVf
 
 def initialise_firn_profile(model_setup, diagnostic_plots=False):
     """
@@ -68,7 +68,7 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
             firn_depth_under_35_flag = True
 
     if hasattr(model_setup, "RVf_input_filepath"):
-        valid_cells[np.where(load_RVf(model_setup, model_setup.RVf_input_filepath))] = False 
+        valid_cells[np.where(load_RVf(model_setup)) == 1] = False 
         print("monarchs.core.initial_conditions.initialise_firn_profile: Filtering out cells according to the following mask (False = filtered out), since they are entirely exposed rock.")
         print("Valid cells = ", valid_cells)
 
@@ -194,7 +194,6 @@ def rho_init_emp(z, rho_sfc, z_t):
 
 
 def create_model_grid(
-        model_setup, # Added to match no. of args in initialise_iceshelf().
         row_amount,
         col_amount,
         firn_depth,
@@ -244,7 +243,6 @@ def create_model_grid(
     )
     dtype = get_spec(vert_grid, vert_grid_lake, vert_grid_lid)
     grid = initialise_iceshelf(
-        model_setup,
         row_amount,
         col_amount,
         vert_grid,
