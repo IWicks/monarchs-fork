@@ -548,7 +548,7 @@ def initialise(model_setup):
         setup_met_data.prescribed_met_data(model_setup)
 
     if hasattr(model_setup, "RVf_input_filepath"):
-        print("monarchs.core.driver.initialise: Reading in RVf from CSV.")
+        print("monarchs.core.driver.initialise: RVf grid identified.")
     else:
         print("No RVf grid provided.")
         
