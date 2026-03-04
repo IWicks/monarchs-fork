@@ -243,7 +243,6 @@ def create_model_grid(
     )
     dtype = get_spec(vert_grid, vert_grid_lake, vert_grid_lid)
     grid = initialise_iceshelf(
-        model_setup,
         row_amount,
         col_amount,
         vert_grid,
