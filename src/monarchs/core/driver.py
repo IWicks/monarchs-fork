@@ -559,6 +559,7 @@ def initialise(model_setup):
         print("No T_rock .csv file provided.")
     
     grid = initial_conditions.create_model_grid(
+        model_setup,
         model_setup.row_amount,
         model_setup.col_amount,
         firn_depth,
