@@ -49,6 +49,7 @@ def loop_over_grid(
         grid,
         dt,
         met_data,
+        T_rock_data,
         t_steps_per_day,
         toggle_dict,
         parallel=False,
@@ -71,6 +72,8 @@ def loop_over_grid(
         Model grid containing the ice shelf parameters.
     met_data : numpy structured array
         Grid containing the met data associated with the model grid.
+    T_rock_data : numpy array
+        Numpy array containing T_rock data.
     parallel : bool, optional
         Flag to determine whether the model is to be run in parallel across
         multiple cores or not.
@@ -100,7 +103,7 @@ def loop_over_grid(
         # Use Dask for parallelism
         if dask_scheduler != 'distributed':
             tasks = [
-                delayed(process_chunk)(indices, chunk, met_data_chunk, dt, toggle_dict, t_steps_per_day)
+                delayed(process_chunk)(indices, chunk, met_data_chunk, dt, toggle_dict, t_steps_per_day, T_rock_data)
                 for indices, chunk, met_data_chunk in chunk_grid(flat_grid, met_data_grid, chunksize)
             ]
             end_submit = time.time()
@@ -146,7 +149,7 @@ def loop_over_grid(
     else:
         for i in range(row_amount * col_amount):
             timestep_loop(
-                flat_grid[i], dt, met_data_grid[i], t_steps_per_day, toggle_dict
+                flat_grid[i], dt, met_data_grid[i], T_rock_data, t_steps_per_day, toggle_dict
             )
         grid[:] = flat_grid.reshape(grid.shape)
         return grid
