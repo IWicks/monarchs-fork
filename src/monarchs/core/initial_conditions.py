@@ -194,6 +194,7 @@ def rho_init_emp(z, rho_sfc, z_t):
 
 
 def create_model_grid(
+        model_setup,
         row_amount,
         col_amount,
         firn_depth,
@@ -243,6 +244,7 @@ def create_model_grid(
     )
     dtype = get_spec(vert_grid, vert_grid_lake, vert_grid_lid)
     grid = initialise_iceshelf(
+        model_setup,
         row_amount,
         col_amount,
         vert_grid,
