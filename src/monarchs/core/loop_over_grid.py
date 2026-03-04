@@ -8,7 +8,7 @@ from monarchs.physics.timestep import timestep_loop
 import time
 from dask import delayed, compute
 
-def process_chunk(original_indices, chunk, met_data_chunk, dt, toggle_dict, t_steps_per_day):
+def process_chunk(original_indices, chunk, met_data_chunk, dt, toggle_dict, t_steps_per_day, T_rock_data):
     """
     Process a chunk of cells and return results with their original indices.
     """
