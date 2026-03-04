@@ -14,7 +14,7 @@ def process_chunk(original_indices, chunk, met_data_chunk, dt, toggle_dict, t_st
     """
     results = []
     for offset, (cell, met_data) in enumerate(zip(chunk, met_data_chunk)):
-        val = timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict)
+        val = timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         results.append((original_indices[offset], val))
     return results
 
