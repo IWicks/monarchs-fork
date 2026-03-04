@@ -6,7 +6,6 @@ import numpy as np
 from monarchs.rock_view.import_RVf import load_RVf
 
 def initialise_iceshelf(
-    model_setup,
     num_rows,
     num_cols,
     vert_grid,
