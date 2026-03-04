@@ -432,6 +432,7 @@ def main(model_setup, grid):
                 grid,
                 dt,
                 met_data_grid,
+                T_rock_data,
                 model_setup.t_steps_per_day,
                 toggle_dict,
                 parallel=model_setup.parallel,
