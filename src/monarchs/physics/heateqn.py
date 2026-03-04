@@ -79,7 +79,7 @@ def heateqn(
     k, kappa = get_k_and_kappa(T_old, Sfrac, Lfrac, cp_air, cp_water, k_air, k_water)
     residual = np.zeros_like(x)
     # Surface temperature equation (residual)
-    residual[0] = k[0] * ((x[0] - x[1]) / dz) - (Q - (epsilon_ice * sigma * x[0] ** 4)
+    residual[0] = k[0] * ((x[0] - x[1]) / dz) - (Q - (epsilon_ice * sigma * x[0] ** 4))
     
     # Calculate the temperature profile for the first 10 layers
     idx = np.arange(1, len(x) - 1)
