@@ -64,6 +64,7 @@ def heateqn(
         T_air,
         p_air,
         T_dp,
+        T_rock,
         wind,
         x[0],
         cell["RVf"],
