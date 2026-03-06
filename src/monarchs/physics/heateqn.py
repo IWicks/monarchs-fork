@@ -45,6 +45,7 @@ def heateqn(
     T_air,
     p_air,
     T_dp,
+    T_rock
     wind,
     dz,
     dt,
@@ -179,7 +180,7 @@ def solve_tridiagonal(a, b, c, d):
     
 
 def heateqn_lid(
-    x, cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind, k_lid, Sfrac_lid
+    x, cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, k_lid, Sfrac_lid
 ):
     """
     Solve the heat equation for the frozen lid, similarly to the calculation for the firn column.
@@ -204,6 +205,8 @@ def heateqn_lid(
         Surface pressure [Pa]
     T_dp : float
         Dewpoint temperature [K]
+    T_rock: float
+        Temperature of the rock surface. [K]
     wind : float
         Wind speed [m s^-1]
     k_lid : int
