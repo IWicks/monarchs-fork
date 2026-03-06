@@ -45,7 +45,7 @@ def heateqn(
     T_air,
     p_air,
     T_dp,
-    T_rock
+    T_rock,
     wind,
     dz,
     dt,
