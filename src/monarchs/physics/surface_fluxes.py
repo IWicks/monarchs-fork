@@ -14,7 +14,7 @@ def sfc_flux(
     T_rock,
     wind,
     xsurf,
-    RVf,
+    cell,
 ):
     """
     Calculate the surface heat flux from the input shortwave and longwave fluxes
@@ -52,8 +52,8 @@ def sfc_flux(
         Wind speed. [m s^-1].
     xsurf : float
         Surface temperature. Taken from our initial guess x (i.e. x[0]) [K].
-    RVf : float
-        Rock view fraction (between 0 and 1).
+    cell : numpy structured array
+        The element of the model grid we are operating on.
 
     Returns
     -------
