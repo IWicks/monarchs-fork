@@ -4,7 +4,7 @@ from monarchs.physics import solver
 from monarchs.core import utils
 
 
-def virtual_lid(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind):
+def virtual_lid(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
     """
     When a lake undergoes freezing from the top due to the surface conditions, a lid forms. However, the depth of this
     lid can oscillate significantly during the initial stages of formation, including disappearing entirely. To
@@ -35,6 +35,8 @@ def virtual_lid(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind):
         Surface-layer air pressure. [hPa].
     T_dp : float
         Dew-point temperature at the surface. [K]
+    T_rock: float
+        Surface temperature of the rock. [K]
     wind : float
         Wind speed. [m s^-1].
 
@@ -51,14 +53,15 @@ def virtual_lid(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind):
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
-        cell["RVf"],
         LW_in,
         SW_in,
         T_air,
         p_air,
         T_dp,
+        T_rock,
         wind,
         x[0],
+        cell["RVf"],
     )
     k_v_lid = 1000 * (
         2.24 * 10**-3
@@ -188,7 +191,7 @@ def calc_surface_melt(cell, dt, Q):
     assert abs(new_mass - original_mass) < 1.5 * 10**-7
 
 
-def lid_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind):
+def lid_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
     """
     Once a permanent lid forms, it can refreeze the lake below. This function calculates this refreezing, as well as the
     surface energy balance and heat transfer through the lid, and adjusts the lid depth and lake depth accordingly.
@@ -215,6 +218,8 @@ def lid_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind):
         Surface-layer air pressure. [hPa].
     T_dp : float
         Dew-point temperature at the surface. [K]
+    T_rock : float
+        Surface temperature of the rock. [K]
     wind : float
         Wind speed. [m s^-1].
     Returns
@@ -229,14 +234,15 @@ def lid_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind):
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
-        cell["RVf"],
         LW_in,
         SW_in,
         T_air,
         p_air,
         T_dp,
+        T_rock,
         wind,
         x[0],
+        cell["RVf"],
     )
     if not cell["has_had_lid"]:
         cell["has_had_lid"] = True
