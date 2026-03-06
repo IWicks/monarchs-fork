@@ -166,14 +166,15 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind, toggle_dict
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
-        cell["RVf"],
         LW_in,
         SW_in,
         T_air,
         p_air,
         T_dp,
+        T_rock,
         wind,
         x[0],
+        cell["RVf"],
     )
     # print('Q = ', Q)
     # print('k[0] = ', k[0])
@@ -248,14 +249,15 @@ def lake_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind, toggle_di
             cell["lid"],
             cell["lake"],
             cell["lake_depth"],
-            cell['RVf'],
             LW_in,
             SW_in,
             T_air,
             p_air,
             T_dp,
+            T_rock,
             wind,
             x[0],
+            cell["RVf"],
         )
         # print('Q = ', Q)
         cell["lake_temperature"][0] = sfc_energy_lake(J, Q, cell)
