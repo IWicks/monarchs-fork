@@ -55,7 +55,8 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     T_air = args[5]
     p_air = args[6]
     T_dp = args[7]
-    wind = args[8]
+    T_rock = args[8]
+    wind = args[9]
 
     if fixed_sfc:
         sol = np.array([273.15])
@@ -77,14 +78,15 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         x,
         args=(
             cell,
+            dt,
+            dz,
             LW_in,
             SW_in,
             T_air,
             p_air,
             T_dp,
+            T_rock,
             wind,
-            dz,
-            dt,
          ),
         method=solver_method,
           )
@@ -357,10 +359,11 @@ def lid_heateqn_solver(x, args):
     T_air = args[5]
     p_air = args[6]
     T_dp = args[7]
-    wind = args[8]
+    T_rock = args[8]
+    wind = args[9]
     Sfrac_lid = args[-2]
     k_lid = args[-1]
-    args = (cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind, k_lid, Sfrac_lid)
+    args = (cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, k_lid, Sfrac_lid)
     root, infodict, ier, mesg = fsolve(eqn, x, args=args, full_output=True)
     root = np.around(root, decimals=8)
     return root, infodict, ier, mesg
