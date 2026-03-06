@@ -403,6 +403,8 @@ def main(model_setup, grid):
     start = time.perf_counter()
     dt = 3600
 
+    T_rock_data = load_T_rock(model_setup)
+    
     for day in time_loop:
         from numba.core.registry import CPUDispatcher
         import gc
