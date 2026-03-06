@@ -59,7 +59,6 @@ def heateqn(
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
-        cell["RVf"],
         LW_in,
         SW_in,
         T_air,
@@ -67,6 +66,7 @@ def heateqn(
         T_dp,
         wind,
         x[0],
+        cell["RVf"],
     )
     N = len(x)
     T_old = cell["firn_temperature"][:N]
