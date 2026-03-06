@@ -102,11 +102,11 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         if not cell["exposed_water"] and not cell["saturation"][0]:
             if firn_column_toggle:
                 root0 = firn_functions.firn_column(
-                    cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind, toggle_dict
+                    cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, toggle_dict
                 )
 
         elif cell["exposed_water"]:
-            args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind
+            args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
             x = cell["firn_temperature"]
 
             if firn_heat_toggle:
@@ -143,19 +143,19 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
             if not cell["lake"]:
                 if lake_development_toggle:
                     lake_functions.lake_formation(
-                        cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind, toggle_dict
+                        cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, toggle_dict
                     )
 
             elif cell["lake"] and not cell["lid"]:
                 if lake_development_toggle:
                     lake_functions.lake_development(
-                        cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind, toggle_dict
+                        cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, toggle_dict
                     )
 
                 if cell["v_lid"]:
                     if lid_development_toggle:
                         lid_functions.virtual_lid(
-                            cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind
+                            cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
                         )
 
             elif cell["lake"] and cell["lid"]:
@@ -170,11 +170,12 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
                             T_air,
                             p_air,
                             T_dp,
+                            T_rock,
                             wind,
                             toggle_dict,
                         )
                     lid_functions.lid_development(
-                        cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind
+                        cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
                     )
 
                 if (
