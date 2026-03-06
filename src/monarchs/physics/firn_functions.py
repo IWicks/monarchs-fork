@@ -89,7 +89,7 @@ def firn_column(
         cell["meltflag"][0] = 1
         cell["melt"] = True
         height_change = calc_height_change(
-            cell, dt, LW_in, SW_in, T_air, p_air, T_dp, wind, root[0]
+            cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, root[0]
         )
 
         if prescribed_height_change is not False:
