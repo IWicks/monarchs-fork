@@ -17,6 +17,7 @@ def firn_column(
     T_air,
     p_air,
     T_dp,
+    T_rock,
     wind,
     toggle_dict,
     prescribed_height_change=False,
@@ -57,6 +58,8 @@ def firn_column(
         Surface air pressure at the current timestep. [Pa]
     T_dp : float
         Dewpoint temperature of the air at the surface at the current timestep. [K]
+    T_rock : float
+        Surface temperature of the rock at the current timestep. [K]
     wind : float
         Wind speed at the surface at the current timestep. [m s^-1]
     toggle_dict : dict
@@ -76,7 +79,7 @@ def firn_column(
     heateqn_solver = 'hybr'
     x = cell["firn_temperature"]
     #x = np.clip(x, 0, 273.15)
-    args = [cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind]
+    args = [cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind]
     root, fvec, success, info = solver.firn_heateqn_solver(
         x, args, fixed_sfc=False, solver_method=heateqn_solver
     )
@@ -95,7 +98,7 @@ def firn_column(
             raise ValueError("Height change is NaN")
 
         dz = cell["firn_depth"] / cell["vert_grid"]
-        args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind
+        args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
         root, fvec, success_fixedsfc, info = solver.firn_heateqn_solver(
             x, args, fixed_sfc=True, solver_method=heateqn_solver
         )
@@ -256,7 +259,7 @@ def regrid_after_melt(cell, height_change, lake=False):
     assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
 
 
-def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, surf_T):
+def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, surf_T):
     """
     Determine the amount of firn height change that arises due to melting.
 
@@ -276,6 +279,8 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
         Surface air pressure at the current timestep. [Pa]
     T_dp : float
         Dewpoint temperature of the air at the surface at the current timestep. [K]
+    T_rock : float
+        Surface temperature of the rock at the current timestep. [K]
     wind : float
         Wind speed at the surface at the current timestep. [m s^-1]
     surf_T : float
@@ -307,14 +312,15 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
-        cell['RVf'],
         LW_in,
         SW_in,
         T_air,
         p_air,
         T_dp,
+        T_rock,
         wind,
         surf_T,
+        cell['RVf'],
     )
     dHdt = (
         timestep
