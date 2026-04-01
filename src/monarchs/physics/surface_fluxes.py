@@ -66,7 +66,6 @@ def sfc_flux(
     epsilon_ice = 0.98
     epsilon_rock = 0.95 # (from Rubio et al. (1997), reflective of geology of Amery Ice Shelf)
     sigma = 5.670374e-8
-    print(cell)
     if RVf == 0:
         Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens
     else:
