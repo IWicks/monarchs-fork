@@ -40,7 +40,7 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
             Surface wind speed. [m s^-1]
 
     T_rock_data : numpy array
-        Element of the T_rock array.
+        Numpy array containing T_rock data.
 
     toggle_dict : dict
         A dictionary containing toggles that determine whether certain features are enabled.
