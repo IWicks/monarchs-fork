@@ -67,6 +67,7 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
     if np.isnan(cell["firn_temperature"]).any():
         raise ValueError("NaN in firn temperature")
     cell["t_step"] = 1
+    cell["daily_melt"] = 0.0
     for t_step in range(t_steps_per_day):
         if cell["lake_depth"] == 0:
             cell["lake"] = False
@@ -91,8 +92,6 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         p_air = met_data['surf_pressure'][t_step]
         T_rock = T_rock_data[t_step]
         # TODO (Izzy) - check this works as expected?
-
-        cell["daily_melt"] = 0.0 # TODO (Izzy) - check this is in the right place?
 
         """
         # Two main paths - either no exposed water, in which case the dry firn evolves, or we have exposed water,
