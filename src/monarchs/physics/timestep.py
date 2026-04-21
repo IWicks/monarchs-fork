@@ -197,5 +197,7 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
 
     cell["day"] += 1
 
+    print('Hello world!')
+
     if parallel and not use_numba:
         return cell
