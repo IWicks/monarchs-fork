@@ -79,6 +79,7 @@ def initialise_iceshelf(
     if hasattr(model_setup, "RVf_input_filepath"):
         iceshelf["RVf"] = load_RVf(model_setup) # Calling load_RVf function
         print("monarchs.core.model_grid.initialise_iceshelf: Loading RVf grid from CSV.")
+        print(iceshelf["RVf"])
     else:
         iceshelf["RVf"] = np.zeros((num_rows, num_cols, vert_grid))
     if np.isnan(Sfrac).all():
