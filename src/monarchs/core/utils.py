@@ -210,7 +210,7 @@ def calc_mass_sum(cell):
         Amount of mass in the system, in arbitrary units.
     """
     total_mass = (
-        (np.sum(
+        np.sum(
             cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
         )
         + np.sum(
@@ -218,7 +218,8 @@ def calc_mass_sum(cell):
         )
         + cell["lake_depth"] * cell["rho_water"]
         + cell["lid_depth"] * cell["rho_ice"]
-        + cell["v_lid_depth"] * cell["rho_ice"])
+        + cell["v_lid_depth"] * cell["rho_ice"]
+        * (1 - cell["RVf"])
     )
     return total_mass
 
