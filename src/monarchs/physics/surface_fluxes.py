@@ -177,5 +177,4 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     q_0 = 0.622 * p_v / (p_air - 0.378 * p_v)
     Fsens = 1.275 * 1005 * CT * wind * (T_air - T_sfc)
     Flat = 1.275 * L * CT * wind * (s_hum / 1000 - q_0)
-    print('T_air =', T_air, 'T_0 =', T_0, 'T_sfc =', T_sfc, 'wind =', wind)
     return Flat, Fsens
