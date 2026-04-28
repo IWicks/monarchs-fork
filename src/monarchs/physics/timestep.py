@@ -91,7 +91,6 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         T_air = met_data['temperature'][t_step]
         p_air = met_data['surf_pressure'][t_step]
         T_rock = T_rock_data[t_step]
-        # TODO (Izzy) - check this works as expected?
 
         """
         # Two main paths - either no exposed water, in which case the dry firn evolves, or we have exposed water,
