@@ -90,7 +90,7 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         T_dp = met_data['dew_point_temperature'][t_step]
         T_air = met_data['temperature'][t_step]
         p_air = met_data['surf_pressure'][t_step]
-        T_rock = T_rock_data['0'][t_step]
+        T_rock = T_rock_data[0][t_step]
         # TODO (Izzy) - check this works as expected?
 
         """
