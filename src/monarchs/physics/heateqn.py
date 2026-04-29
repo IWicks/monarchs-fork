@@ -40,6 +40,8 @@ def get_k_and_kappa(T, sfrac, lfrac, cp_air, cp_water, k_air, k_water):
 def heateqn(
     x,
     cell,
+    dt,
+    dz,
     LW_in,
     SW_in,
     T_air,
@@ -47,8 +49,6 @@ def heateqn(
     T_dp,
     T_rock,
     wind,
-    dz,
-    dt,
     epsilon_ice = 0.98,
     sigma = 5.670374e-8,
 ):
