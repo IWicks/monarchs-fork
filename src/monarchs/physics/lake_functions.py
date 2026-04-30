@@ -209,6 +209,8 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, tog
     if cell["lake_depth"] >= 0.1:
         cell["lake"] = True
     new_mass = calc_mass_sum(cell)
+    print("Original mass = ", original_mass)
+    print("New mass = ", new_mass)
     assert abs(original_mass - new_mass) < 1.5 * 10**-7
 
 
