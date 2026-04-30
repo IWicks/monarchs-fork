@@ -200,7 +200,7 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, tog
         air[i] = 1 - cell["Sfrac"][i] - cell["Lfrac"][i]
     cell["vertical_profile"] = np.linspace(0, cell["firn_depth"], cell["vert_grid"])
     x = cell["firn_temperature"]
-    args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind
+    args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
     root, fvec, success, info = solver.firn_heateqn_solver(
         x, args, fixed_sfc=True, solver_method='hybr'
     )
@@ -324,7 +324,7 @@ def lake_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, t
     )
     x = cell["firn_temperature"]
     dz = cell["firn_depth"] / cell["vert_grid"]
-    args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind
+    args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
     root, fvec, success, info = solver.firn_heateqn_solver(
         x, args, fixed_sfc=True, solver_method='hybr'
     )
