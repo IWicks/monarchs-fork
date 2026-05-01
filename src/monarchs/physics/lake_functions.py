@@ -210,7 +210,7 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, tog
         cell["lake"] = True
     new_mass = calc_mass_sum(cell)
     assert abs(original_mass - new_mass) < 1.5 * 10**-7
-    print("New mass - original mass =", new_mass - original_mass)
+    print("Virtual lake new mass - original mass =", new_mass - original_mass)
 
 
 def lake_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, toggle_dict):
