@@ -120,7 +120,7 @@ def firn_column(
     new_mass = utils.calc_mass_sum(cell)
 
     assert abs(original_mass - new_mass) < 1.5 * 10**-7
-    print("New mass - original mass =", new_mass - original_mass)
+    print("Firn new mass - original mass =", new_mass - original_mass)
     return root0
 
 def regrid_after_melt(cell, height_change, lake=False):
