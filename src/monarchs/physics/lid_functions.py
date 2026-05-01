@@ -149,7 +149,7 @@ def virtual_lid(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
         cell["lid"] = False
         cell["v_lid"] = False
     new_mass = utils.calc_mass_sum(cell)
-    print("New mass - original mass =", new_mass - original_mass)
+    print("Lid new mass - original mass =", new_mass - original_mass)
     try:
         assert abs(new_mass - original_mass) < 1.5 * 10**-7
     except Exception:
