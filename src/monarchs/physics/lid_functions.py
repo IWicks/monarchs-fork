@@ -149,7 +149,6 @@ def virtual_lid(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
         cell["lid"] = False
         cell["v_lid"] = False
     new_mass = utils.calc_mass_sum(cell)
-    print("v lid temp = ", cell["virtual_lid_temperature"], "Q = ", Q, "v lid depth = ", cell["v_lid_depth"], "lake depth = ", cell["lake_depth"])
     try:
         assert abs(new_mass - original_mass) < 1.5 * 10**-7
     except Exception:
