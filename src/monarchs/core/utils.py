@@ -221,7 +221,6 @@ def calc_mass_sum(cell):
         + cell["v_lid_depth"] * cell["rho_ice"]
         ) * 1 - cell["RVf"]
     )
-    print(total_mass)
     return total_mass
 
 
