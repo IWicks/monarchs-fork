@@ -204,7 +204,7 @@ Rock parameters and input
         you are running MONARCHS from, not the source code directory.
         Must be set to NaN if not used.
         
-    t_rock_input_filepath : str
+    T_rock_input_filepath : str
          Path to a file of rock surface temperature data to be used as a driver to MONARCHS.
          Currently only CSV format is supported. 
          Timestep interval must be the same as meteorological data.
@@ -216,8 +216,8 @@ Rock parameters and input
 RVf_input_filepath = "data/RVf_matrix.csv"
 # Set RVf_input_filepath to NaN if not using a rock view fraction grid.
 
-# t_rock_input_filepath = "data/t_rock.csv"
-t_rock_input_filepath = 'data/t_rock.csv'
+# T_rock_input_filepath = "data/t_rock.csv"
+T_rock_input_filepath = 'data/t_rock.csv'
 
 """
 Model output
