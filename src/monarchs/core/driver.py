@@ -560,6 +560,7 @@ def initialise(model_setup):
         print("monarchs.core.driver.initialise: Reading in T_rock data from CSV.")
     else:
         print("No T_rock .csv file provided.")
+        T_rock_data = NaN
     
     grid = initial_conditions.create_model_grid(
         model_setup,
