@@ -163,7 +163,9 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     a3 = 17.502
     a4 = 32.19
     e_sat = a1 * np.exp(a3 * (T_dp - T_0) / (T_dp - a4))
+    assert np.all(np.isfinite(e_sat)), f"e_sat bad: dew_point contains values near {a4}"
     s_hum = R_dry / R_sat * e_sat / (p_air - e_sat * (1 - R_dry / R_sat))
+    assert np.all(np.isfinite(s_hum)), "s_hum bad: e_sat may be close to p_air"
     if wind == 0:
         Ri = 0
     else:
@@ -174,7 +176,9 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
         CT = CT0 * (1 + b * Ri) ** -2
     L = 2.501 * 10**6
     p_v = 2.53 * 10**8 * np.exp(-5420 / T_sfc)
+    assert np.all(np.isfinite(p_v)), f"p_v bad: min={np.min(T_sfc)}, max={np.max(T_sfc)}"
     q_0 = 0.622 * p_v / (p_air - 0.378 * p_v)
+    assert np.all(np.isfinite(q_0)), "q_0 bad: p_v may be close to p_air/0.378
     Fsens = 1.275 * 1005 * CT * wind * (T_air - T_sfc)
     Flat = 1.275 * L * CT * wind * (s_hum / 1000 - q_0)
     return Flat, Fsens
