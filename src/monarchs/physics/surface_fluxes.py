@@ -178,7 +178,7 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     p_v = 2.53 * 10**8 * np.exp(-5420 / T_sfc)
     assert np.all(np.isfinite(p_v)), f"p_v bad: min={np.min(T_sfc)}, max={np.max(T_sfc)}"
     q_0 = 0.622 * p_v / (p_air - 0.378 * p_v)
-    assert np.all(np.isfinite(q_0)), "q_0 bad: p_v may be close to p_air/0.378
+    assert np.all(np.isfinite(q_0)), "q_0 bad: p_v may be close to p_air/0.378"
     Fsens = 1.275 * 1005 * CT * wind * (T_air - T_sfc)
     Flat = 1.275 * L * CT * wind * (s_hum / 1000 - q_0)
     return Flat, Fsens
