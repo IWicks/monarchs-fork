@@ -165,10 +165,7 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     e_sat = a1 * np.exp(a3 * (T_dp - T_0) / (T_dp - a4))
     s_hum = R_dry / R_sat * e_sat / (p_air - e_sat * (1 - R_dry / R_sat))
     # checking inputs on entry
-    for name, val in [("wind", wind), ("T_air", T_air), ("T_sfc", T_sfc),
-                      ("p_air", p_air), ("T_dp", T_dp)]:
-        if np.any(val == 0):
-            print(f"BAD INPUT: {name} contains zeros")
+    print(wind)
     if wind == 0:
         Ri = 0
     else:
