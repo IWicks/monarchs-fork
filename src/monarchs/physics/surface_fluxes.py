@@ -165,8 +165,8 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     e_sat = a1 * np.exp(a3 * (T_dp - T_0) / (T_dp - a4))
     s_hum = R_dry / R_sat * e_sat / (p_air - e_sat * (1 - R_dry / R_sat))
     # checking inputs on entry
-    for name, val in [("wind", wind), ("air_temp", air_temp), ("T_sfc", T_sfc),
-                      ("p_air", p_air), ("dew_point_temperature", dew_point_temperature)]:
+    for name, val in [("wind", wind), ("T_air", T_air), ("T_sfc", T_sfc),
+                      ("p_air", p_air), ("T_dp", T_dp)]:
         if np.any(np.isnan(val)) or np.any(np.isinf(val)):
             print(f"BAD INPUT: {name} contains nan/inf")
     if wind == 0:
