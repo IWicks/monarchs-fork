@@ -166,7 +166,8 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     s_hum = R_dry / R_sat * e_sat / (p_air - e_sat * (1 - R_dry / R_sat))
     for name, val in [("wind", wind), ("T_air", T_air), ("T_sfc", T_sfc),
                       ("p_air", p_air), ("T_dp", T_dp)]:
-        print(f"{name}: type={type(val)}, shape={np.shape(val)}")
+        if np.shape(val) != ():
+            print(f"{name}: shape is not 0")
     if wind == 0:
         Ri = 0
     else:
