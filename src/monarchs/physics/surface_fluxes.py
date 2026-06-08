@@ -167,8 +167,8 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     # checking inputs on entry
     for name, val in [("wind", wind), ("T_air", T_air), ("T_sfc", T_sfc),
                       ("p_air", p_air), ("T_dp", T_dp)]:
-        if np.any(np.isnan(val)) or np.any(np.isinf(val)):
-            print(f"BAD INPUT: {name} contains nan/inf")
+            if np.any(val == 0):
+        print(f"BAD INPUT: {name} contains zeros")
     if wind == 0:
         Ri = 0
     else:
