@@ -172,6 +172,7 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
         T_air * wind**2,
         out=np.zeros_like(T_air, dtype=float),
         where=wind != 0
+    )
     if Ri < 0:
         CT = CT0 * (1 - 2 * b * Ri / (1 + c * abs(Ri) ** 0.5))
     else:
