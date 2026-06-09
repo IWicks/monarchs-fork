@@ -167,8 +167,8 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     p_air *= 100  # convert hPa to Pa for consistency
     e_sat = a1 * np.exp(a3 * (T_dp - T_0) / (T_dp - a4))
     s_hum = R_dry / R_sat * e_sat / (p_air - e_sat * (1 - R_dry / R_sat))
-
-    # checking value type of wind
+	
+	# checking value type of wind
 	print(wind, np.isscalar(wind))
     
 	if wind == 0:
