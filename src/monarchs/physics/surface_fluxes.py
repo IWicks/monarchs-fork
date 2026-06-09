@@ -152,12 +152,6 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     =======
     """
     # Forcing all variables to be scalar, trying to fix issues with (de)serialisation
-    wind = np.asarray(wind).ravel()
-    T_air = np.asarray(T_air).ravel()
-    T_sfc = np.asarray(T_sfc).ravel()
-    p_air = np.asarray(p_air).ravel()
-    T_dp = np.asarray(T_dp).ravel()
-    
     g = 9.8
     b = 20
     dz = 10
