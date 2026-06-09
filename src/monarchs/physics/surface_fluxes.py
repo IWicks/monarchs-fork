@@ -170,7 +170,7 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     Ri = np.divide(
         g * (T_air - T_sfc) * dz,
         T_air * wind**2,
-        out=np.zeros_like(T_air, dtype=float),
+        out=np.zeros(np.broadcast(T_air, wind).shape, dtype=float),
         where=wind != 0
     )
     if Ri < 0:
