@@ -55,11 +55,11 @@ def heateqn(
     
     # Calculate Q for the given T_sfc
     Q = sfc_flux(
-        cell["melt"],
-        cell["exposed_water"],
-        cell["lid"],
-        cell["lake"],
-        cell["lake_depth"],
+        bool(cell["melt"]),
+        bool(cell["exposed_water"]),
+        bool(cell["lid"]),
+        bool(cell["lake"]),
+        float(cell["lake_depth"]),
         LW_in,
         SW_in,
         T_air,
@@ -68,7 +68,7 @@ def heateqn(
         T_rock,
         wind,
         x[0],
-        cell["RVf"],
+        float(cell["RVf"]),
     )
     N = len(x)
     T_old = cell["firn_temperature"][:N]
@@ -225,11 +225,11 @@ def heateqn_lid(
     epsilon_ice = 0.98,
     sigma = 5.670374e-8,
     Q = sfc_flux(
-        cell["melt"],
-        cell["exposed_water"],
-        cell["lid"],
-        cell["lake"],
-        cell["lake_depth"],
+        bool(cell["melt"]),
+        bool(cell["exposed_water"]),
+        bool(cell["lid"]),
+        bool(cell["lake"]),
+        float(cell["lake_depth"]),
         LW_in,
         SW_in,
         T_air,
@@ -238,7 +238,7 @@ def heateqn_lid(
         T_rock,
         wind,
         x[0],
-        cell["RVf"],
+        float(cell["RVf"]),
     )
     output = np.zeros(cell["vert_grid_lid"])
     output[0] = k_lid * ((x[0] - x[1]) / dz) - (Q - epsilon_ice * sigma * x[0] ** 4)
