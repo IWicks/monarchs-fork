@@ -151,11 +151,6 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
 
     =======
     """
-    print(f"wind:  type={type(wind)},  value={wind}")
-    print(f"T_air: type={type(T_air)}, value={T_air}")
-    print(f"T_sfc: type={type(T_sfc)}, value={T_sfc}")
-    print(f"p_air: type={type(p_air)}, value={p_air}")
-    print(f"T_dp:  type={type(T_dp)},  value={T_dp}")
     g = 9.8
     b = 20
     dz = 10
