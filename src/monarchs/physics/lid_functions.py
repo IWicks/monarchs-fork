@@ -321,7 +321,7 @@ def lid_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
     assert abs(new_mass - original_mass) < 1.5 * 10**-7
     x = cell["lid_temperature"]
     dz = cell["lid_depth"] / cell["vert_grid_lid"]
-    args = (cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind, Sfrac_lid, k_lid)
+    args = (cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, Sfrac_lid, k_lid)
     cell["lid_temperature"][-1] = 273.15
     cell["lid_temperature"] = solver.lid_heateqn_solver(x, args)[0]
     cell["lid_temperature"] = np.clip(cell["lid_temperature"], 0, 273.15)
