@@ -202,7 +202,7 @@ Rock parameters and input
         The grid must be the same size as the model grid specified in row_amount, col_amount. Currently only square grids are supported.
         If this is a relative filepath, then you should ensure that is relative to the folder in which
         you are running MONARCHS from, not the source code directory.
-        Must be set to NaN if not used.
+        Must be commented out if not used.
         
     T_rock_input_filepath : str
          Path to a file of rock surface temperature data to be used as a driver to MONARCHS.
@@ -210,14 +210,16 @@ Rock parameters and input
          Timestep interval must be the same as meteorological data.
          If this is a relative filepath, then you should ensure that is relative to the folder in which
          you are running MONARCHS from, not the source code directory.
+         Must be commented out if not used.
 """
 
 # RVf_input_filepath = "data/RVf_matrix.csv"
 RVf_input_filepath = "data/RVf_matrix.csv"
-# Set RVf_input_filepath to NaN if not using a rock view fraction grid.
+# Comment out filepath if not using a rock view fraction grid.
 
 # T_rock_input_filepath = "data/t_rock.csv"
 T_rock_input_filepath = 'data/t_rock.csv'
+# Comment out filepath if not using rock temperature data.
 
 """
 Model output
