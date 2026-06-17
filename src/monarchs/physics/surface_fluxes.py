@@ -1,5 +1,7 @@
 import numpy as np
 
+# TODO (Izzy) - do I need to add considerations for rock heating effects on T_air? Albedo of partial cells? Assess following small rock tests.
+
 def sfc_flux(
     melt,
     exposed_water,
