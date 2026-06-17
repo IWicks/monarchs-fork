@@ -603,5 +603,5 @@ def monarchs():
     configuration.handle_incompatible_flags(model_setup)
     configuration.create_defaults_for_missing_flags(model_setup)
     grid, T_rock_data = initialise(model_setup)
-    grid = main(model_setup, grid) # TODO (Izzy) - do I need to add T_rock_data here and below?
+    grid = main(model_setup, grid)
     return grid
