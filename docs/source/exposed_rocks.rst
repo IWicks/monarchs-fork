@@ -10,8 +10,8 @@ Required files
 --------------------------
 The ``RVf_input_filepath`` variable requires a 'rock view fraction' grid in ``.csv`` format. This grid has the same resolution as your
 model domain (i.e., same number of rows and columns), with each grid cell containing a value between 0-1 to represent the fraction of
-rock in that area. An example RVf grid has been provided in the ``data`` folder of the MONARCHS repository. Specify the path to the
-``.csv`` file in the ``RVf_input_filepath`` variable in ``model_setup.py``.
+rock in that area. An example 10x10 RVf grid has been provided in the ``data`` folder of the MONARCHS repository. Specify the path to
+the ``.csv`` file in the ``RVf_input_filepath`` variable in ``model_setup.py``.
 
 If using an RVf grid, it is best to update the value of ``epsilon_rock`` in the ``surface_fluxes.py`` file of your local MONARCHS copy
 to represent the geology of your study area. An example epsilon value is provided in the file, but this may not be the best value for all
