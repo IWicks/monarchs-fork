@@ -193,7 +193,6 @@ met_output_filepath = "met_data.nc"
 
 """
 Rock parameters and input
-# TODO (Izzy) - add to model_setup_reference.rst
  
     RVf_input_filepath : str
         Path to a file of rock view fraction data to inform MONARCHS.
