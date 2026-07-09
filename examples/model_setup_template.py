@@ -221,6 +221,23 @@ T_rock_input_filepath = 'data/t_rock.csv'
 # Comment out filepath if not using rock temperature data.
 
 """
+Blue ice input
+ 
+    blue_ice_input_filepath : str
+        Path to a file of blue ice extent data to inform MONARCHS.
+        Currently only CSV format is supported. 
+        All values must be between 0 and 1.
+        The grid must be the same size as the model grid specified in row_amount, col_amount. Currently only square grids are supported.
+        If this is a relative filepath, then you should ensure that is relative to the folder in which
+        you are running MONARCHS from, not the source code directory.
+        Must be commented out if not used.
+"""
+
+# blue_ice_input_filepath = "data/blue_ice_matrix.csv"
+blue_ice_input_filepath = "data/blue_ice_matrix.csv"
+# Comment out filepath if not using a blue ice grid.
+
+"""
 Model output
 
     save_output : bool
