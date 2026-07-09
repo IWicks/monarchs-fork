@@ -4,6 +4,7 @@ Define the model grid datatype. This is a Numpy structured array.
 
 import numpy as np
 from monarchs.rock_view.import_RVf import load_RVf
+from monarchs.blue_ice.import_blue_ice import load_blue_ice
 
 def initialise_iceshelf(
     model_setup,
@@ -19,6 +20,7 @@ def initialise_iceshelf(
     rho,
     firn_temperature,
     RVf=np.array([np.nan]),
+    blue_ice=np.array([np.nan]),
     Sfrac=np.array([np.nan]),
     Lfrac=np.array([np.nan]),
     meltflag=np.array([np.nan]),
@@ -81,6 +83,11 @@ def initialise_iceshelf(
         print("monarchs.core.model_grid.initialise_iceshelf: Loading RVf grid from CSV.")
     else:
         iceshelf["RVf"] = np.zeros((num_rows, num_cols)) # TODO (Izzy) - add vert_grid back here?
+    if hasattr(model_setup, "blue_ice_input_filepath"):
+        iceshelf["blue_ice"] = load_blue_ice(model_setup) # Calling load_blue_ice function
+        print("monarchs.core.model_grid.initialise_iceshelf: Loading blue_ice grid from CSV.")
+    else:
+        iceshelf["blue_ice"] = np.zeros((num_rows, num_cols)) # TODO (Izzy) - vert_grid (as above)?
     if np.isnan(Sfrac).all():
         iceshelf["Sfrac"] = np.ones((num_rows, num_cols, vert_grid)) * rho / 917
     else:
@@ -195,6 +202,7 @@ def get_spec(vert_grid_size, vert_grid_lid, vert_grid_lake):
             ("rho_lid", np.float64, vert_grid_lid),
             ("firn_temperature", np.float64, vert_grid_size),
             ("RVf", np.float64),
+            ("blue_ice", np.float64),
             ("Sfrac", np.float64, vert_grid_size),
             ("Lfrac", np.float64, vert_grid_size),
             ("meltflag", np.float64, vert_grid_size),
