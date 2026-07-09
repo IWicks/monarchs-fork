@@ -232,7 +232,7 @@ Blue ice input
         you are running MONARCHS from, not the source code directory.
         Must be commented out if not used.
 """
-
+# TODO (Izzy) - add to model_setup_reference.rst
 # blue_ice_input_filepath = "data/blue_ice_matrix.csv"
 blue_ice_input_filepath = "data/blue_ice_matrix.csv"
 # Comment out filepath if not using a blue ice grid.
