@@ -8,6 +8,7 @@ import numpy as np
 from monarchs.DEM.load_DEM import export_DEM
 from monarchs.core.model_grid import initialise_iceshelf, get_spec
 from monarchs.rock_view.import_RVf import load_RVf
+from monarchs.blue_ice.import_blue_ice import load_blue_ice
 
 def initialise_firn_profile(model_setup, diagnostic_plots=False):
     """
@@ -79,7 +80,7 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
         print("Removed some isolated cells - new grid = ", valid_cells)
 
     firn_columns = np.moveaxis(np.linspace(0, firn_depth, int(model_setup.vertical_points_firn)), 0, -1)
-
+    
     if hasattr(model_setup, "rho_init") and model_setup.rho_init != "default":
         rho = model_setup.rho_init
     else:
@@ -106,6 +107,11 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
                         rho[rowidx, colidx] = np.interp(
                             model_setup.firn_min_height - column, profile_temp, rho_temp
                         )[::-1]
+
+    if hasattr(model_setup, "blue_ice_input_filepath"):
+        blue_ice_grid = (load_blue_ice(model_setup)).astype(bool)
+        rho_sfc[blue_ice_grid] = 900 # Setting surface density to average blue ice density
+        # TODO (Izzy) - how to account for density at depth with blue ice?
 
     if hasattr(model_setup, "T_init") and model_setup.rho_init != "default":
         T = model_setup.T_init
