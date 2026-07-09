@@ -560,6 +560,11 @@ def initialise(model_setup):
         print("monarchs.core.driver.initialise: Reading in T_rock data from CSV.")
     else:
         print("No T_rock .csv file provided.")
+
+    if hasattr(model_setup, "blue_ice_input_filepath"):
+        print("monarchs.core.driver.initialise: Blue ice grid identified.")
+    else:
+        print("No blue ice grid provided.")
     
     grid = initial_conditions.create_model_grid(
         model_setup,
