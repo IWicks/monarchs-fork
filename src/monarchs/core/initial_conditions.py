@@ -111,6 +111,7 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
     if hasattr(model_setup, "blue_ice_input_filepath"):
         blue_ice_grid = (load_blue_ice(model_setup)).astype(bool)
         rho_sfc[blue_ice_grid] = 900 # Setting surface density to average blue ice density (from Sinharay, 2022)
+        print(f"monarchs.core.initial_conditions.intialise_firn_profile: blue ice grid used to set rho_sfc values for blue ice)
         # TODO (Izzy) - how to account for density at depth with blue ice?
 
     if hasattr(model_setup, "T_init") and model_setup.rho_init != "default":
