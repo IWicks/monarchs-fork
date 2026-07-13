@@ -69,8 +69,11 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
 
     if hasattr(model_setup, "RVf_input_filepath"):
         valid_cells[np.where(load_RVf(model_setup)) == 1] = False 
-        print("monarchs.core.initial_conditions.initialise_firn_profile: Filtering out cells according to the following mask (False = filtered out), since they are entirely exposed rock.")
-        print("Valid cells = ", valid_cells)
+        with np.printoptions(threshold=np.inf):
+            print(
+                "monarchs.core.initial_conditions.initialise_firn_profile: Filtering out cells according to the following mask (False = filtered out), since they are entirely exposed rock."
+            )
+            print("Valid cells = ", valid_cells)
 
     valid_cells_old = valid_cells
     valid_cells = check_for_isolated_cells(valid_cells)
