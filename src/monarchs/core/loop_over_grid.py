@@ -128,7 +128,7 @@ def loop_over_grid(
             ]
 
         futures = [
-            client.submit(process_chunk, indices, chunk, met_data_chunk, dt, toggle_dict, t_steps_per_day)
+            client.submit(process_chunk, indices, chunk, met_data_chunk, dt, toggle_dict, t_steps_per_day, T_rock_data)
             for (indices, chunk, met_data_chunk) in scattered_chunks
         ]
 
