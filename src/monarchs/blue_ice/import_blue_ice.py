@@ -1,7 +1,7 @@
 """
 Isabelle Wicks, Northumbria University (09/07/2026)
 
-Functions to import, set up, and format blue_ice NetCDF4 dataset into matrix that MONARCHS can use.
+Functions to import, set up, and format blue_ice CSV into matrix that MONARCHS can use.
 """
 
 import os
