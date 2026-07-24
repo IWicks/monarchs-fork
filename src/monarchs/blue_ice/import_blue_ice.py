@@ -1,5 +1,5 @@
 """
-Isabelle Wicks, Northumbria University (09/07/2026)
+Isabelle Wicks, Northumbria University (24/07/2026)
 
 Functions to import, set up, and format blue_ice CSV into matrix that MONARCHS can use.
 """
@@ -40,8 +40,7 @@ def load_blue_ice(model_setup):
     if blue_ice.shape != (model_setup.col_amount, model_setup.row_amount):
         raise ValueError("The blue ice grid is the wrong shape!")
     
-    # Checking that all values in the grid are between 0 and 1.
-    if np.any((blue_ice<0) | (blue_ice>1)):
-        raise ValueError("All grid values must be between 0 and 1!")
+    # Checking that all values in the grid are 0, 1, or 2.
+    assert np.all(np.isin(blue_ice, [0, 1, 2])), "All grid values must be 0, 1, or 2!"
         
     return blue_ice
