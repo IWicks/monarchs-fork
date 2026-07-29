@@ -96,13 +96,6 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
                 f"monarchs.core.initial_conditions.initialise_firn_profile: rho_init not specified in run configuration file - using default profile (empirical formula with z_t = 37 and rho_sfc = {rho_sfc})"
             )
         rho = rho_init_emp(firn_columns, rho_sfc, 37)
-
-        if hasattr(model_setup, "blue_ice_input_filepath"):
-            blue_ice_grid = (load_blue_ice(model_setup))
-            mask = (blue_ice_grid == 1) | (blue_ice_grid == 2)
-            rho_blue_ice = rho_init_emp(firn_columns, 400, 7) # Following borehole density profile of Chaturvedi et al. (1999)
-            rho[mask] = rho_blue_ice[mask]
-            print(f"monarchs.core.initial_conditions.intialise_firn_profile: blue ice grid used to set density profile for blue ice")
             
         if firn_depth_under_35_flag:
             print("Correcting firn profile\n\n\n")
@@ -118,6 +111,28 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
                         rho[rowidx, colidx] = np.interp(
                             model_setup.firn_min_height - column, profile_temp, rho_temp
                         )[::-1]
+    
+    if hasattr(model_setup, "blue_ice_input_filepath"):
+        blue_ice_grid = (load_blue_ice(model_setup))
+        mask = (blue_ice_grid == 1) | (blue_ice_grid == 2)
+        rho_blue_ice = rho_init_emp(firn_columns, 400, 7) # Following borehole density profile of Chaturvedi et al. (1999)
+        
+        if firn_depth_under_35_flag:
+            for rowidx, row in enumerate(firn_columns):
+                for colidx, column in enumerate(row):
+                    if mask[rowidx, colidx] and column.max() < model_setup.firn_min_height:
+                        profile_temp_bi = np.linspace(
+                            0, model_setup.firn_min_height, model_setup.vertical_points_firn
+                        )
+                        rho_temp_bi = rho_init_emp(profile_temp_bi, 400, 7)
+                        rho_blue_ice[rowidx, colidx] = np.interp(
+                            model_setup.firn_min_height - column, profile_temp_bi, rho_temp_bi
+                        )[::-1]
+                        
+        rho[mask] = rho_blue_ice[mask]
+        print(
+            f"monarchs.core.initial_conditions.intialise_firn_profile: blue ice grid used to set density profile for blue ice cells"
+        )
 
     if hasattr(model_setup, "T_init") and model_setup.rho_init != "default":
         T = model_setup.T_init
