@@ -132,7 +132,7 @@ def sfc_albedo(melt, exposed_water, lid, lake, lake_depth, blue_ice,
             alpha = alpha_blue_ice
         elif blue_ice == 2:
             age = day - blue_ice_transition_day
-            frac = min(age / decay_period, 1.0)
+            frac = np.min([age / decay_period, 1.0])
             alpha = alpha_snow_blue_ice + frac * (alpha_blue_ice - alpha_snow_blue_ice)
         else:
             alpha = 0.867
