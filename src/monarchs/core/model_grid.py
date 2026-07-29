@@ -42,6 +42,7 @@ def initialise_iceshelf(
     lid_sfc_melt=0,
     lid_melt_count=0,
     melt_hours=0,
+    blue_ice_transition_day=np.nan,
     exposed_water_refreeze_counter=0,
     virtual_lid_temperature=273.15,
     total_melt=0.0,
@@ -154,6 +155,7 @@ def initialise_iceshelf(
     iceshelf["cp_water"][:] = 4217
     iceshelf["t_step"][:] = 0
     iceshelf["day"][:] = 0
+    iceshelf["blue_ice_transition_day"][:] = blue_ice_transition_day
     iceshelf["snow_added"][:] = 0
     iceshelf["reset_combine"][:] = False
     iceshelf["valid_cell"][:] = valid_cells
@@ -239,6 +241,7 @@ def get_spec(vert_grid_size, vert_grid_lid, vert_grid_lake):
             ("daily_melt", np.float64),
             ("t_step", np.int32),
             ("day", np.int32),
+            ("blue_ice_transition_day", np.float64),
             ("log", "U256"),
             ("snow_added", np.float64),
             ("reset_combine", np.bool_),
