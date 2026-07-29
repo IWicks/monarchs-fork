@@ -75,7 +75,8 @@ def sfc_flux(
     return Q
 
 
-def sfc_albedo(melt, exposed_water, lid, lake, lake_depth):
+def sfc_albedo(melt, exposed_water, lid, lake, lake_depth, blue_ice,
+               day, blue_ice_transition_day, decay_period=14):
     """
     Determine the effective surface albedo depending on the situation at the
     top of the ice shelf (i.e. is there exposed water, firn or snow etc.)
@@ -96,13 +97,23 @@ def sfc_albedo(melt, exposed_water, lid, lake, lake_depth):
         Flag which indicates whether there is a lake present.
     lake_depth : float
         Depth of the lake [m]
+    day : int
+        Current model day.
+    blue_ice_transition_day : float
+        Model day on which the cell most recently became snow-covered blue
+        ice (blue_ice == 2). NaN if not currently in that state.
+    decay_period : int
+        Number of days over which snow-covered blue ice albedo decays to
+        bare blue ice albedo (default 14).
 
     Returns
     -------
     alpha : float
         Effective surface albedo for shortwave radiation.
-
     """
+    alpha_blue_ice = 0.56 # from Bintanja and Van Den Broeke (1995a, 1995b)
+    alpha_snow_blue_ice = 0.75 # from Bintanja and Reijmer (2001)
+
     if melt:
         if exposed_water:
             if lid:
@@ -117,7 +128,15 @@ def sfc_albedo(melt, exposed_water, lid, lake, lake_depth):
         else:
             alpha = 0.6
     else:
-        alpha = 0.867
+        if blue_ice == 1:
+            alpha = alpha_blue_ice
+        elif blue_ice == 2:
+            age = day - blue_ice_transition_day
+            frac = min(age / decay_period, 1.0)
+            alpha = alpha_snow_blue_ice + frac * (alpha_blue_ice - alpha_snow_blue_ice)
+        else:
+            alpha = 0.867
+
     return alpha
 
 
