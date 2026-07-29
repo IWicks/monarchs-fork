@@ -96,6 +96,14 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
                 f"monarchs.core.initial_conditions.initialise_firn_profile: rho_init not specified in run configuration file - using default profile (empirical formula with z_t = 37 and rho_sfc = {rho_sfc})"
             )
         rho = rho_init_emp(firn_columns, rho_sfc, 37)
+
+        if hasattr(model_setup, "blue_ice_input_filepath"):
+            blue_ice_grid = (load_blue_ice(model_setup))
+            mask = (blue_ice_grid == 1) | (blue_ice_grid == 2)
+            rho_blue_ice = rho_init_emp(firn_columns, 400, 7) # Following borehole density profile of Chaturvedi et al. (1999)
+            rho[mask] = rho_blue_ice[mask]
+            print(f"monarchs.core.initial_conditions.intialise_firn_profile: blue ice grid used to set density profile for blue ice")
+            
         if firn_depth_under_35_flag:
             print("Correcting firn profile\n\n\n")
             for rowidx, row in enumerate(firn_columns):
@@ -110,12 +118,6 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
                         rho[rowidx, colidx] = np.interp(
                             model_setup.firn_min_height - column, profile_temp, rho_temp
                         )[::-1]
-
-    if hasattr(model_setup, "blue_ice_input_filepath"):
-        blue_ice_grid = (load_blue_ice(model_setup)).astype(bool)
-        rho_sfc[blue_ice_grid] = 900 # Setting surface density to average blue ice density (from Sinharay, 2022)
-        print(f"monarchs.core.initial_conditions.intialise_firn_profile: blue ice grid used to set rho_sfc values for blue ice")
-        # TODO (Izzy) - how to account for density at depth with blue ice?
 
     if hasattr(model_setup, "T_init") and model_setup.rho_init != "default":
         T = model_setup.T_init
