@@ -68,6 +68,18 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         raise ValueError("NaN in firn temperature")
     cell["t_step"] = 1
     cell["daily_melt"] = 0.0
+
+    decay_period = 14  # Decay period (in days) of snow-covered blue ice albedo, from Bintanja and Reijmer (2001)
+
+    if cell["blue_ice"] == 2:
+        if np.isnan(cell["blue_ice_transition_day"]):
+            cell["blue_ice_transition_day"] = cell["day"]
+        elif (cell["day"] - cell["blue_ice_transition_day"]) >= decay_period:
+            cell["blue_ice"] = 1
+            cell["blue_ice_transition_day"] = np.nan
+    else:
+        cell["blue_ice_transition_day"] = np.nan
+    
     for t_step in range(t_steps_per_day):
         if cell["lake_depth"] == 0:
             cell["lake"] = False
