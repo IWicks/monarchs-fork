@@ -17,6 +17,9 @@ def sfc_flux(
     wind,
     xsurf,
     RVf,
+    blue_ice,
+    day,
+    blue_ice_transition_day,
 ):
     """
     Calculate the surface heat flux from the input shortwave and longwave fluxes
@@ -56,6 +59,13 @@ def sfc_flux(
         Surface temperature. Taken from our initial guess x (i.e. x[0]) [K].
     RVf : float
         The rock view fraction of the cell.
+    blue_ice : float
+        The surface type of the cell.
+    day : int
+        Current model day.
+    blue_ice_transition_day : float
+        Model day on which the cell most recently became snow-covered blue
+        ice (blue_ice == 2). NaN if not currently in that state.
 
     Returns
     -------
@@ -63,7 +73,8 @@ def sfc_flux(
         Surface energy flux. [W m^-2].
 
     """
-    alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth)
+    alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth,
+                       blue_ice, day, blue_ice_transition_day)
     Flat, Fsens = bulk_fluxes(wind, T_air, xsurf, p_air, T_dp)
     epsilon_ice = 0.98
     epsilon_rock = 0.95 # (from Rubio et al. (1997), reflective of geology of Amery Ice Shelf)
@@ -71,7 +82,9 @@ def sfc_flux(
     if RVf == 0.0:
         Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens
     else:
-        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens + ((epsilon_rock * T_rock**4 * sigma * RVf * LW_in) ** 0.5)
+        Q = (epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens
+             + ((epsilon_rock * T_rock**4 * sigma * RVf * LW_in) ** 0.5)
+            )
     return Q
 
 
@@ -97,6 +110,8 @@ def sfc_albedo(melt, exposed_water, lid, lake, lake_depth, blue_ice,
         Flag which indicates whether there is a lake present.
     lake_depth : float
         Depth of the lake [m]
+    blue_ice : float
+        The surface type of the cell.
     day : int
         Current model day.
     blue_ice_transition_day : float
