@@ -89,6 +89,9 @@ def turbulent_mixing(cell, SW_in, dt):
         cell["lid"],
         cell["lake"],
         cell["lake_depth"],
+        cell["blue_ice"],
+        cell["day"],
+        cell["blue_ice_transition_day"],
     )
     Int = (1 - albedo) * SW_in * np.exp(-tau * cell["lake_depth"]) - (
         1 - albedo
@@ -177,6 +180,9 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, tog
         wind,
         x[0],
         cell["RVf"],
+        cell["blue_ice"],
+        cell["day"],
+        cell["blue_ice_transition_day"],
     )
     # print('Q = ', Q)
     # print('k[0] = ', k[0])
@@ -262,6 +268,9 @@ def lake_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, t
             wind,
             x[0],
             cell["RVf"],
+            cell["blue_ice"],
+            cell["day"],
+            cell["blue_ice_transition_day"],
         )
         # print('Q = ', Q)
         cell["lake_temperature"][0] = sfc_energy_lake(J, Q, cell)
