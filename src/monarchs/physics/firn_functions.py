@@ -321,6 +321,9 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         wind,
         surf_T,
         cell['RVf'],
+        cell["blue_ice"],
+        cell["day"],
+        cell["blue_ice_transition_day"],
     )
     dHdt = (
         timestep
