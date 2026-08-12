@@ -47,7 +47,7 @@ def virtual_lid(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
     original_mass = utils.calc_mass_sum(cell)
     x = np.array([cell["virtual_lid_temperature"]])
 
-    Q = surface_fluxes.sfc_flux(
+    Q, Flat, Fsens = surface_fluxes.sfc_flux(
         cell["melt"],
         cell["exposed_water"],
         cell["lid"],
@@ -228,7 +228,7 @@ def lid_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
     """
     original_mass = utils.calc_mass_sum(cell)
     x = cell["lid_temperature"]
-    Q = surface_fluxes.sfc_flux(
+    Q, Flat, Fsens = surface_fluxes.sfc_flux(
         cell["melt"],
         cell["exposed_water"],
         cell["lid"],
