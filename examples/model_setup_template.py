@@ -279,6 +279,9 @@ vars_to_save = (
     "v_lid",
     "ice_lens_depth",
     "daily_melt",
+    "Q",
+    "Flat",
+    "Fsens,"
 )
 output_filepath = "../MONARCHS_runs/sample_output.nc"  # Filename for model output, including file extension (.nc for netCDF).
 output_grid_size = 200  # Size of interpolated output
