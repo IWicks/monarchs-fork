@@ -121,6 +121,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
 
         T_tri = heateqn.propagate_temperature(cell, dz, dt, sol[-1], N=N)
         T = np.concatenate((sol[:], T_tri))
+        T_sfc_final = sol[0]
         # print('T free = ', T)
 
     # Compute and store final surface energy balance terms using converged T_sfc
