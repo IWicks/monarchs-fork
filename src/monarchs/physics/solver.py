@@ -64,7 +64,9 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         mesg = "Fixed surface temperature"
         T_tri = heateqn.propagate_temperature(cell, dz, dt, 273.15, N=1)
         T = np.concatenate((np.array([273.15]), T_tri))
+        T_sfc_final = 273.15
         # print('T fixed sfc = ', T)
+    
     else:
         N = 50
         x = x[:N]
@@ -94,6 +96,15 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
                   f"returning original guess. row = {cell['row']}, col = {cell['column']}")
 
         if N == cell['vert_grid']:
+            # Store final surface fluxes before early return
+            Q, Flat, Fsens = sfc_flux(
+                cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
+                cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp,
+                wind, soldict.x[0],
+            )
+            cell["Q"] = Q
+            cell["Flat"] = Flat
+            cell["Fsens"] = Fsens
             return soldict.x, soldict.success, soldict.message, soldict.success
 
         sol = soldict.x
@@ -108,7 +119,18 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
 
         T_tri = heateqn.propagate_temperature(cell, dz, dt, sol[-1], N=N)
         T = np.concatenate((sol[:], T_tri))
+        T_sfc_final = sol[0]
         # print('T free = ', T)
+
+    # Compute and store final surface energy balance terms using converged T_sfc
+    Q, Flat, Fsens = sfc_flux(
+        cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
+        cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp,
+        wind, T_sfc_final,
+    )
+    cell["Q"] = Q
+    cell["Flat"] = Flat
+    cell["Fsens"] = Fsens
 
     T = np.around(T, decimals=8)
     #print('Sol0 = ', sol[0])
@@ -360,7 +382,19 @@ def lid_heateqn_solver(x, args):
     wind = args[8]
     Sfrac_lid = args[-2]
     k_lid = args[-1]
+    
     args = (cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind, k_lid, Sfrac_lid)
     root, infodict, ier, mesg = fsolve(eqn, x, args=args, full_output=True)
     root = np.around(root, decimals=8)
+
+    # Compute and store final surface energy balance terms using converged lid surface temperature
+    Q, Flat, Fsens = sfc_flux(
+        cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
+        cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp,
+        wind, root[0],
+    )
+    cell["Q"] = Q
+    cell["Flat"] = Flat
+    cell["Fsens"] = Fsens
+    
     return root, infodict, ier, mesg
