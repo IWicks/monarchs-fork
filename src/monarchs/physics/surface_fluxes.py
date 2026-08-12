@@ -54,13 +54,17 @@ def sfc_flux(
     -------
     Q : float64
         Surface energy flux. [W m^-2].
+    Flat : float64
+        Latent heat flux. [W m^-2].
+    Fsens : float64
+        Sensible heat flux. [W m^-2].
 
     """
     alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth)
     Flat, Fsens = bulk_fluxes(wind, T_air, xsurf, p_air, T_dp)
     epsilon = 0.98
     Q = epsilon * LW_in + (1 - alpha) * SW_in + Flat + Fsens
-    return Q
+    return Q, Flat, Fsens
 
 
 def sfc_albedo(melt, exposed_water, lid, lake, lake_depth):
