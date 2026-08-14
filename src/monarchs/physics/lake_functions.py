@@ -165,7 +165,7 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, tog
         air[i] = 1 - cell["Sfrac"][i] - cell["Lfrac"][i]
     k = cell["Sfrac"] * k_ice + air * cell["k_air"] + cell["Lfrac"] * cell["k_water"]
     x = cell["lake_temperature"]
-    Q, Flat, Fsens = surface_fluxes.sfc_flux(
+    Q, Flat, Fsens, alpha = surface_fluxes.sfc_flux(
         cell["melt"],
         cell["exposed_water"],
         cell["lid"],
@@ -253,7 +253,7 @@ def lake_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, t
     original_mass = calc_mass_sum(cell)
     if not cell["v_lid"] and not cell["lid"]:
         x = cell["lake_temperature"]
-        Q, Flat, Fsens = surface_fluxes.sfc_flux(
+        Q, Flat, Fsens, alpha = surface_fluxes.sfc_flux(
             cell["melt"],
             cell["exposed_water"],
             cell["lid"],
