@@ -281,7 +281,8 @@ vars_to_save = (
     "daily_melt",
     "Q",
     "Flat",
-    "Fsens,"
+    "Fsens",
+    "albedo",
 )
 output_filepath = "../MONARCHS_runs/sample_output.nc"  # Filename for model output, including file extension (.nc for netCDF).
 output_grid_size = 200  # Size of interpolated output
