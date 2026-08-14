@@ -306,7 +306,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         * (273.15 - (cell["firn_temperature"][0] + cell["firn_temperature"][1]) / 2)
         ** 1.156
     )
-    Q, Flat, Fsens = surface_fluxes.sfc_flux(
+    Q, Flat, Fsens, alpha = surface_fluxes.sfc_flux(
         cell["melt"],
         cell["exposed_water"],
         cell["lid"],
