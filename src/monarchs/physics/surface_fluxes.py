@@ -75,6 +75,8 @@ def sfc_flux(
         Latent heat flux. [W m^-2].
     Fsens : float64
         Sensible heat flux. [W m^-2].
+    alpha : float64
+        Surface albedo.
 
     """
     alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth,
