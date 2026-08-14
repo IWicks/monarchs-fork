@@ -226,7 +226,7 @@ Blue ice input
     blue_ice_input_filepath : str
         Path to a file of blue ice extent data to inform MONARCHS.
         Currently only CSV format is supported. 
-        All values must be between 0 and 1.
+        All values must be 0, 1, or 2.
         The grid must be the same size as the model grid specified in row_amount, col_amount. Currently only square grids are supported.
         If this is a relative filepath, then you should ensure that is relative to the folder in which
         you are running MONARCHS from, not the source code directory.
