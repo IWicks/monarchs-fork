@@ -103,7 +103,8 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
             Q, Flat, Fsens, alpha = surface_fluxes.sfc_flux(
                 cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                 cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp, T_rock,
-                wind, soldict.x[0], cell["RVf"],
+                wind, soldict.x[0], cell["RVf"], cell["blue_ice"], cell["day"],
+                cell["blue_ice_transition_day"],
             )
             cell["Q"] = Q
             cell["Flat"] = Flat
@@ -130,7 +131,8 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     Q, Flat, Fsens, alpha = surface_fluxes.sfc_flux(
         cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
         cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp, T_rock,
-        wind, T_sfc_final, cell["RVf"],
+        wind, T_sfc_final, cell["RVf"], cell["blue_ice"], cell["day"],
+        cell["blue_ice_transition_day"],
     )
     cell["Q"] = Q
     cell["Flat"] = Flat
@@ -397,7 +399,8 @@ def lid_heateqn_solver(x, args):
     Q, Flat, Fsens, alpha = surface_fluxes.sfc_flux(
         cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
         cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp, T_rock,
-        wind, root[0], cell["RVf"],
+        wind, root[0], cell["RVf"], cell["blue_ice"], cell["day"],
+        cell["blue_ice_transition_day"],
     )
     cell["Q"] = Q
     cell["Flat"] = Flat
