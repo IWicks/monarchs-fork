@@ -283,6 +283,7 @@ vars_to_save = (
     "Flat",
     "Fsens",
     "albedo",
+    "blue_ice",
 )
 output_filepath = "../MONARCHS_runs/sample_output.nc"  # Filename for model output, including file extension (.nc for netCDF).
 output_grid_size = 200  # Size of interpolated output
