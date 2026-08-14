@@ -100,7 +100,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
 
         if N == cell['vert_grid']:
             # Store final surface fluxes before early return
-            Q, Flat, Fsens = surface_fluxes.sfc_flux(
+            Q, Flat, Fsens, alpha = surface_fluxes.sfc_flux(
                 cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                 cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp, T_rock,
                 wind, soldict.x[0], cell["RVf"],
@@ -108,6 +108,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
             cell["Q"] = Q
             cell["Flat"] = Flat
             cell["Fsens"] = Fsens
+            cell["albedo"] = alpha
             return soldict.x, soldict.success, soldict.message, soldict.success
 
         sol = soldict.x
@@ -126,7 +127,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         # print('T free = ', T)
 
     # Compute and store final surface energy balance terms using converged T_sfc
-    Q, Flat, Fsens = surface_fluxes.sfc_flux(
+    Q, Flat, Fsens, alpha = surface_fluxes.sfc_flux(
         cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
         cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         wind, T_sfc_final, cell["RVf"],
@@ -134,6 +135,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     cell["Q"] = Q
     cell["Flat"] = Flat
     cell["Fsens"] = Fsens
+    cell["albedo"] = alpha
 
     T = np.around(T, decimals=8)
     #print('Sol0 = ', sol[0])
@@ -392,7 +394,7 @@ def lid_heateqn_solver(x, args):
     root = np.around(root, decimals=8)
     
     # Compute and store final surface energy balance terms using converged lid surface temperature
-    Q, Flat, Fsens = surface_fluxes.sfc_flux(
+    Q, Flat, Fsens, alpha = surface_fluxes.sfc_flux(
         cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
         cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         wind, root[0], cell["RVf"],
@@ -400,5 +402,6 @@ def lid_heateqn_solver(x, args):
     cell["Q"] = Q
     cell["Flat"] = Flat
     cell["Fsens"] = Fsens
+    cell["albedo"] = alpha
     
     return root, infodict, ier, mesg
