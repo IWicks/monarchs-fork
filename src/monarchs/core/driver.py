@@ -583,7 +583,11 @@ def initialise(model_setup):
         size_dx=dx,
         size_dy=dy,
     )
-    return grid, T_rock_data
+
+    if hasattr(model_setup, "T_rock_input_filepath"):
+        return grid, T_rock_data
+    else:
+        return grid, None # Keeps return the same shape for monarchs()
 
 
 def monarchs():
