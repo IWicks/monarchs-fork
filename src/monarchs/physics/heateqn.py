@@ -54,7 +54,7 @@ def heateqn(
 ):
     
     # Calculate Q for the given T_sfc
-    Q, Flat, Fsens = sfc_flux(
+    Q, Flat, Fsens, alpha = sfc_flux(
         cell["melt"],
         cell["exposed_water"],
         cell["lid"],
@@ -227,7 +227,7 @@ def heateqn_lid(
     kappa = k_lid / (cp * cell["rho_ice"])
     epsilon_ice = 0.98
     sigma = 5.670374e-8
-    Q, Flat, Fsens = sfc_flux(
+    Q, Flat, Fsens, alpha = sfc_flux(
         cell["melt"],
         cell["exposed_water"],
         cell["lid"],
