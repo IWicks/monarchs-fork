@@ -405,6 +405,8 @@ def main(model_setup, grid):
 
     if hasattr(model_setup, "T_rock_input_filepath"):
         T_rock_data = load_T_rock(model_setup)
+    else:
+        T_rock_data = None
     
     for day in time_loop:
         from numba.core.registry import CPUDispatcher
