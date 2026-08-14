@@ -134,7 +134,7 @@ def initialise_iceshelf(
     iceshelf["Q"][:] = np.nan
     iceshelf["Fsens"][:] = np.nan
     iceshelf["Flat"][:] = np.nan
-    icehself["albedo"] = np.nan
+    iceshelf["albedo"] = np.nan
     iceshelf["exposed_water_refreeze_counter"][:] = exposed_water_refreeze_counter
     iceshelf["lid_sfc_melt"][:] = lid_sfc_melt
     iceshelf["melt"][:] = melt
