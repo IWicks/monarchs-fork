@@ -77,8 +77,6 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         elif (cell["day"] - cell["blue_ice_transition_day"]) >= decay_period:
             cell["blue_ice"] = 1
             cell["blue_ice_transition_day"] = np.nan
-    else:
-        cell["blue_ice_transition_day"] = np.nan
     
     for t_step in range(t_steps_per_day):
         if cell["lake_depth"] == 0:
