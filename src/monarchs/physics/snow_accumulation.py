@@ -31,6 +31,10 @@ def snowfall(cell, snow_depth, snow_rho, snow_T):
     None.
     """
     if snow_depth != 0:
+
+        if cell["blue_ice"] == 1:
+            cell["blue_ice"] = 2
+        
         if cell["lake"]:
             cell["lake_depth"] += snow_depth * snow_rho / cell["rho_water"]
         else:
