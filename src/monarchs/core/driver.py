@@ -568,12 +568,8 @@ def initialise(model_setup):
         size_dx=dx,
         size_dy=dy,
     )
-
-    if hasattr(model_setup, "T_rock_input_filepath"):
-        return grid, T_rock_data
-    else:
-        return grid, None # Keeps return the same shape for monarchs()
-
+    return grid
+    
 
 def monarchs():
     if os.environ.get("MONARCHS_MPI", None) is not None:
