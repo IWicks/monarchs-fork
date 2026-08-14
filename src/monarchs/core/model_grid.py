@@ -134,6 +134,7 @@ def initialise_iceshelf(
     iceshelf["Q"][:] = np.nan
     iceshelf["Fsens"][:] = np.nan
     iceshelf["Flat"][:] = np.nan
+    icehself["albedo"] = np.nan
     iceshelf["exposed_water_refreeze_counter"][:] = exposed_water_refreeze_counter
     iceshelf["lid_sfc_melt"][:] = lid_sfc_melt
     iceshelf["melt"][:] = melt
@@ -240,6 +241,7 @@ def get_spec(vert_grid_size, vert_grid_lid, vert_grid_lake):
             ("Q", np.float64),
             ("Fsens", np.float64),
             ("Flat", np.float64),
+            ("albedo", np.float64),
             ("exposed_water_refreeze_counter", np.int32),
             ("lid_sfc_melt", np.float64),
             ("lid_melt_count", np.int32),
