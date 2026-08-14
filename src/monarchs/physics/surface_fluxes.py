@@ -89,7 +89,7 @@ def sfc_flux(
         Q = (epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens
              + ((epsilon_rock * T_rock**4 * sigma * RVf * LW_in) ** 0.5)
             )
-    return Q, Flat, Fsens
+    return Q, Flat, Fsens, alpha
 
 
 def sfc_albedo(melt, exposed_water, lid, lake, lake_depth, blue_ice,
