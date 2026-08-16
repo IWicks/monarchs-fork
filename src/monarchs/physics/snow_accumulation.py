@@ -32,7 +32,7 @@ def snowfall(cell, snow_depth, snow_rho, snow_T):
     """
     if snow_depth != 0:
 
-        if cell["blue_ice"] == 1:
+        if cell["blue_ice"] in (1, 2):
             cell["blue_ice"] = 2
             cell["blue_ice_transition_day"] = cell["day"]  # Reset albedo decay clock
         
