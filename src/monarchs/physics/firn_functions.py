@@ -88,6 +88,9 @@ def firn_column(
     if root[0] > 273.15:
         cell["meltflag"][0] = 1
         cell["melt"] = True
+        if cell["blue_ice"] == 2:
+            cell["blue_ice"] = 1
+            cell["blue_ice_transition_day"] = np.nan
         height_change = calc_height_change(
             cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, root[0]
         )
