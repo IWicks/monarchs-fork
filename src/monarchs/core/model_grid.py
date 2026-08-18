@@ -80,7 +80,7 @@ def initialise_iceshelf(
         iceshelf["RVf"] = load_RVf(model_setup) # Calling load_RVf function
         print("monarchs.core.model_grid.initialise_iceshelf: Loading RVf grid from CSV.")
     else:
-        iceshelf["RVf"] = np.zeros((num_rows, num_cols)) # TODO (Izzy) - add vert_grid back here?
+        iceshelf["RVf"] = np.zeros((num_rows, num_cols))
     if np.isnan(Sfrac).all():
         iceshelf["Sfrac"] = np.ones((num_rows, num_cols, vert_grid)) * rho / 917
     else:
