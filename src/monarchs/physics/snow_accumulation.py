@@ -30,7 +30,7 @@ def snowfall(cell, snow_depth, snow_rho, snow_T):
     -------
     None.
     """
-    if snow_depth != 0:
+    if snow_depth >= 1.2e-5:
 
         if cell["blue_ice"] in (1, 2):
             cell["blue_ice"] = 2
