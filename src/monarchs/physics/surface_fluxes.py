@@ -75,7 +75,7 @@ def sfc_flux(
     if RVf == 0.0:
         Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens
     else:
-        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens + ((epsilon_rock * T_rock**4 * sigma * RVf * LW_in) ** 0.5)
+        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens + (epsilon_rock * T_rock**4 * sigma * RVf)
     return Q, Flat, Fsens
 
 
