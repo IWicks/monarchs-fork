@@ -113,6 +113,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         residual_norm = np.linalg.norm(
             heateqn.heateqn(soldict.x, cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind)
         )
+        debug.set_solver_diagnostics(residual_norm, mesg)
         print("residual norm:", residual_norm)
         print("solver message:", mesg)
 
