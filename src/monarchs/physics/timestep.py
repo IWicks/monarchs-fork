@@ -8,6 +8,7 @@ import numpy as np
 from monarchs.physics import snow_accumulation
 from monarchs.physics import firn_functions, lake_functions, solver, lid_functions
 from monarchs.core import utils
+from monarchs.physics import surface_fluxes
 
 def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict, x=None, y=None):
     """
@@ -70,7 +71,7 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict,
     cell["daily_melt"] = 0.0
     for t_step in range(t_steps_per_day):
 
-        debug.set_debug_context(day=cell["day"], t_step=t_step, x=x, y=y)
+        surface_fluxes.set_debug_context(day=cell["day"], t_step=t_step, x=x, y=y)
         
         if cell["lake_depth"] == 0:
             cell["lake"] = False
