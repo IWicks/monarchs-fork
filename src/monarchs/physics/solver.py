@@ -139,6 +139,9 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     #print('Sol0 = ', sol[0])
     #print('T = ', T)
 
+    print(np.linalg.norm(heateqn.heateqn(soldict.x, cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind)))
+    print(mesg)
+
     return T, infodict, ier, mesg
 
 def lake_formation_eqn(x, args):
