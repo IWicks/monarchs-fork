@@ -1,4 +1,24 @@
 import numpy as np
+import csv, os
+
+_debug_context = {"day": None, "x": None, "y": None}
+_LOGFILE = "debug_flux_log.csv"
+_TARGET = (26, 17)
+
+def set_debug_context(day, x, y):
+    _debug_context["day"] = day
+    _debug_context["x"] = x
+    _debug_context["y"] = y
+
+def _log_debug(day, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat):
+    if (x, y) != _TARGET:
+        return
+    write_header = not os.path.exists(_LOGFILE)
+    with open(_LOGFILE, "a", newline="") as f:
+        w = csv.writer(f)
+        if write_header:
+            w.writerow(["day","x","y","T_air","T_sfc","wind","Ri","CT","Fsens","Flat"])
+        w.writerow([day, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat])
 
 # TODO (Izzy) - do I need to add considerations for rock heating effects on T_air? Albedo of partial cells? Assess following small rock tests.
 
@@ -184,4 +204,8 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     q_0 = 0.622 * p_v / (p_air - 0.378 * p_v)
     Fsens = 1.275 * 1005 * CT * wind * (T_air - T_sfc)
     Flat = 1.275 * L * CT * wind * (s_hum - q_0)
+
+    _log_debug(_debug_context["day"], _debug_context["x"], _debug_context["y"],
+           T_air, T_sfc, wind, Ri, CT, Fsens, Flat)
+
     return Flat, Fsens
