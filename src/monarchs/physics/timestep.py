@@ -9,7 +9,7 @@ from monarchs.physics import snow_accumulation
 from monarchs.physics import firn_functions, lake_functions, solver, lid_functions
 from monarchs.core import utils
 
-def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict):
+def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict, x=None, y=None):
     """
     Main timestepping loop applied to an instance of the model grid.
     Called by loop_over_grid to work in parallel over multiple instances.
