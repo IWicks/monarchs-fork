@@ -3,6 +3,8 @@ import csv, os
 
 _debug_context = {"day": None, "t_step": None, "x": None, "y": None,
                    "residual": None, "solver_msg": None}
+_LOGFILE = "debug_flux_log.csv"
+_TARGET = (26, 17)
 
 def set_debug_context(day, t_step, x, y):
     _debug_context["day"] = day
