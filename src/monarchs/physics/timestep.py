@@ -109,11 +109,11 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict,
 
         elif cell["exposed_water"]:
             args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
-            x = cell["firn_temperature"]
+            firn_temp_guess = cell["firn_temperature"] # Renamed from x during debug
 
             if firn_heat_toggle:
                 sol, fvec, success, info = solver.firn_heateqn_solver(
-                    x, args, fixed_sfc=True, solver_method='hybr'
+                    firn_temp_guess, args, fixed_sfc=True, solver_method='hybr' # Renamed from x during debug
                 )
                 if success:
                     cell["firn_temperature"] = sol
