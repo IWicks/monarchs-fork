@@ -6,19 +6,43 @@ _debug_context = {"day": None, "t_step": None, "x": None, "y": None,
 _LOGFILE = "debug_flux_log.csv"
 _TARGET = (26, 17)
 
+_debug_context = {"day": None, "t_step": None, "x": None, "y": None,
+                   "residual": None, "solver_msg": None,
+                   "melt": None, "exposed_water": None, "lid": None,
+                   "lake": None, "lake_depth": None, "v_lid": None,
+                   "fixed_sfc": None}
+
 def set_debug_context(day, t_step, x, y):
-    _debug_context["day"] = day
-    _debug_context["t_step"] = t_step
-    _debug_context["x"] = x
-    _debug_context["y"] = y
-    _debug_context["residual"] = None      # reset each timestep so stale values
-    _debug_context["solver_msg"] = None    # don't leak into fixed_sfc calls
+    _debug_context["day"] = int(day)
+    _debug_context["t_step"] = int(t_step)
+    _debug_context["x"] = int(x)
+    _debug_context["y"] = int(y)
+    _debug_context["residual"] = None
+    _debug_context["solver_msg"] = None
+    _debug_context["melt"] = None
+    _debug_context["exposed_water"] = None
+    _debug_context["lid"] = None
+    _debug_context["lake"] = None
+    _debug_context["lake_depth"] = None
+    _debug_context["v_lid"] = None
+    _debug_context["fixed_sfc"] = None
 
 def set_solver_diagnostics(residual, solver_msg):
     _debug_context["residual"] = residual
     _debug_context["solver_msg"] = solver_msg
 
-def _log_debug(day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat, residual, solver_msg):
+def set_surface_state(melt, exposed_water, lid, lake, lake_depth, v_lid=None, fixed_sfc=None):
+    _debug_context["melt"] = melt
+    _debug_context["exposed_water"] = exposed_water
+    _debug_context["lid"] = lid
+    _debug_context["lake"] = lake
+    _debug_context["lake_depth"] = lake_depth
+    _debug_context["v_lid"] = v_lid
+    _debug_context["fixed_sfc"] = fixed_sfc
+
+def _log_debug(day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
+               residual, solver_msg, melt, exposed_water, lid, lake, lake_depth,
+               v_lid, fixed_sfc):
     if (x, y) != _TARGET:
         return
     write_header = not os.path.exists(_LOGFILE)
@@ -26,10 +50,12 @@ def _log_debug(day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat, resid
         w = csv.writer(f)
         if write_header:
             w.writerow(["day","t_step","x","y","T_air","T_sfc","wind","Ri","CT",
-                        "Fsens","Flat","residual","solver_msg"])
+                        "Fsens","Flat","residual","solver_msg",
+                        "melt","exposed_water","lid","lake","lake_depth","v_lid","fixed_sfc"])
         w.writerow([day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
-                    residual, solver_msg])
-
+                    residual, solver_msg,
+                    melt, exposed_water, lid, lake, lake_depth, v_lid, fixed_sfc])
+      
 # TODO (Izzy) - do I need to add considerations for rock heating effects on T_air? Albedo of partial cells? Assess following small rock tests.
 
 def sfc_flux(
@@ -97,6 +123,7 @@ def sfc_flux(
         Sensible heat flux. [W m^-2].
 
     """
+    surface_fluxes.set_surface_state(melt, exposed_water, lid, lake, lake_depth)
     alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth)
     Flat, Fsens = bulk_fluxes(wind, T_air, xsurf, p_air, T_dp)
     epsilon_ice = 0.98
@@ -218,6 +245,10 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     _log_debug(_debug_context["day"], _debug_context["t_step"],
                _debug_context["x"], _debug_context["y"],
                T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
-               _debug_context["residual"], _debug_context["solver_msg"])
+               _debug_context["residual"], _debug_context["solver_msg"],
+               _debug_context["melt"], _debug_context["exposed_water"],
+               _debug_context["lid"], _debug_context["lake"],
+               _debug_context["lake_depth"], _debug_context["v_lid"],
+               _debug_context["fixed_sfc"])
 
     return Flat, Fsens
