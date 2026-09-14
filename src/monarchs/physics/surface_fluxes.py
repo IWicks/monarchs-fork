@@ -1,6 +1,7 @@
 import numpy as np
 import csv, os
 
+# Remove below functions after debugging
 _debug_context = {"day": None, "t_step": None, "x": None, "y": None,
                    "residual": None, "solver_msg": None}
 _LOGFILE = "debug_flux_log.csv"
@@ -123,7 +124,7 @@ def sfc_flux(
         Sensible heat flux. [W m^-2].
 
     """
-    surface_fluxes.set_surface_state(melt, exposed_water, lid, lake, lake_depth)
+    surface_fluxes.set_surface_state(melt, exposed_water, lid, lake, lake_depth) # Remove after debugging
     alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth)
     Flat, Fsens = bulk_fluxes(wind, T_air, xsurf, p_air, T_dp)
     epsilon_ice = 0.98
@@ -249,6 +250,6 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
                _debug_context["melt"], _debug_context["exposed_water"],
                _debug_context["lid"], _debug_context["lake"],
                _debug_context["lake_depth"], _debug_context["v_lid"],
-               _debug_context["fixed_sfc"])
+               _debug_context["fixed_sfc"]) # Remove after debugging
 
     return Flat, Fsens
