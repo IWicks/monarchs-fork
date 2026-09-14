@@ -31,14 +31,14 @@ def set_solver_diagnostics(residual, solver_msg):
     _debug_context["residual"] = residual
     _debug_context["solver_msg"] = solver_msg
 
-def set_surface_state(melt, exposed_water, lid, lake, lake_depth, v_lid=None, fixed_sfc=None):
-    _debug_context["melt"] = melt
-    _debug_context["exposed_water"] = exposed_water
-    _debug_context["lid"] = lid
-    _debug_context["lake"] = lake
-    _debug_context["lake_depth"] = lake_depth
-    _debug_context["v_lid"] = v_lid
-    _debug_context["fixed_sfc"] = fixed_sfc
+def set_surface_state(melt=None, exposed_water=None, lid=None, lake=None, lake_depth=None, v_lid=None, fixed_sfc=None):
+    if melt is not None: _debug_context["melt"] = melt
+    if exposed_water is not None: _debug_context["exposed_water"] = exposed_water
+    if lid is not None: _debug_context["lid"] = lid
+    if lake is not None: _debug_context["lake"] = lake
+    if lake_depth is not None: _debug_context["lake_depth"] = lake_depth
+    if v_lid is not None: _debug_context["v_lid"] = v_lid
+    if fixed_sfc is not None: _debug_context["fixed_sfc"] = fixed_sfc
 
 def _log_debug(day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
                residual, solver_msg, melt, exposed_water, lid, lake, lake_depth,
