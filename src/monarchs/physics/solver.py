@@ -59,6 +59,8 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     T_rock = args[8]
     wind = args[9]
 
+    surface_fluxes.set_surface_state(v_lid=cell["v_lid"], fixed_sfc=fixed_sfc) # Remove after debugging
+    
     if fixed_sfc:
         sol = np.array([273.15])
         infodict = {}
@@ -119,7 +121,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         mesg = soldict.message
         infodict = soldict.success
 
-        surface_fluxes.set_solver_diagnostics(residual_norm, mesg)
+        surface_fluxes.set_solver_diagnostics(residual_norm, mesg) # Remove after debugging
         print("residual norm:", residual_norm)
         print("solver message:", mesg)
         
