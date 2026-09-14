@@ -148,10 +148,10 @@ def loop_over_grid(
     # Sequential version - with inplace modification
     else:
         for i in range(row_amount * col_amount):
-            row, col = divmod(i, col_amount)
+            row, col = divmod(i, col_amount) # Remove after debugging
             timestep_loop(
                 flat_grid[i], dt, met_data_grid[i], T_rock_data, t_steps_per_day, toggle_dict,
-                x=row, y=col
+                x=row, y=col # Remove x/y after debugging
             )
         grid[:] = flat_grid.reshape(grid.shape)
         return grid
