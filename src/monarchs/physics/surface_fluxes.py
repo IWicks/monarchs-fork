@@ -3,7 +3,7 @@ import csv, os
 
 # Remove below functions after debugging
 _debug_context = {"day": None, "t_step": None, "x": None, "y": None,
-                   "residual": None, "solver_msg": None}
+                   "residual": None, "solver_msg": None, "is_final": False}
 _LOGFILE = "debug_flux_log.csv"
 _TARGET = (26, 17)
 
@@ -27,6 +27,7 @@ def set_debug_context(day, t_step, x, y):
     _debug_context["lake_depth"] = None
     _debug_context["v_lid"] = None
     _debug_context["fixed_sfc"] = None
+    _debug_context["is_final"] = False
 
 def set_solver_diagnostics(residual, solver_msg):
     _debug_context["residual"] = residual
@@ -43,7 +44,7 @@ def set_surface_state(melt=None, exposed_water=None, lid=None, lake=None, lake_d
 
 def _log_debug(day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
                residual, solver_msg, melt, exposed_water, lid, lake, lake_depth,
-               v_lid, fixed_sfc):
+               v_lid, fixed_sfc, is_final):
     if (x, y) != _TARGET:
         return
     write_header = not os.path.exists(_LOGFILE)
@@ -52,10 +53,13 @@ def _log_debug(day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
         if write_header:
             w.writerow(["day","t_step","x","y","T_air","T_sfc","wind","Ri","CT",
                         "Fsens","Flat","residual","solver_msg",
-                        "melt","exposed_water","lid","lake","lake_depth","v_lid","fixed_sfc"])
+                        "melt","exposed_water","lid","lake","lake_depth","v_lid","fixed_sfc","is_final"])
         w.writerow([day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
                     residual, solver_msg,
-                    melt, exposed_water, lid, lake, lake_depth, v_lid, fixed_sfc])
+                    melt, exposed_water, lid, lake, lake_depth, v_lid, fixed_sfc, is_final])
+      
+def set_final_flag(is_final):
+    _debug_context["is_final"] = is_final
       
 # TODO (Izzy) - do I need to add considerations for rock heating effects on T_air? Albedo of partial cells? Assess following small rock tests.
 
@@ -74,6 +78,7 @@ def sfc_flux(
     wind,
     xsurf,
     RVf,
+    is_final = False, # remove after debugging
 ):
     """
     Calculate the surface heat flux from the input shortwave and longwave fluxes
@@ -124,6 +129,7 @@ def sfc_flux(
         Sensible heat flux. [W m^-2].
 
     """
+    set_final_flag(is_final)
     set_surface_state(melt, exposed_water, lid, lake, lake_depth) # Remove after debugging
     alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth)
     Flat, Fsens = bulk_fluxes(wind, T_air, xsurf, p_air, T_dp)
@@ -250,6 +256,6 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
                _debug_context["melt"], _debug_context["exposed_water"],
                _debug_context["lid"], _debug_context["lake"],
                _debug_context["lake_depth"], _debug_context["v_lid"],
-               _debug_context["fixed_sfc"]) # Remove after debugging
+               _debug_context["fixed_sfc"], _debug_context["is_final"]) # Remove after debugging
 
     return Flat, Fsens
