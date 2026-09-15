@@ -406,7 +406,7 @@ def lid_heateqn_solver(x, args):
     Q, Flat, Fsens = surface_fluxes.sfc_flux(
         cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
         cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp, T_rock,
-        wind, root[0], cell["RVf"],
+        wind, root[0], cell["RVf"], is_final=True, # remove is_final after debugging
     )
     cell["Q"] = Q
     cell["Flat"] = Flat
