@@ -142,6 +142,8 @@ def sfc_albedo(melt, exposed_water, lid, lake, lake_depth, blue_ice,
                 alpha = (9702 + 1000 * np.exp(3.6 * h)) / (
                     -539 + 20000 * np.exp(3.6 * h)
                 )
+            elif blue_ice in (1,2):
+                alpha = 0.47 # Representative alpha value for meltwater on blue ice, derived from Landsat 8 Collection 2 Level-2 surface reflectance imagery
             else:
                 alpha = 0.6
         else:
