@@ -115,7 +115,7 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
     if hasattr(model_setup, "blue_ice_input_filepath"):
         blue_ice_grid = (load_blue_ice(model_setup))
         mask = (blue_ice_grid == 1) | (blue_ice_grid == 2)
-        rho_blue_ice = rho_init_emp(firn_columns, 400, 7) # Following borehole density profile of Chaturvedi et al. (1999)
+        rho_blue_ice = rho_init_emp(firn_columns, 500, 7) # Following borehole density profile of Chaturvedi et al. (1999), with surface density matching the model domain
         
         if firn_depth_under_35_flag:
             for rowidx, row in enumerate(firn_columns):
