@@ -1,5 +1,65 @@
 import numpy as np
+import csv, os
 
+# Remove below functions after debugging
+_debug_context = {"day": None, "t_step": None, "x": None, "y": None,
+                   "residual": None, "solver_msg": None, "is_final": False}
+_LOGFILE = "debug_flux_log.csv"
+_TARGET = (26, 17)
+
+_debug_context = {"day": None, "t_step": None, "x": None, "y": None,
+                   "residual": None, "solver_msg": None,
+                   "melt": None, "exposed_water": None, "lid": None,
+                   "lake": None, "lake_depth": None, "v_lid": None,
+                   "fixed_sfc": None}
+
+def set_debug_context(day, t_step, x, y):
+    _debug_context["day"] = int(day)
+    _debug_context["t_step"] = int(t_step)
+    _debug_context["x"] = int(x)
+    _debug_context["y"] = int(y)
+    _debug_context["residual"] = None
+    _debug_context["solver_msg"] = None
+    _debug_context["melt"] = None
+    _debug_context["exposed_water"] = None
+    _debug_context["lid"] = None
+    _debug_context["lake"] = None
+    _debug_context["lake_depth"] = None
+    _debug_context["v_lid"] = None
+    _debug_context["fixed_sfc"] = None
+    _debug_context["is_final"] = False
+
+def set_solver_diagnostics(residual, solver_msg):
+    _debug_context["residual"] = residual
+    _debug_context["solver_msg"] = solver_msg
+
+def set_surface_state(melt=None, exposed_water=None, lid=None, lake=None, lake_depth=None, v_lid=None, fixed_sfc=None):
+    if melt is not None: _debug_context["melt"] = melt
+    if exposed_water is not None: _debug_context["exposed_water"] = exposed_water
+    if lid is not None: _debug_context["lid"] = lid
+    if lake is not None: _debug_context["lake"] = lake
+    if lake_depth is not None: _debug_context["lake_depth"] = lake_depth
+    if v_lid is not None: _debug_context["v_lid"] = v_lid
+    if fixed_sfc is not None: _debug_context["fixed_sfc"] = fixed_sfc
+
+def _log_debug(day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
+               residual, solver_msg, melt, exposed_water, lid, lake, lake_depth,
+               v_lid, fixed_sfc, is_final):
+    if (x, y) != _TARGET:
+        return
+    write_header = not os.path.exists(_LOGFILE)
+    with open(_LOGFILE, "a", newline="") as f:
+        w = csv.writer(f)
+        if write_header:
+            w.writerow(["day","t_step","x","y","T_air","T_sfc","wind","Ri","CT",
+                        "Fsens","Flat","residual","solver_msg",
+                        "melt","exposed_water","lid","lake","lake_depth","v_lid","fixed_sfc","is_final"])
+        w.writerow([day, t_step, x, y, T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
+                    residual, solver_msg,
+                    melt, exposed_water, lid, lake, lake_depth, v_lid, fixed_sfc, is_final])
+      
+def set_final_flag(is_final):
+    _debug_context["is_final"] = is_final
 
 def sfc_flux(
     melt,
@@ -14,6 +74,7 @@ def sfc_flux(
     T_dp,
     wind,
     xsurf,
+    is_final = False, # remove after debugging
 ):
     """
     Calculate the surface heat flux from the input shortwave and longwave fluxes
@@ -60,6 +121,8 @@ def sfc_flux(
         Sensible heat flux. [W m^-2].
 
     """
+    set_final_flag(is_final)
+    set_surface_state(melt, exposed_water, lid, lake, lake_depth) # Remove after debugging
     alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth)
     Flat, Fsens = bulk_fluxes(wind, T_air, xsurf, p_air, T_dp)
     epsilon = 0.98
@@ -169,4 +232,14 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     q_0 = 0.622 * p_v / (p_air - 0.378 * p_v)
     Fsens = 1.275 * 1005 * CT * wind * (T_air - T_sfc)
     Flat = 1.275 * L * CT * wind * (s_hum - q_0)
+
+    _log_debug(_debug_context["day"], _debug_context["t_step"],
+               _debug_context["x"], _debug_context["y"],
+               T_air, T_sfc, wind, Ri, CT, Fsens, Flat,
+               _debug_context["residual"], _debug_context["solver_msg"],
+               _debug_context["melt"], _debug_context["exposed_water"],
+               _debug_context["lid"], _debug_context["lake"],
+               _debug_context["lake_depth"], _debug_context["v_lid"],
+               _debug_context["fixed_sfc"], _debug_context["is_final"]) # Remove after debugging
+    
     return Flat, Fsens
