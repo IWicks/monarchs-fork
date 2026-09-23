@@ -145,6 +145,7 @@ def loop_over_grid(
     # Sequential version - with inplace modification
     else:
         for i in range(row_amount * col_amount):
+            row, col = divmod(i, col_amount) # Remove after debugging
             timestep_loop(
                 flat_grid[i], dt, met_data_grid[i], t_steps_per_day, toggle_dict,
                 x=row, y=col # Remove x/y after debugging
