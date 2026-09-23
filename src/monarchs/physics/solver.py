@@ -58,6 +58,8 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     T_dp = args[7]
     wind = args[8]
 
+    surface_fluxes.set_surface_state(v_lid=cell["v_lid"], fixed_sfc=fixed_sfc) # Remove after debugging
+    
     if fixed_sfc:
         sol = np.array([273.15])
         infodict = {}
@@ -101,7 +103,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
             Q, Flat, Fsens = surface_fluxes.sfc_flux(
                 cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                 cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp,
-                wind, soldict.x[0],
+                wind, soldict.x[0], is_final=True, # remove is_final after debugging
             )
             cell["Q"] = Q
             cell["Flat"] = Flat
@@ -112,6 +114,9 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         ier = soldict.success
         mesg = soldict.message
         infodict = soldict.success
+
+        surface_fluxes.set_solver_diagnostics(residual_norm, mesg) # Remove after debugging
+        
         #print(sol)
         # Take our root-finding algorithm output (from first N layers),
         # use it as the top boundary condition to the tridiagonal solver,
@@ -127,7 +132,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     Q, Flat, Fsens = surface_fluxes.sfc_flux(
         cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
         cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp,
-        wind, T_sfc_final,
+        wind, T_sfc_final, is_final=True, # remove is_final after debugging
     )
     cell["Q"] = Q
     cell["Flat"] = Flat
@@ -392,7 +397,7 @@ def lid_heateqn_solver(x, args):
     Q, Flat, Fsens = surface_fluxes.sfc_flux(
         cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
         cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp,
-        wind, root[0],
+        wind, root[0], is_final=True, # remove is_final after debugging
     )
     cell["Q"] = Q
     cell["Flat"] = Flat
