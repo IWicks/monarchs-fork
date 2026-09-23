@@ -110,6 +110,10 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
             cell["Fsens"] = Fsens
             return soldict.x, soldict.success, soldict.message, soldict.success
 
+        residual_norm = np.linalg.norm(
+            heateqn.heateqn(soldict.x, cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind)
+        ) # Remove after debugging
+
         sol = soldict.x
         ier = soldict.success
         mesg = soldict.message
