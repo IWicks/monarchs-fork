@@ -122,8 +122,6 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         infodict = soldict.success
 
         surface_fluxes.set_solver_diagnostics(residual_norm, mesg) # Remove after debugging
-        print("residual norm:", residual_norm)
-        print("solver message:", mesg)
         
         #print(sol)
         # Take our root-finding algorithm output (from first N layers),
