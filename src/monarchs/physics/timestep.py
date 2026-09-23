@@ -8,6 +8,7 @@ import numpy as np
 from monarchs.physics import snow_accumulation
 from monarchs.physics import firn_functions, lake_functions, solver, lid_functions
 from monarchs.core import utils
+from monarchs.physics import surface_fluxes # remove after debugging
 
 def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict, x=None, y=None): # Remove x/y after debugging
     """
