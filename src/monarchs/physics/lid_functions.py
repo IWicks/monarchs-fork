@@ -62,6 +62,7 @@ def virtual_lid(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
         wind,
         x[0],
         cell["RVf"],
+        cell["size_dx"],
     )
     k_v_lid = 1000 * (
         2.24 * 10**-3
@@ -243,6 +244,7 @@ def lid_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
         wind,
         x[0],
         cell["RVf"],
+        cell["size_dx"],
     )
     if not cell["has_had_lid"]:
         cell["has_had_lid"] = True
