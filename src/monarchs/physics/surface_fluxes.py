@@ -78,7 +78,7 @@ def sfc_flux(
     wind,
     xsurf,
     RVf,
-    cell_dx,
+    size_dx,
     is_final = False, # remove after debugging
 ):
     """
@@ -142,7 +142,7 @@ def sfc_flux(
     if RVf == 0.0:
         Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens
     else:
-        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens + (epsilon_rock * T_rock**4 * sigma * RVf * (5 / cell_dx))
+        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens + (epsilon_rock * T_rock**4 * sigma * RVf * (5 / size_dx))
     return Q, Flat, Fsens
 
 
