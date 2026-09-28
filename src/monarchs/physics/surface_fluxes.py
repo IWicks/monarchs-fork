@@ -119,7 +119,7 @@ def sfc_flux(
         Surface temperature. Taken from our initial guess x (i.e. x[0]) [K].
     RVf : float
         The rock view fraction of the cell.
-    cell_dx : float
+    size_dx : float
         The lateral size of the cell [m].
 
     Returns
