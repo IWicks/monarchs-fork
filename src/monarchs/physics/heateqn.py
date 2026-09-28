@@ -69,6 +69,7 @@ def heateqn(
         wind,
         x[0],
         cell["RVf"],
+        cell["size_dx"],
     )
     N = len(x)
     T_old = cell["firn_temperature"][:N]
@@ -239,6 +240,7 @@ def heateqn_lid(
         wind,
         x[0],
         cell["RVf"],
+        cell["size_dx"],
     )
     output = np.zeros(cell["vert_grid_lid"])
     output[0] = k_lid * ((x[0] - x[1]) / dz) - (Q - epsilon_ice * sigma * x[0] ** 4)
