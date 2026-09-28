@@ -78,6 +78,7 @@ def sfc_flux(
     wind,
     xsurf,
     RVf,
+    cell_dx,
     is_final = False, # remove after debugging
 ):
     """
@@ -118,6 +119,8 @@ def sfc_flux(
         Surface temperature. Taken from our initial guess x (i.e. x[0]) [K].
     RVf : float
         The rock view fraction of the cell.
+    cell_dx : float
+        The lateral size of the cell [m].
 
     Returns
     -------
@@ -139,7 +142,7 @@ def sfc_flux(
     if RVf == 0.0:
         Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens
     else:
-        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens + (epsilon_rock * T_rock**4 * sigma * RVf)
+        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens + (epsilon_rock * T_rock**4 * sigma * RVf * (5 / cell_dx))
     return Q, Flat, Fsens
 
 
