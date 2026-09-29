@@ -613,15 +613,12 @@ def audit_sw_resolution(grid, toggle_dict, threshold=3.0):
     too coarse to resolve Beer's law decay.
     """
 
-    n_flagged = 0
-    for cell in grid:  # or vectorized equivalent over your grid structure
-        dz_top = cell["firn_depth"] / cell["vert_grid"]
-        n_efold = check_sw_resolution(dz_top)
-        if n_efold < threshold:
-            n_flagged += 1
-            # log column/row, dz_top, n_efold -- whatever your logging convention is
+    valid = grid["valid_cell"]
+    dz_top = grid["firn_depth"][valid] / grid["vert_grid"][valid]
+    n_efold = check_sw_resolution(dz_top)   # array, one value per valid cell
 
+    n_flagged = np.sum(n_efold < threshold)
     if n_flagged > 0:
-        print(f"[sw_penetration] {n_flagged}/{len(grid)} columns have "
+        print(f"[sw_penetration] {n_flagged}/{valid.sum()} valid columns have "
               f"< {threshold} grid cells per e-folding depth near the surface.")
 
