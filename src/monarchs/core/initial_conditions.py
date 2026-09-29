@@ -110,6 +110,8 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
                             model_setup.firn_min_height - column, profile_temp, rho_temp
                         )[::-1]
 
+    audit_sw_resolution(grid, toggle_dict, threshold=3.0)
+
     if hasattr(model_setup, "T_init") and model_setup.rho_init != "default":
         T = model_setup.T_init
     else:
@@ -291,3 +293,33 @@ def create_model_grid(
         size_dy=size_dy,
     )
     return grid
+
+# Remove after testing
+def check_sw_resolution(dz_top, a_firn=17.1):
+    """
+    dz_top : float, the surface layer's thickness (firn_depth/vert_grid)
+    """
+    extinction_length = 1.0 / a_firn
+    return extinction_length / dz_top
+
+
+def audit_sw_resolution(grid, toggle_dict, threshold=3.0):
+    """
+    One-time domain-wide diagnostic, run at setup after firn_depth/vert_grid
+    are populated from the DEM. Flags columns where the surface layer is
+    too coarse to resolve Beer's law decay.
+    """
+    if not toggle_dict.get("sw_penetration_toggle", False):
+        return  # no point auditing a term that's switched off
+
+    n_flagged = 0
+    for cell in grid:  # or vectorized equivalent over your grid structure
+        dz_top = cell["firn_depth"] / cell["vert_grid"]
+        n_efold = check_sw_resolution(dz_top)
+        if n_efold < threshold:
+            n_flagged += 1
+            # log column/row, dz_top, n_efold -- whatever your logging convention is
+
+    if n_flagged > 0:
+        print(f"[sw_penetration] {n_flagged}/{len(grid)} columns have "
+              f"< {threshold} grid cells per e-folding depth near the surface.")
