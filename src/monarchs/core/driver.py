@@ -402,8 +402,9 @@ def main(model_setup, grid):
     start = time.perf_counter()
     dt = 3600
 
-    audit_result = audit_sw_resolution(grid, toggle_dict, threshold=3.0)
-    summarise_sw_resolution(audit_result, n_bins=10, log_path=sw_audit_result.csv)
+    audit_result = audit_sw_resolution(grid, toggle_dict) # Remove after testing
+    if audit_result is not None:
+        _log_sw_resolution_init(grid, audit_result)
 
     for day in time_loop:
         from numba.core.registry import CPUDispatcher
@@ -639,45 +640,25 @@ def audit_sw_resolution(grid, toggle_dict, beta_snow=17.1, threshold=3.0):
         "n_sub_req": n_sub_req,
     }
 
-def summarise_sw_resolution(audit_result, n_bins=10, log_path=None):
+_SW_AUDIT_LOGFILE = "sw_resolution_audit_init.csv"
+
+def _log_sw_resolution_init(grid, audit_result):
     """
-    Writes per-depth-band resolution summary to a log file instead of
-    printing to terminal.
-
-    log_path : str, optional
-        Path to a log file. If provided, a FileHandler is attached so
-        this function's output goes there specifically. If None, uses
-        whatever handlers are already configured on the root/module logger.
+    Writes one row per valid column, capturing SW-penetration grid
+    resolution at model initialisation. Single-call, not intended to
+    be appended to across a run.
     """
-    if log_path is not None:
-        handler = logging.FileHandler(log_path)
-        handler.setLevel(logging.INFO)
-        formatter = logging.Formatter("%(asctime)s %(message)s")
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.setLevel(logging.INFO)
+    valid = grid["valid_cell"]
+    columns = grid["column"][valid]
+    rows = grid["row"][valid]
 
-    firn_depth = audit_result["firn_depth"]
-    n_efold = audit_result["n_efold"]
-    n_sub_req = audit_result["n_sub_req"]
-
-    bin_edges = np.linspace(firn_depth.min(), firn_depth.max(), n_bins + 1)
-    bin_idx = np.digitize(firn_depth, bin_edges) - 1
-
-    logger.info("SW penetration resolution audit")
-    for i in range(n_bins):
-        mask = bin_idx == i
-        if not mask.any():
-            continue
-        logger.info(
-            f"depth [{bin_edges[i]:.1f}-{bin_edges[i+1]:.1f}] m: "
-            f"n={mask.sum():4d}  "
-            f"n_efold min/mean/max = {n_efold[mask].min():.2f}/"
-            f"{n_efold[mask].mean():.2f}/{n_efold[mask].max():.2f}  "
-            f"n_sub_req max = {n_sub_req[mask].max()}"
-        )
-
-    if log_path is not None:
-        logger.removeHandler(handler)
-        handler.close()
+    with open(_SW_AUDIT_LOGFILE, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["column", "row", "firn_depth", "dz_top", "n_efold", "n_sub_req"])
+        for x, y, fd, dz, ne, ns in zip(
+            columns, rows,
+            audit_result["firn_depth"], audit_result["dz_top"],
+            audit_result["n_efold"], audit_result["n_sub_req"],
+        ):
+            w.writerow([x, y, fd, dz, ne, ns])
 
