@@ -32,7 +32,7 @@ def load_blue_ice(model_setup):
     
     # Checking for the existence of the file and that it can be read.
     if os.access(model_setup.blue_ice_input_filepath, os.R_OK):
-        blue_ice = np.loadtxt(model_setup.blue_ice_input_filepath, dtype=np.float64, delimiter=',')
+        blue_ice = np.loadtxt(model_setup.blue_ice_input_filepath, dtype=np.int32, delimiter=',')
     else:
         raise IOError(f"The file {model_setup.blue_ice_input_filepath} is not readable.")
     
