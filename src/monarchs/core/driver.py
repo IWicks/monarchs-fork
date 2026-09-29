@@ -622,8 +622,6 @@ def audit_sw_resolution(grid, toggle_dict, beta_snow=17.1, threshold=3.0):
         n_efold    : ndarray, grid cells per e-fold for each valid column
         n_sub_req  : ndarray, sub-grid factor needed to hit `threshold`
     """
-    if not toggle_dict.get("sw_penetration_toggle", False):
-        return None
 
     valid = grid["valid_cell"]
     firn_depth = grid["firn_depth"][valid]
