@@ -402,7 +402,8 @@ def main(model_setup, grid):
     start = time.perf_counter()
     dt = 3600
 
-    audit_sw_resolution(grid, toggle_dict, threshold=3.0)
+    audit_result = audit_sw_resolution(grid, toggle_dict, threshold=3.0)
+    summarise_sw_resolution(audit_result, n_bins=10, log_path=sw_audit_result.csv)
 
     for day in time_loop:
         from numba.core.registry import CPUDispatcher
@@ -598,6 +599,7 @@ def monarchs():
     grid = main(model_setup, grid)
     return grid
 
+# Remove below functions after investigating
 def check_sw_resolution(dz_top, a_firn=17.1):
     """
     dz_top : float, the surface layer's thickness (firn_depth/vert_grid)
@@ -605,20 +607,77 @@ def check_sw_resolution(dz_top, a_firn=17.1):
     extinction_length = 1.0 / a_firn
     return extinction_length / dz_top
 
+def audit_sw_resolution(grid, toggle_dict, beta_snow=17.1, threshold=3.0):
+    """
+    Returns per-column diagnostics of SW-penetration grid resolution,
+    rather than a single summary count, so the firn_depth -> resolution
+    relationship across the domain can be inspected directly.
 
-def audit_sw_resolution(grid, toggle_dict, threshold=3.0):
+    Returns
+    -------
+    dict with keys:
+        firn_depth : ndarray, firn_depth for each valid column
+        dz_top     : ndarray, surface layer thickness for each valid column
+        n_efold    : ndarray, grid cells per e-fold for each valid column
+        n_sub_req  : ndarray, sub-grid factor needed to hit `threshold`
     """
-    One-time domain-wide diagnostic, run at setup after firn_depth/vert_grid
-    are populated from the DEM. Flags columns where the surface layer is
-    too coarse to resolve Beer's law decay.
-    """
+    if not toggle_dict.get("sw_penetration_toggle", False):
+        return None
 
     valid = grid["valid_cell"]
-    dz_top = grid["firn_depth"][valid] / grid["vert_grid"][valid]
-    n_efold = check_sw_resolution(dz_top)   # array, one value per valid cell
+    firn_depth = grid["firn_depth"][valid]
+    vert_grid = grid["vert_grid"][valid]
+    dz_top = firn_depth / vert_grid
 
-    n_flagged = np.sum(n_efold < threshold)
-    if n_flagged > 0:
-        print(f"[sw_penetration] {n_flagged}/{valid.sum()} valid columns have "
-              f"< {threshold} grid cells per e-folding depth near the surface.")
+    n_efold = check_sw_resolution(dz_top, beta_snow)
+    n_sub_req = np.ceil(threshold / n_efold).astype(int)
+
+    return {
+        "firn_depth": firn_depth,
+        "dz_top": dz_top,
+        "n_efold": n_efold,
+        "n_sub_req": n_sub_req,
+    }
+
+def summarise_sw_resolution(audit_result, n_bins=10, log_path=None):
+    """
+    Writes per-depth-band resolution summary to a log file instead of
+    printing to terminal.
+
+    log_path : str, optional
+        Path to a log file. If provided, a FileHandler is attached so
+        this function's output goes there specifically. If None, uses
+        whatever handlers are already configured on the root/module logger.
+    """
+    if log_path is not None:
+        handler = logging.FileHandler(log_path)
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter("%(asctime)s %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+
+    firn_depth = audit_result["firn_depth"]
+    n_efold = audit_result["n_efold"]
+    n_sub_req = audit_result["n_sub_req"]
+
+    bin_edges = np.linspace(firn_depth.min(), firn_depth.max(), n_bins + 1)
+    bin_idx = np.digitize(firn_depth, bin_edges) - 1
+
+    logger.info("SW penetration resolution audit")
+    for i in range(n_bins):
+        mask = bin_idx == i
+        if not mask.any():
+            continue
+        logger.info(
+            f"depth [{bin_edges[i]:.1f}-{bin_edges[i+1]:.1f}] m: "
+            f"n={mask.sum():4d}  "
+            f"n_efold min/mean/max = {n_efold[mask].min():.2f}/"
+            f"{n_efold[mask].mean():.2f}/{n_efold[mask].max():.2f}  "
+            f"n_sub_req max = {n_sub_req[mask].max()}"
+        )
+
+    if log_path is not None:
+        logger.removeHandler(handler)
+        handler.close()
 
