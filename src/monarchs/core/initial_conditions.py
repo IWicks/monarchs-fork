@@ -236,8 +236,8 @@ def create_model_grid(
         use_numba=False,
         lats=np.array([np.nan]),
         lons=np.array([np.nan]),
-        size_dx=80.0,
-        size_dy=80.0,
+        size_dx=1000.0,
+        size_dy=1000.0,
 ):
     """
     Creates the model grid by initializing the ice shelf with the provided parameters.
