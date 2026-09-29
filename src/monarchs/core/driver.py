@@ -612,8 +612,6 @@ def audit_sw_resolution(grid, toggle_dict, threshold=3.0):
     are populated from the DEM. Flags columns where the surface layer is
     too coarse to resolve Beer's law decay.
     """
-    if not toggle_dict.get("sw_penetration_toggle", False):
-        return  # no point auditing a term that's switched off
 
     n_flagged = 0
     for cell in grid:  # or vectorized equivalent over your grid structure
