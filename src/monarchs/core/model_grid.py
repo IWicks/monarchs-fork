@@ -208,7 +208,7 @@ def get_spec(vert_grid_size, vert_grid_lid, vert_grid_lake):
             ("rho_lid", np.float64, vert_grid_lid),
             ("firn_temperature", np.float64, vert_grid_size),
             ("RVf", np.float64),
-            ("blue_ice", np.float64),
+            ("blue_ice", np.int32),
             ("Sfrac", np.float64, vert_grid_size),
             ("Lfrac", np.float64, vert_grid_size),
             ("meltflag", np.float64, vert_grid_size),
