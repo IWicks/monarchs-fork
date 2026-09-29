@@ -26,7 +26,6 @@ from monarchs.core.utils import get_2d_grid, calc_grid_mass, check_grid_correctn
 from monarchs.met_data.met_data_grid import initialise_met_data, get_spec
 from monarchs.physics import lateral_functions
 
-import csv # Remove after debugging
 
 def setup_toggle_dict(model_setup):
     """
@@ -402,10 +401,6 @@ def main(model_setup, grid):
     start = time.perf_counter()
     dt = 3600
 
-    audit_result = audit_sw_resolution(grid, toggle_dict) # Remove after testing
-    if audit_result is not None:
-        _log_sw_resolution_init(grid, audit_result)
-
     for day in time_loop:
         from numba.core.registry import CPUDispatcher
         import gc
@@ -599,64 +594,3 @@ def monarchs():
     grid = initialise(model_setup)
     grid = main(model_setup, grid)
     return grid
-
-# Remove below functions after investigating
-def check_sw_resolution(dz_top, a_firn=17.1):
-    """
-    dz_top : float, the surface layer's thickness (firn_depth/vert_grid)
-    """
-    extinction_length = 1.0 / a_firn
-    return extinction_length / dz_top
-
-def audit_sw_resolution(grid, toggle_dict, beta_snow=17.1, threshold=3.0):
-    """
-    Returns per-column diagnostics of SW-penetration grid resolution,
-    rather than a single summary count, so the firn_depth -> resolution
-    relationship across the domain can be inspected directly.
-
-    Returns
-    -------
-    dict with keys:
-        firn_depth : ndarray, firn_depth for each valid column
-        dz_top     : ndarray, surface layer thickness for each valid column
-        n_efold    : ndarray, grid cells per e-fold for each valid column
-        n_sub_req  : ndarray, sub-grid factor needed to hit `threshold`
-    """
-
-    valid = grid["valid_cell"]
-    firn_depth = grid["firn_depth"][valid]
-    vert_grid = grid["vert_grid"][valid]
-    dz_top = firn_depth / vert_grid
-
-    n_efold = check_sw_resolution(dz_top, beta_snow)
-    n_sub_req = np.ceil(threshold / n_efold).astype(int)
-
-    return {
-        "firn_depth": firn_depth,
-        "dz_top": dz_top,
-        "n_efold": n_efold,
-        "n_sub_req": n_sub_req,
-    }
-
-_SW_AUDIT_LOGFILE = "sw_resolution_audit_init.csv"
-
-def _log_sw_resolution_init(grid, audit_result):
-    """
-    Writes one row per valid column, capturing SW-penetration grid
-    resolution at model initialisation. Single-call, not intended to
-    be appended to across a run.
-    """
-    valid = grid["valid_cell"]
-    columns = grid["column"][valid]
-    rows = grid["row"][valid]
-
-    with open(_SW_AUDIT_LOGFILE, "w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(["column", "row", "firn_depth", "dz_top", "n_efold", "n_sub_req"])
-        for x, y, fd, dz, ne, ns in zip(
-            columns, rows,
-            audit_result["firn_depth"], audit_result["dz_top"],
-            audit_result["n_efold"], audit_result["n_sub_req"],
-        ):
-            w.writerow([x, y, fd, dz, ne, ns])
-
