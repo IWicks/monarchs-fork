@@ -39,7 +39,6 @@ def extinction_coefficient(cell, beta_ice=2.5, beta_sfc=17.1, beta_water=0.2, rh
     beta_bulk : float
         The bulk extinction coeffiecient [m^-1].
     """
-
     
     if cell["blue_ice"] in (1,2):
         beta_matrix = np.full_like(cell["rho"], beta_ice)
