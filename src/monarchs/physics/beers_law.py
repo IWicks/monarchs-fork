@@ -77,7 +77,7 @@ def sw_penetration(cell, SW_in, alpha, dz):
     # Obtain the bulk extinction coefficient for the vertical column
     beta_bulk = extinction_coefficient(cell)
     
-    # Apply Beer's law to vertical column
+    # Apply Beer's law to vertical column, calculating optical depth and transmitted SW
     tau_layer = beta_bulk * dz
     tau_top = np.cumsum(tau_layer) - tau_layer
     tau_bottom = np.cumsum(tau_layer)
