@@ -157,3 +157,39 @@ def sw_penetration_lid(cell, SW_in, alpha, dz):
     SW_abs_lid = (flux_top - flux_bottom) / dz
     
     return SW_abs_lid
+
+
+
+def sw_penetration_v_lid(cell, SW_in, alpha, beta_lid_ice=2.5):
+
+    """
+    Calculates shortwave absorption into and penetration through the virtual lid, using Beer's law.
+    
+    Beer's law is applied once across the whole virtual lid, given it is represented by a single
+    temperature and has no vertical profile. 
+    
+    Parameters
+    -----------
+    cell : numpy structured array
+        Element of the model grid we are operating on.
+    SW_in : float
+        Incoming shortwave (solar) radiation [W m^-2].
+    alpha : float
+        Effective surface albedo for shortwave radiation.
+    beta_lid_ice : float
+        The extinction coefficient of ice [m^-1].
+
+    Returns
+    -------
+    SW_transmitted : float
+        Shortwave transmitted through to the lake beneath [W m^-2].
+    SW_abs_v_lid : float
+        Total shortwave absorbed within the virtual lid [W m^-2].
+    """
+    
+    tau = beta_lid_ice * cell["v_lid_depth"]
+    I0_net = (1 - alpha) * SW_in
+    SW_transmitted = I0_net * np.exp(-tau)
+    SW_abs_v_lid = I0_net - SW_transmitted
+    
+    return SW_transmitted, SW_abs_v_lid
