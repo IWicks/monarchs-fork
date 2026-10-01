@@ -7,16 +7,12 @@ shortwave penetration beneath the surface.
 
 import numpy as np
 
-def extinction_coefficient(cell, beta_ice=2.5, beta_sfc=17.1, beta_water=0.2, rho_sfc=500):
+def extinction_coefficient(cell, beta_ice=2.5, beta_sfc=17.1, beta_water=0.0025, rho_sfc=500):
     
     """
     Calculates per-layer broadband extinction coefficient of the cell based on the solid and
     liquid water fraction. Interpolates between snow and ice extinction coefficient values from
     Bintanja and van den Broeke (1995). The Surface Energy Balance of Antarctic Snow and Blue Ice.
-    
-    The extinction coefficient for water is approx. two orders of magnitude lower than for the
-    surface firn/snow, following Sergienko and MacAyeal (2005). Surface melting on Larsen Ice
-    Shelf, Antarctica.
     
     rho_sfc anchors the 'snow-like' end of the interpolation to the same surface density used
     at initialisation. Change if initial surface density is different to 500 kg m^-3.
