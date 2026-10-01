@@ -1,8 +1,8 @@
 """
-Isabelle Wicks, Northumbria University (30/09/2026)
+Isabelle Wicks, Northumbria University (1/10/2026)
 
 Functions to calculate the extinction coefficient of the vertical column and
-shortwave penetration beneath the surface.
+shortwave penetration beneath the surface for all surface types.
 """
 
 import numpy as np
@@ -32,10 +32,10 @@ def extinction_coefficient(cell, beta_ice=2.5, beta_sfc=17.1, beta_water=0.0025,
     
     Returns
     -------
-    beta_bulk : float
+    beta_bulk : ndarray, dimension(cell.vert_grid)
         The bulk extinction coeffiecient [m^-1].
     """
-    
+
     if cell["blue_ice"] in (1,2):
         beta_matrix = np.full_like(cell["rho"], beta_ice)
         
@@ -64,8 +64,8 @@ def sw_penetration(cell, SW_in, alpha, dz):
         Incoming shortwave (solar) radiation [W m^-2].
     alpha : float
         Effective surface albedo for shortwave radiation.
-    dz : ndarray, dimension(cell.vert_grid)
-        Depth of each vertical cell in the column.
+    dz : float
+        Height of each vertical point in the cell [m].
 
     Returns
     -------
@@ -89,3 +89,73 @@ def sw_penetration(cell, SW_in, alpha, dz):
     SW_abs = (flux_top - flux_bottom) / dz
     
     return SW_abs
+
+
+
+def extinction_coefficient_lid(cell, beta_lid_ice=2.5):
+    
+    """
+    Calculates per-layer broadband extinction coefficient of the true lid.
+    
+    rho_lid is fixed at rho_ice (917 kg m^-3), treating the lid as fully consolidated,
+    bubble-free ice throughout, meaning it is optically closer to blue ice (Bintanja and
+    van den Broeke, 1995, beta_ice) thus is handled with the same extinction coefficient.
+    
+    
+    Parameters
+    -----------
+    cell : numpy structured array
+        Element of the model grid we are operating on.
+    beta_lid_ice : float
+        The extinction coefficient of ice [m^-1].
+    
+    Returns
+    -------
+    beta_lid : ndarray, dimension(cell.vert_grid_lid)
+        The per-layer extinction coeffiecient [m^-1].
+    """
+
+    beta_lid = np.full_like(cell["rho_lid"], beta_lid_ice)
+    
+    return beta_lid
+
+
+
+def sw_penetration_lid(cell, SW_in, alpha, dz):
+    
+    """
+    Calculates shortwave penetration into the subsurface of the true lid, using Beer's law.
+    
+    Parameters
+    -----------
+    cell : numpy structured array
+        Element of the model grid we are operating on.
+    SW_in : float
+        Incoming shortwave (solar) radiation [W m^-2].
+    alpha : float
+        Effective surface albedo for shortwave radiation.
+    dz : float
+        Height of each vertical point in the cell. [m]
+
+    Returns
+    -------
+    SW_abs_lid : ndarray, dimension(cell.vert_grid)
+        The shortwave radiation over the vertical column [W m^-3].
+    
+    """
+    
+    # Obtain the bulk extinction coefficient for the vertical column
+    beta_lid = extinction_coefficient_lid(cell)
+    
+    # Apply Beer's law to vertical column, calculating optical depth and transmitted SW
+    tau_layer = beta_lid * dz
+    tau_top = np.cumsum(tau_layer) - tau_layer
+    tau_bottom = np.cumsum(tau_layer)
+    
+    I0_net = (1 - alpha) * SW_in
+    flux_top = I0_net * np.exp(-tau_top)
+    flux_bottom = I0_net * np.exp(-tau_bottom)
+    
+    SW_abs_lid = (flux_top - flux_bottom) / dz
+    
+    return SW_abs_lid
