@@ -71,7 +71,6 @@ def sw_penetration(cell, SW_in, alpha, dz):
     -------
     SW_abs : ndarray, dimension(cell.vert_grid)
         The shortwave radiation over the vertical column [W m^-3].
-    
     """
     
     # Obtain the bulk extinction coefficient for the vertical column
@@ -141,7 +140,6 @@ def sw_penetration_lid(cell, SW_in, alpha, dz):
     -------
     SW_abs_lid : ndarray, dimension(cell.vert_grid)
         The shortwave radiation over the vertical column [W m^-3].
-    
     """
     
     # Obtain the bulk extinction coefficient for the vertical column
