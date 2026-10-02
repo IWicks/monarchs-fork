@@ -14,6 +14,36 @@ may need to be re-tuned for your specific model setup.
 
 import numpy as np
 
+def compute_box_dz(vertical_profile):
+    
+    """
+    Computes the box thickness surrounding each point in vertical_profile.
+ 
+    Each grid point represents a node. The box for each node extends halfway
+    to each neighbouring point. The top and bottom boxes are capped at the
+    domain edges (vertical_profile[0] and vertical_profile[-1]) rather than
+    extending symmetrically past them, so box thicknesses always sum exactly
+    to the total column depth.
+ 
+    Parameters
+    ----------
+    vertical_profile : ndarray, shape (vert_grid,)
+        Depth coordinate of each grid point [m].
+ 
+    Returns
+    -------
+    dz_box : ndarray, shape (vert_grid,)
+        Box thickness surrounding each point [m].
+    """
+    
+    midpoints = (vertical_profile[:-1] + vertical_profile[1:]) / 2
+    box_boundaries = np.concatenate(([vertical_profile[0]], midpoints, [vertical_profile[-1]]))
+    dz_box = np.diff(box_boundaries)
+    
+    return dz_box
+
+
+
 def _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction):
    
     """
