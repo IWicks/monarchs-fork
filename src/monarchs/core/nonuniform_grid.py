@@ -2,6 +2,14 @@
 Isabelle Wicks, Northumbria University (2/10/2026)
 
 Functions to generate a non-uniform vertical grid used for near-surface processes.
+
+Default surface_depth=0.25 and surface_fraction=0.075 are tuned against the worst-
+case extinction coefficient in the model (beta_snow=17.1 m^-1, e-fold depth ~0.0585 m)
+for 400 vertical points. This covers ~4.3 e-folds (98.6% of absorbed shortwave) at ~7
+grid cells per e-fold.
+
+If beta_snow or the number of vertical points changes, surface_depth and surface_fraction
+may need to be re-tuned for your specific model setup.
 """
 
 import numpy as np
