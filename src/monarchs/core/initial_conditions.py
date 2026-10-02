@@ -9,6 +9,7 @@ from monarchs.DEM.load_DEM import export_DEM
 from monarchs.core.model_grid import initialise_iceshelf, get_spec
 from monarchs.rock_view.import_RVf import load_RVf
 from monarchs.blue_ice.import_blue_ice import load_blue_ice
+from monarchs.core.nonuniform_grid import generate_nonuniform_depth_array
 
 def initialise_firn_profile(model_setup, diagnostic_plots=False):
     """
@@ -82,7 +83,9 @@ def initialise_firn_profile(model_setup, diagnostic_plots=False):
     if not np.array_equal(valid_cells_old, valid_cells):
         print("Removed some isolated cells - new grid = ", valid_cells)
 
-    firn_columns = np.moveaxis(np.linspace(0, firn_depth, int(model_setup.vertical_points_firn)), 0, -1)
+    # Generating a non-uniform depth grid. See nonuniform_grid.py docstring for how the default
+    # surface_depth/surface_fraction were chosen. Re-tune if vertical_points_firn changes.
+    firn_columns = generate_nonuniform_depth_array(firn_depth, int(model_setup.vertical_points_firn))
     
     if hasattr(model_setup, "rho_init") and model_setup.rho_init != "default":
         rho = model_setup.rho_init
