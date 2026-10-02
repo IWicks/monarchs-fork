@@ -47,10 +47,12 @@ def _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction
 
 
 
-def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=1.0, surface_fraction=0.3):
+def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=0.25, surface_fraction=0.075):
     
     """
-    Non-uniform depth coordinates for a single column.
+    Non-uniform depth coordinates for a single column. surface_depth and surface_fraction
+    require tuning based on number of vertical grid points used in model run (current tuning 
+    based on default value of 400).
 
     Parameters
     ----------
@@ -75,10 +77,12 @@ def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=1.0, su
 
 
 
-def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=1.0, surface_fraction=0.3):
+def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=0.25, surface_fraction=0.075):
     
     """
-    Non-uniform depth coordinates for an array of columns.
+    Non-uniform depth coordinates for an array of columns. surface_depth and surface_fraction
+    require tuning based on number of vertical grid points used in model run (current tuning 
+    based on default value of 400).
 
     Parameters
     ----------
@@ -106,7 +110,7 @@ def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=1.0, sur
 
 
 
-def generate_nonuniform_depth(firn_depth, n_points, surface_depth=1.0, surface_fraction=0.3):
+def generate_nonuniform_depth(firn_depth, n_points, surface_depth=0.25, surface_fraction=0.075):
     
     """
     Dispatches to the scalar or array implementation based on input type.
@@ -115,5 +119,4 @@ def generate_nonuniform_depth(firn_depth, n_points, surface_depth=1.0, surface_f
     if np.isscalar(firn_depth):
         return generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth, surface_fraction)
     
-    return generate_nonuniform_depth_array(firn_depth, n_points, surface_depth, surface_fraction)
-   
+    return generate_nonuniform_depth_array(firn_depth, n_points, surface_depth, surface_fraction) 
