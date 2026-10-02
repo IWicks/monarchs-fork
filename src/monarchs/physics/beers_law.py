@@ -1,5 +1,5 @@
 """
-Isabelle Wicks, Northumbria University (1/10/2026)
+Isabelle Wicks, Northumbria University (2/10/2026)
 
 Functions to calculate the extinction coefficient of the vertical column and
 shortwave penetration beneath the surface for all surface types.
@@ -51,7 +51,7 @@ def extinction_coefficient(cell, beta_ice=2.5, beta_sfc=17.1, beta_water=0.0025,
 
 
 
-def sw_penetration(cell, SW_in, alpha, dz):
+def sw_penetration(cell, SW_in, alpha, box_dz):
     
     """
     Calculates shortwave penetration into the subsurface of the firn column, using Beer's law.
@@ -64,8 +64,10 @@ def sw_penetration(cell, SW_in, alpha, dz):
         Incoming shortwave (solar) radiation [W m^-2].
     alpha : float
         Effective surface albedo for shortwave radiation.
-    dz : float
-        Height of each vertical point in the cell [m].
+    dz_box : float
+        Box thickness surrounding each vertical grid point, from 
+        box_dz.compute_box_dz(cell["vertical_profile"]) [m].
+
 
     Returns
     -------
@@ -77,7 +79,7 @@ def sw_penetration(cell, SW_in, alpha, dz):
     beta_bulk = extinction_coefficient(cell)
     
     # Apply Beer's law to vertical column, calculating optical depth and transmitted SW
-    tau_layer = beta_bulk * dz
+    tau_layer = beta_bulk * box_dz
     tau_top = np.cumsum(tau_layer) - tau_layer
     tau_bottom = np.cumsum(tau_layer)
     
@@ -85,7 +87,7 @@ def sw_penetration(cell, SW_in, alpha, dz):
     flux_top = I0_net * np.exp(-tau_top)
     flux_bottom = I0_net * np.exp(-tau_bottom)
     
-    SW_abs = (flux_top - flux_bottom) / dz
+    SW_abs = (flux_top - flux_bottom) / box_dz
     
     return SW_abs
 
@@ -120,7 +122,7 @@ def extinction_coefficient_lid(cell, beta_lid_ice=2.5):
 
 
 
-def sw_penetration_lid(cell, SW_in, alpha, dz):
+def sw_penetration_lid(cell, SW_in, alpha, box_dz):
     
     """
     Calculates shortwave penetration into the subsurface of the true lid, using Beer's law.
@@ -133,8 +135,9 @@ def sw_penetration_lid(cell, SW_in, alpha, dz):
         Incoming shortwave (solar) radiation [W m^-2].
     alpha : float
         Effective surface albedo for shortwave radiation.
-    dz : float
-        Height of each vertical point in the cell. [m]
+    dz_box : float
+        Box thickness surrounding each vertical grid point, from 
+        box_dz.compute_box_dz(cell["vertical_profile"]) [m].
 
     Returns
     -------
@@ -146,7 +149,7 @@ def sw_penetration_lid(cell, SW_in, alpha, dz):
     beta_lid = extinction_coefficient_lid(cell)
     
     # Apply Beer's law to vertical column, calculating optical depth and transmitted SW
-    tau_layer = beta_lid * dz
+    tau_layer = beta_lid * box_dz
     tau_top = np.cumsum(tau_layer) - tau_layer
     tau_bottom = np.cumsum(tau_layer)
     
@@ -154,7 +157,7 @@ def sw_penetration_lid(cell, SW_in, alpha, dz):
     flux_top = I0_net * np.exp(-tau_top)
     flux_bottom = I0_net * np.exp(-tau_bottom)
     
-    SW_abs_lid = (flux_top - flux_bottom) / dz
+    SW_abs_lid = (flux_top - flux_bottom) / box_dz
     
     return SW_abs_lid
 
