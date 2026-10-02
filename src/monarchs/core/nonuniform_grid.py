@@ -6,7 +6,6 @@ Functions to generate a non-uniform vertical grid used for near-surface processe
 
 import numpy as np
 
-
 def _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction):
    
     """
@@ -47,6 +46,7 @@ def _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction
     return z
 
 
+
 def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=1.0, surface_fraction=0.3):
     
     """
@@ -72,6 +72,7 @@ def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=1.0, su
     z = _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction)
     
     return z[0]
+
 
 
 def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=1.0, surface_fraction=0.3):
@@ -104,6 +105,7 @@ def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=1.0, sur
     return z_flat.reshape(orig_shape + (n_points,))
 
 
+
 def generate_nonuniform_depth(firn_depth, n_points, surface_depth=1.0, surface_fraction=0.3):
     
     """
@@ -114,3 +116,4 @@ def generate_nonuniform_depth(firn_depth, n_points, surface_depth=1.0, surface_f
         return generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth, surface_fraction)
     
     return generate_nonuniform_depth_array(firn_depth, n_points, surface_depth, surface_fraction)
+   
