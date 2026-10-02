@@ -5,6 +5,7 @@ Define the model grid datatype. This is a Numpy structured array.
 import numpy as np
 from monarchs.rock_view.import_RVf import load_RVf
 from monarchs.blue_ice.import_blue_ice import load_blue_ice
+from monarchs.core.nonuniform_grid import generate_nonuniform_depth_array
 
 def initialise_iceshelf(
     model_setup,
@@ -71,9 +72,7 @@ def initialise_iceshelf(
     iceshelf["row"] = y
     iceshelf["firn_depth"] = firn_depth
     iceshelf["vert_grid"] = vert_grid
-    iceshelf["vertical_profile"] = np.moveaxis(
-        np.linspace(0, firn_depth, vert_grid), 0, -1
-    )
+    iceshelf["vertical_profile"] = generate_nonuniform_depth_array(firn_dpeth, vert_grid)
     iceshelf["vert_grid_lake"] = vert_grid_lake
     iceshelf["vert_grid_lid"] = vert_grid_lid
     iceshelf["rho"] = rho
