@@ -8,9 +8,8 @@ import numpy as np
 from monarchs.physics import snow_accumulation
 from monarchs.physics import firn_functions, lake_functions, solver, lid_functions
 from monarchs.core import utils
-from monarchs.physics import surface_fluxes # remove after debugging
 
-def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict, x=None, y=None): # Remove x/y after debugging
+def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict):
     """
     Main timestepping loop applied to an instance of the model grid.
     Called by loop_over_grid to work in parallel over multiple instances.
@@ -67,8 +66,6 @@ def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict, x=None, y=No
     cell["t_step"] = 1
     cell["daily_melt" ]= 0.0
     for t_step in range(t_steps_per_day):
-
-        surface_fluxes.set_debug_context(day=cell["day"], t_step=t_step, x=x, y=y) # Remove after debugging
         
         if cell["lake_depth"] == 0:
             cell["lake"] = False
@@ -105,11 +102,11 @@ def timestep_loop(cell, dt, met_data, t_steps_per_day, toggle_dict, x=None, y=No
 
         elif cell["exposed_water"]:
             args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind
-            firn_temp_guess = cell["firn_temperature"] # Renamed from x during debug, remove after debugging
+            x = cell["firn_temperature"]
 
             if firn_heat_toggle:
                 sol, fvec, success, info = solver.firn_heateqn_solver(
-                    firn_temp_guess, args, fixed_sfc=True, solver_method='hybr' # Renamed from x during debug, remove after debugging
+                    x, args, fixed_sfc=True, solver_method='hybr'
                 )
                 if success:
                     cell["firn_temperature"] = sol
