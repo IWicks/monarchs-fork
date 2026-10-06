@@ -40,9 +40,7 @@ def extinction_coefficient(cell, tau_ice=2.5, tau_sfc=17.1, tau_water=0.0025, rh
         tau_matrix = np.full_like(cell["rho"], tau_ice)
         
     else:
-        frac = np.clip(
-            (cell["rho"] - rho_sfc) / (cell["rho_ice"] - rho_sfc), 0, 1
-        )
+        frac = np.clip((cell["rho"] - rho_sfc) / (cell["rho_ice"] - rho_sfc), 0, 1)
         tau_matrix = tau_sfc * (1 - frac) + tau_ice * frac
     
     tau_bulk = (1 - cell["Lfrac"]) * tau_matrix + cell["Lfrac"] * tau_water
