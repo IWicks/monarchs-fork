@@ -72,7 +72,7 @@ def initialise_iceshelf(
     iceshelf["row"] = y
     iceshelf["firn_depth"] = firn_depth
     iceshelf["vert_grid"] = vert_grid
-    iceshelf["vertical_profile"] = generate_nonuniform_depth_array(firn_dpeth, vert_grid)
+    iceshelf["vertical_profile"] = generate_nonuniform_depth_array(firn_depth, vert_grid)
     iceshelf["vert_grid_lake"] = vert_grid_lake
     iceshelf["vert_grid_lid"] = vert_grid_lid
     iceshelf["rho"] = rho
