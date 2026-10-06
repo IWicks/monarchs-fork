@@ -1,6 +1,6 @@
 import numpy as np
 from functools import wraps
-
+from nonuniform_grid import compute_box_dz
 
 def do_not_jit(function):
     """
@@ -209,12 +209,13 @@ def calc_mass_sum(cell):
     total_mass : float
         Amount of mass in the system, in arbitrary units.
     """
+    dz = compute_box_dz(cell["vertical_profile"])
     total_mass = ((
         np.sum(
-            cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
+            cell["Sfrac"] * cell["rho_ice"] * dz
         )
         + np.sum(
-            cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
+            cell["Lfrac"] * cell["rho_water"] * dz
         )
         + cell["lake_depth"] * cell["rho_water"]
         + cell["lid_depth"] * cell["rho_ice"]
