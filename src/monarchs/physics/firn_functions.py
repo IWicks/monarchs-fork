@@ -296,7 +296,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
     """
     epsilon_ice = 0.98
     sigma = 5.670374e-8
-    dz = cell["firn_depth"] / cell["vert_grid"]
+    dz = np.diff(cell["vertical_profile"])[0]
     L_fus = 334000
     if cell["firn_temperature"][0] > 273.14999999 and cell["firn_temperature"][0] < 273.151:
         cell["firn_temperature"][0] = 273.15
