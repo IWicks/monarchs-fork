@@ -147,8 +147,7 @@ def loop_over_grid(
         for i in range(row_amount * col_amount):
             row, col = divmod(i, col_amount) # Remove after debugging
             timestep_loop(
-                flat_grid[i], dt, met_data_grid[i], t_steps_per_day, toggle_dict,
-                x=row, y=col # Remove x/y after debugging
+                flat_grid[i], dt, met_data_grid[i], t_steps_per_day, toggle_dict
             )
         grid[:] = flat_grid.reshape(grid.shape)
         return grid
