@@ -1,7 +1,8 @@
 """
-Isabelle Wicks, Northumbria University (2/10/2026)
+Isabelle Wicks, Northumbria University (6/10/2026)
 
-Functions to generate a non-uniform vertical grid used for near-surface processes.
+Functions to generate a non-uniform vertical grid and vertical boxes used for near-surface
+processes.
 
 Default surface_depth=0.25 and surface_fraction=0.075 are tuned against the worst-
 case extinction coefficient in the model (beta_snow=17.1 m^-1, e-fold depth ~0.0585 m)
@@ -19,11 +20,9 @@ def compute_box_dz(vertical_profile):
     """
     Computes the box thickness surrounding each point in vertical_profile.
  
-    Each grid point represents a node. The box for each node extends halfway
-    to each neighbouring point. The top and bottom boxes are capped at the
-    domain edges (vertical_profile[0] and vertical_profile[-1]) rather than
-    extending symmetrically past them, so box thicknesses always sum exactly
-    to the total column depth.
+    Each grid point represents a node. The box for each node extends halfway to each
+    neighbouring point. The top and bottom boxes are capped at the domain edges
+    (vertical_profile[0] and vertical_profile[-1]).
  
     Parameters
     ----------
@@ -41,6 +40,33 @@ def compute_box_dz(vertical_profile):
     dz_box = np.diff(box_boundaries)
     
     return dz_box
+
+
+
+def compute_box_edges(vertical_profile):
+    
+    """
+    Computes the box boundary positions surrounding each point in vertical_profile.
+    
+    Each grid point represents a node, where its box extends halfway to each neighbouring
+    point, capped at the domain edges (vertical_profile[0] and vertical_profile[-1]) for
+    the top/bottom points.
+
+    Parameters
+    ----------
+    vertical_profile : ndarray, shape (vert_grid,)
+        Depth coordinate of each grid point [m].
+
+    Returns
+    -------
+    box_edges : ndarray, shape (vert_grid + 1,)
+        Box boundary positions, suitable for use with conservative_remap.
+    """
+    
+    midpoints = (vertical_profile[:-1] + vertical_profile[1:]) / 2
+    box_edges = np.concatenate(([vertical_profile[0]], midpoints, [vertical_profile[-1]]))
+    
+    return box_edges
 
 
 
@@ -106,8 +132,8 @@ def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=0.25, s
     Returns
     -------
     z : ndarray, shape (n_points,)
-    
     """
+    
     flat_depth = np.array([float(firn_depth)])
     z = _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction)
     
@@ -136,8 +162,8 @@ def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=0.25, su
     Returns
     -------
     z : ndarray, shape firn_depth.shape + (n_points,)
-    
     """
+    
     firn_depth = np.asarray(firn_depth, dtype=float)
     orig_shape = firn_depth.shape
     flat_depth = firn_depth.ravel()
@@ -157,4 +183,4 @@ def generate_nonuniform_depth(firn_depth, n_points, surface_depth=0.25, surface_
     if np.isscalar(firn_depth):
         return generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth, surface_fraction)
     
-    return generate_nonuniform_depth_array(firn_depth, n_points, surface_depth, surface_fraction) 
+    return generate_nonuniform_depth_array(firn_depth, n_points, surface_depth, surface_fraction)
