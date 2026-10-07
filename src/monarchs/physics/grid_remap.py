@@ -36,12 +36,17 @@ def nonuniform_remap(old_edges, q_old, new_edges, tol=1e-9):
     -------
     q_new : ndarray, shape (n_new,)
         Box-averaged quantity remapped onto the new grid.
+        
+    Rasies
+    ------
+    ValueError
+        If old_edges or new_edges are not monotonically increasing.
     """
     
     if np.any(np.diff(old_edges) < -tol):
-        raise ValueError("nonuniform_remap: old_edges is not monotonotically increasing.")
+        raise ValueError("nonuniform_remap: old_edges is not monotonically increasing.")
     if np.any(np.diff(new_edges) < -tol):
-        raise ValueError("nonuniform_remap: new_edges is not monotonotically increasing.")
+        raise ValueError("nonuniform_remap: new_edges is not monotonically increasing.")
     
     n_new = len(new_edges) - 1
     q_new = np.zeros(n_new)
@@ -50,8 +55,9 @@ def nonuniform_remap(old_edges, q_old, new_edges, tol=1e-9):
         L_j, R_j = new_edges[j], new_edges[j + 1]
         new_box_length = R_j - L_j
 
-        # Overlap with every old box - a large negative value means this particular old box
-        # doesn't overlap this particular new box at all, which is expected for most pairs
+        # Overlap with every old box - a large negative value is not itself an error, but means
+        # this particular old box doesn't overlap this particular new box at all, which is expected
+        # for most box pairs
         overlap_left = np.maximum(L_j, old_edges[:-1])
         overlap_right = np.minimum(R_j, old_edges[1:])
         overlap_length = np.clip(overlap_right - overlap_left, 0, None)
