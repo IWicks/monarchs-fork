@@ -131,9 +131,12 @@ def firn_column(
 def regrid_after_melt(cell, height_change, lake=False):
     """
     After melting occurs, subtract the amount of melting from the firn height, convert it into meltwater,
-    and interpolate the entire column to the new vertical profile accounting for this height change.
-    This meltwater is either converted into surface liquid water fraction, or if there is a lake, into lake height.
-
+    and interpolate the entire column to the new (non-uniform) vertical profile accounting for this height change.
+    
+    Liquid water retention physics are preserved and generalised: a partially-consumed old box has its liquid
+    concentrated into the remaining pore space, and a fully-consumed old box's liquid becomes meltwater, the same
+    as melted ice. Excess meltwater is either converted into surface liquid water fraction, or if there is a lake,
+    into lake height.
 
     Parameters
     ----------
@@ -151,97 +154,68 @@ def regrid_after_melt(cell, height_change, lake=False):
     None
     """
     original_mass = utils.calc_mass_sum(cell)
-    dz_old = cell["firn_depth"] / cell["vert_grid"]
     old_firn_depth = cell["firn_depth"] + 0
+
+    tol = 1e-9
+    if height_change >= old_firn_depth - tol:
+        raise ValueError(
+            f"regrid_after_melt: height change ({height_change}) >= "
+            f"firn depth ({old_firn_depth}) - whole-column melt, "
+            f"x={cell["column"]}, y={cell["row"]}"
+    
+    old_vertical_profile = cell["vertical_profile"].copy()
+    old_edges = compute_box_edges(old_vertical_profile)
+    
+    bs = cell["Sfrac"].copy() # Retained for Sfrac>1 diagnostic message
+
     cell["firn_depth"] -= height_change
-    bs = cell["Sfrac"]
-    dz_new = cell["firn_depth"] / cell["vert_grid"]
-    scale = dz_old / (dz_old - height_change)
-    cell["Lfrac"][0] = cell["Lfrac"][0] * scale
-    meltwater = (
-        height_change
-        * (cell["rho_ice"] / cell["rho_water"])
-        * cell["Sfrac"][0]
-    ) # keeping as volume in m^3 and not fractional
-    sfrac_hold = np.zeros(np.shape(cell["Sfrac"]))
-    lfrac_hold = np.zeros(np.shape(cell["Lfrac"]))
-    T_hold = np.zeros(np.shape(cell["firn_temperature"]))
+    new_firn_depth = cell["firn_depth"]
+
+    # Regenerate non-uniform point positions for the new, shorter grid
+    new_vertical_profile = generate_nonuniform_depth_scalar(new_firn_depth, cell["vert_grid"])
+    new_edges = compute_box_edges(new_vertical_profile)
+    new_box_widths = np.diff(new_edges) # 'Widths' here refers to vertical width of boxes
 
     if np.isnan(cell["firn_temperature"]).any():
         raise ValueError("NaN in firn temperature before regridding")
 
-    for i in range(len(cell["Sfrac"]) - 1):
-        if height_change > (i + 1) * dz_old:
-            print(
-                "Whole layer melted - column = ",
-                cell["column"],
-                "row = ",
-                cell["row"],
-                "layer = ",
-                i,
-            )
-            print("height change = ", height_change, "dz_old = ", dz_old)
-            meltwater += cell["Lfrac"][i] * dz_old
-            weight_1 = 0
-        else:
-            weight_1 = (
-                cell["firn_depth"] - i * dz_new - (old_firn_depth - (i + 1) * dz_old)
-            )
-        weight_2 = (
-            old_firn_depth - (i + 1) * dz_old - (cell["firn_depth"] - (i + 1) * dz_new)
-        )
+    # Anchoring grid reference points to the fixed base of the column
+    old_edges_b = old_firn_depth - old_edges[::-1]
+    new_edges_b = new_firn_depth - new_edges[::-1]
+    old_box_widths_b = np.diff(old_edges)
 
-        if weight_1 < 0:
-            if weight_1 > -1e-09:
-                weight_1 = 0
-            else:
-                raise ValueError(
-                    "Regridding weight 1 is negative and exceeds tolerance"
-                )
+    Sfrac_b = cell["Sfrac"][::-1]
+    Lfrac_b = cell["Lfrac"][::-1]
+    firn_T_b = cell["firn_temperature"][::-1]
 
-        if weight_2 < 0:
-            if weight_2 > -1e-09:
-                weight_2 = 0
-            else:
-                raise ValueError(
-                    "Regridding weight 2 is negative and exceeds tolerance"
-                )
+    # Calculate how many old/new boxes overlap
+    lost_overlap_b = lost_overlap(old_edges_b, new_firn_depth, old_firn_depth)
+    Lfrac_b_adj, meltwater = melt_retain_and_loss(Sfrac_b, Lfrac_b, old_box_widths_b,
+        lost_overlap_b, cell["rho_ice"], cell["rho_water"],)
 
-        lfrac_hold[i] = (
-            cell["Lfrac"][i] * weight_1 + cell["Lfrac"][i + 1] * weight_2
-        ) / (weight_1 + weight_2)
-        sfrac_hold[i] = (
-            cell["Sfrac"][i] * weight_1 + cell["Sfrac"][i + 1] * weight_2
-        ) / (weight_1 + weight_2)
+    # Returning to surface-anchored grid reference points
+    Sfrac_hold = nonuniform_remap(old_edges_b, Sfrac_b, new_edges_b)[::-1]
+    Lfrac_hold = nonuniform_remap(old_edges_b, Lfrac_b_adj, new_edges_b)[::-1]
+    firn_T_hold = nonuniform_remap(old_edges_b, firn_T_b, new_edges_b)[::-1]
+    
+    cell["Sfrac"] = Sfrac_hold
+    cell["Lfrac"] = Lfrac_hold
+    cell["firn_temperature"] = firn_T_hold
 
-        T_hold[i] = (
-            cell["firn_temperature"][i] * weight_1
-            + cell["firn_temperature"][i + 1] * weight_2
-        ) / (weight_1 + weight_2)
-
-    lfrac_hold[-1] = cell["Lfrac"][-1]
-    sfrac_hold[-1] = cell["Sfrac"][-1]
-    T_hold[-1] = cell["firn_temperature"][-1]
-    cell["Sfrac"] = sfrac_hold
-    cell["Lfrac"] = lfrac_hold
-    cell["firn_temperature"] = T_hold
-
-    if np.isnan(T_hold).any():
-        print(T_hold)
+    if np.isnan(firn_T_hold).any():
+        print(firn_T_hold)
         print(cell["firn_temperature"])
         print(cell["column"])
         print(cell["row"])
         raise ValueError("NaN in firn temperature after regridding")
 
     cell["daily_melt"] += meltwater
-    cell["Lfrac"][0] += meltwater / dz_new # convert to fraction here
+    cell["Lfrac"][0] += meltwater / new_box_widths[0] # Convert to fraction here
     
     if lake:
         if cell["Lfrac"][0] + cell["Sfrac"][0] > 1:
             excess_water = cell["Lfrac"][0] + cell["Sfrac"][0] - 1
-            cell["lake_depth"] += excess_water * (
-                cell["firn_depth"] / cell["vert_grid"]
-            )
+            cell["lake_depth"] += excess_water * new_box_widths[0]
             cell["Lfrac"][0] = 1 - cell["Sfrac"][0]
         assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
 
@@ -256,11 +230,18 @@ def regrid_after_melt(cell, height_change, lake=False):
         print("Sfrac = ", cell["Sfrac"][where])
         print("x = ", cell["column"], "y = ", cell["row"])
         print("height change = ", height_change)
-        print("dz old = ", dz_old)
         print("firn depth = ", cell["firn_depth"])
         raise ValueError("Sfrac > 1 in firn regridding")
 
-    cell["vertical_profile"] = np.linspace(0, cell["firn_depth"], cell["vert_grid"])
+    # The retain/concentrate rescaling can leave Sfrac+Lfrac > 1 at any level, not just the surface,
+    # since melting can span many fine near-surface boxes. Rather than being capped here, this is
+    # flagged for percolation_functions.percolation to resolve via the existing "fill column upwards
+    # from impermeable layer" mechanism.
+    
+    oversaturated = (cell["Sfrac"] + cell["Lfrac"]) > (1 + tol)
+    cell["meltflag"][oversaturated] = 1
+    
+    cell["vertical_profile"] = new_vertical_profile
 
     assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
 
