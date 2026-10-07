@@ -333,12 +333,17 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
     )
 
+    # Remove after debugging
+    MAX_PHYS_DHDT = 0.5 8 dz # capped at half a vertical cell per hour
+    
     if 0 > dHdt > -0.01:
         dHdt = 0
     elif dHdt < -0.01:
         raise ValueError(
             "Height change during melt is negative, and outside the bounds of a numerical error"
         )
+    elif dHdt > MAX_PHYS_DHDT:
+        raise ValueError(f"Height change during melt ({dHdt:.4f} m) exceeds physically reasonable bounds") # Remove after debugging
     elif np.isnan(dHdt):
         pass
         print("...")
