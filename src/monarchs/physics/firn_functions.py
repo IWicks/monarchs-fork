@@ -233,7 +233,7 @@ def regrid_after_melt(cell, height_change, lake=False):
         print("firn depth = ", cell["firn_depth"])
         raise ValueError("Sfrac > 1 in firn regridding")
 
-    # The retain/concentrate rescaling can leave Sfrac+Lfrac > 1 at any level, not just the surface,
+    # NB: the retain/concentrate rescaling can leave Sfrac+Lfrac > 1 at any level, not just the surface,
     # since melting can span many fine near-surface boxes. Rather than being capped here, this is
     # flagged for percolation_functions.percolation to resolve via the existing "fill column upwards
     # from impermeable layer" mechanism.
