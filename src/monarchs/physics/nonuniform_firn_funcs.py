@@ -1,5 +1,5 @@
 """
-Isabelle Wicks, Northumbria University (6/10/2026)
+Isabelle Wicks, Northumbria University (7/10/2026)
 
 Functions to handle meltwater processes for a non-uniform vertical grid.
 
@@ -8,12 +8,11 @@ old boxes being partially or fully consumed by melt. Preserves the same physics 
 original function: liquid water in a partially-melted vertical box is retained/concentrated
 into its surviving portion, and liquid in a fully-melted box has no surviving firn pore space
 to stay in, so it is converted to meltwater, as is melted ice.
-
 """
 
 import numpy as np
 
-def lost_overlap(old_edges_b, firn_depth_new, firn_depth_old):
+def lost_overlap(old_edges_b, firn_depth_new, firn_depth_old, tol=1e-9):
     
     """
     Calculates how much each old vertical box overlaps the melted region.
@@ -29,13 +28,27 @@ def lost_overlap(old_edges_b, firn_depth_new, firn_depth_old):
         New (post-melt) total column depth [m].
     firn_depth_old : float
         Old (pre-melt) total column depth [m].
+    tol : float
+        Tolerance for the validity checks.
  
     Returns
     -------
     lost_overlap_b : ndarray, shape (n_old,)
         Overlap length of each old box with the melted-away region [firn_depth_new,
         firn_depth_old] [m].
+        
+    Raises
+    ------
+    ValueError
+        If old_edges_b is not monotonically increasing, or firn_depth_new exceeds
+        firn_depth_old.
     """
+    
+    if np.any(np.diff(old_edges_b) < -tol):
+        raise ValueError("lost_overlap: old_edges_b is not monotonically increasing.")
+    if firn_depth_new > firn_depth_old + tol:
+        raise ValueError(f"lost_overlap: new firn depth ({firn_depth_new}) > old firn "
+                         f"depth ({firn_depth_old}) - melt should not increase depth.")
     
     lost_lo, lost_hi = firn_depth_new, firn_depth_old
     overlap_lo = np.maximum(lost_lo, old_edges_b[:-1])
@@ -86,10 +99,9 @@ def melt_retain_and_loss(Sfrac_b, Lfrac_b, old_box_widths_b, lost_overlap_b, rho
  
     # NB: retain/concetrate rescaling above can push Lfrac_b_adj past the physical pore space
     # limit (Sfrac - 1). This is not capped here, but is instead resolved by the mechanisms
-    # in percolation_functions.cal_saturation. See regrid_after_melt() for how meltflag gets 
-    # set so percolation() picks up the affected levels.
+    # in percolation_functions.calc_saturation. See regrid_after_melt() for how meltflag gets 
+    # set so percolation_functions.percolation picks up the affected levels.
 
-    
     meltwater_liquid_lost = np.sum(Lfrac_b[full_melt] * old_box_widths_b[full_melt])
     lost_Sfrac_integral = np.sum(lost_overlap_b * Sfrac_b)
     meltwater = lost_Sfrac_integral * (rho_ice / rho_water) + meltwater_liquid_lost
