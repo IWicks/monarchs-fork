@@ -1,5 +1,5 @@
 """
-Isabelle Wicks, Northumbria University (6/10/2026)
+Isabelle Wicks, Northumbria University (9/10/2026)
 
 Functions to generate a non-uniform vertical grid and vertical boxes used for near-surface
 processes.
@@ -70,7 +70,7 @@ def compute_box_edges(vertical_profile):
 
 
 
-def _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction):
+def _nonuniform_depth_core(flat_depth, n_points, surface_depth, n_surface):
    
     """
     Core implementation, operating on a flat 1D array of depths.
@@ -81,7 +81,7 @@ def _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction
     uniform zone from 0 to surface_depth, followed by a coarsening zone
     """
     
-    n_surface = max(int(np.round(surface_fraction * n_points)), 2)
+    n_surface = max(int(n_surface), 2)
     n_deep = n_points - n_surface
 
     z = np.zeros((flat_depth.size, n_points))
@@ -111,12 +111,11 @@ def _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction
 
 
 
-def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=0.25, surface_fraction=0.075):
+def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=0.25, n_surface=30):
     
     """
-    Non-uniform depth coordinates for a single column. surface_depth and surface_fraction
-    require tuning based on number of vertical grid points used in model run (current tuning 
-    based on default value of 400).
+    Non-uniform depth coordinates for a single column. surface_depth requirea tuning based on number
+    of vertical grid points used in model run (current tuning based on default value of 400).
 
     Parameters
     ----------
@@ -126,8 +125,9 @@ def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=0.25, s
         Number of vertical grid points.
     surface_depth : float
         Depth of the fine near-surface zone [m].
-    surface_fraction : float
-        Fraction of n_points allocated to the near-surface zone.
+    n_surface : int
+        Number of points allocated to the near-surface zone (fixed value, not a fraction
+        of n_points).
 
     Returns
     -------
@@ -135,18 +135,17 @@ def generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth=0.25, s
     """
     
     flat_depth = np.array([float(firn_depth)])
-    z = _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction)
+    z = _nonuniform_depth_core(flat_depth, n_points, surface_depth, n_surface)
     
     return z[0]
 
 
 
-def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=0.25, surface_fraction=0.075):
+def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=0.25, n_surface=30):
     
     """
-    Non-uniform depth coordinates for an array of columns. surface_depth and surface_fraction
-    require tuning based on number of vertical grid points used in model run (current tuning 
-    based on default value of 400).
+    Non-uniform depth coordinates for an array of columns. surface_depth requirea tuning based on number
+    of vertical grid points used in model run (current tuning based on default value of 400).
 
     Parameters
     ----------
@@ -156,8 +155,9 @@ def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=0.25, su
         Number of vertical grid points.
     surface_depth : float
         Depth of the fine near-surface zone [m].
-    surface_fraction : float
-        Fraction of n_points allocated to the near-surface zone.
+    n_surface : int
+        Number of points allocated to the near-surface zone (fixed value, not a fraction
+        of n_points).
 
     Returns
     -------
@@ -168,19 +168,19 @@ def generate_nonuniform_depth_array(firn_depth, n_points, surface_depth=0.25, su
     orig_shape = firn_depth.shape
     flat_depth = firn_depth.ravel()
 
-    z_flat = _nonuniform_depth_core(flat_depth, n_points, surface_depth, surface_fraction)
+    z_flat = _nonuniform_depth_core(flat_depth, n_points, surface_depth, n_surface)
 
     return z_flat.reshape(orig_shape + (n_points,))
 
 
 
-def generate_nonuniform_depth(firn_depth, n_points, surface_depth=0.25, surface_fraction=0.075):
+def generate_nonuniform_depth(firn_depth, n_points, surface_depth=0.25, n_surface=30):
     
     """
     Dispatches to the scalar or array implementation based on input type.
     """
     
     if np.isscalar(firn_depth):
-        return generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth, surface_fraction)
+        return generate_nonuniform_depth_scalar(firn_depth, n_points, surface_depth, n_surface)
     
-    return generate_nonuniform_depth_array(firn_depth, n_points, surface_depth, surface_fraction)
+    return generate_nonuniform_depth_array(firn_depth, n_points, surface_depth, n_surface)
