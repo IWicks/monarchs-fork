@@ -335,6 +335,10 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
             "Height change during melt is negative, and outside the bounds of a numerical error"
         )
     elif dHdt > MAX_PHYS_DHDT:
+        print(f"ANOMALY row={cell['row']} col={cell['column']} day={cell['day']} "
+            f"t_step={cell['t_step']} surf_T={surf_T:.3f} Q={Q:.3f} "
+            f"Fsens={Fsens:.3f} Flat={Flat:.3f} wind={wind:.3f} T_air={T_air:.3f} "
+            f"size_dx={cell['size_dx']:.3f} dHdt={dHdt:.5f}")
         raise ValueError(f"Height change during melt ({dHdt:.4f} m) exceeds physically reasonable bounds") # Remove after debugging
     elif np.isnan(dHdt):
         pass
