@@ -4,13 +4,12 @@ Isabelle Wicks, Northumbria University (9/10/2026)
 Functions to generate a non-uniform vertical grid and vertical boxes used for near-surface
 processes.
 
-Default surface_depth=0.25 and surface_fraction=0.075 are tuned against the worst-
-case extinction coefficient in the model (beta_snow=17.1 m^-1, e-fold depth ~0.0585 m)
-for 400 vertical points. This covers ~4.3 e-folds (98.6% of absorbed shortwave) at ~7
-grid cells per e-fold.
+Default surface_depth=0.25 is tuned against the worst-case extinction coefficient in the model
+(beta_snow=17.1 m^-1, e-fold depth ~0.0585 m) for 400 vertical points. This covers ~4.3 e-folds
+(98.6% of absorbed shortwave) at ~7 grid cells per e-fold.
 
-If beta_snow or the number of vertical points changes, surface_depth and surface_fraction
-may need to be re-tuned for your specific model setup.
+If beta_snow or the number of vertical points changes, surface_depth may need to be re-tuned for
+your specific model setup. n_surface can be adjusted to increase near-surface resolution.
 """
 
 import numpy as np
@@ -60,7 +59,7 @@ def compute_box_edges(vertical_profile):
     Returns
     -------
     box_edges : ndarray, shape (vert_grid + 1,)
-        Box boundary positions, suitable for use with conservative_remap.
+        Box boundary positions, suitable for use with nonuniform_remap.
     """
     
     midpoints = (vertical_profile[:-1] + vertical_profile[1:]) / 2
@@ -76,9 +75,9 @@ def _nonuniform_depth_core(flat_depth, n_points, surface_depth, n_surface):
     Core implementation, operating on a flat 1D array of depths.
     Returns shape (flat_depth.size, n_points).
 
-    Columns with firn_depth <= surface_depth get a single uniform zone
-    across their full depth. Columns deeper than surface_depth get a fine
-    uniform zone from 0 to surface_depth, followed by a coarsening zone
+    Columns with firn_depth <= surface_depth get a single uniform zone across their full
+    depth. Columns deeper than surface_depth get a fine uniform zone from 0 to surface_depth,
+    followed by a coarsening zone.
     """
     
     n_surface = max(int(n_surface), 2)
