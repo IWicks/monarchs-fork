@@ -10,6 +10,7 @@ from monarchs.physics.grid_remap import nonuniform_remap
 from monarchs.physics.nonuniform_firn_funcs import lost_overlap, melt_retain_and_loss
 from monarchs.core import utils
 from monarchs.core.nonuniform_grid import compute_box_edges, generate_nonuniform_depth_scalar
+from monarchs.physics.beers_law import sw_penetration
 
 def firn_column(
     cell,
@@ -104,6 +105,8 @@ def firn_column(
             raise ValueError("Height change is NaN")
 
         dz = cell["firn_depth"] / cell["vert_grid"]
+        dz_box = compute_box_dz(cell["vertical_profile"])
+        Q_abs = sw_penetration(cell, SW_in, alpha, dz_box)
         args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
         root, fvec, success_fixedsfc, info = solver.firn_heateqn_solver(
             x, args, fixed_sfc=True, solver_method=heateqn_solver
