@@ -83,7 +83,7 @@ def firn_column(
     heateqn_solver = 'hybr'
     x = cell["firn_temperature"]
     #x = np.clip(x, 0, 273.15)
-    args = [cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind]
+    args = [cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, Q_abs, dz_box]
     root, fvec, success, info = solver.firn_heateqn_solver(
         x, args, fixed_sfc=False, solver_method=heateqn_solver
     )
@@ -96,7 +96,7 @@ def firn_column(
             cell["blue_ice"] = 1
             cell["blue_ice_transition_day"] = np.nan
         height_change = calc_height_change(
-            cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, root[0]
+            cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, root[0], Q_abs, dz_box
         )
 
         if prescribed_height_change is not False:
@@ -107,7 +107,7 @@ def firn_column(
         dz = cell["firn_depth"] / cell["vert_grid"]
         dz_box = compute_box_dz(cell["vertical_profile"])
         Q_abs = sw_penetration(cell, SW_in, alpha, dz_box)
-        args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
+        args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, Q_abs, dz_box
         root, fvec, success_fixedsfc, info = solver.firn_heateqn_solver(
             x, args, fixed_sfc=True, solver_method=heateqn_solver
         )
