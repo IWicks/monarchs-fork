@@ -115,10 +115,11 @@ def heateqn(
     return residual
 
 
-def propagate_temperature(cell, dz, dt, T_bc_top, N=10):
+def propagate_temperature(cell, dz, dt, T_bc_top, Q_abs N=10):
     T_old = cell["firn_temperature"][N:]
     Sfrac = cell['Sfrac'][N:]
     Lfrac = cell['Lfrac'][N:]
+    Q_abs_slice = Q_abs[N:]
     cp_air = cell['cp_air']
     cp_water = cell['cp_water']
     k_air = cell['k_air']
@@ -141,7 +142,8 @@ def propagate_temperature(cell, dz, dt, T_bc_top, N=10):
     alpha = factor * kappa[i]
     B[i] = 1 + 2 * alpha
     C[i] = -alpha
-    D[i] = T_old[i] + alpha * T_bc_top
+    D[i] = T_old[i] + alpha * T_bc_top + dt * Q_abs_slice[i] * kappa[i] / k[i]
+    # Multiplication of Q_abs by dt and kappa/k converts from volumetric term to temperature change at a given timestep
 
     # Interior rows
     for i in np.arange(1, n - 1):
@@ -149,14 +151,14 @@ def propagate_temperature(cell, dz, dt, T_bc_top, N=10):
         A[i - 1] = -alpha
         B[i] = 1 + 2 * alpha
         C[i] = -alpha
-        D[i] = T_old[i]
+        D[i] = T_old[i] dt * Q_abs_slice[i] * kappa[i] / k[i]
 
     # Last row: Neumann BC using backward difference
     i = n - 1
     alpha = factor * kappa[i]
     A[i - 1] = -alpha
     B[i] = 1 + alpha
-    D[i] = T_old[i]
+    D[i] = T_old[i] dt * Q_abs_slice[i] * kappa[i] / k[i]
 
     # Assemble banded matrix
     # ab = np.zeros((3, n))
