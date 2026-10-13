@@ -110,7 +110,8 @@ def firn_column(
             height_change = 0.05
         if np.isnan(height_change):
             raise ValueError("Height change is NaN")
-
+            
+        # Recompute values as melting has occurred
         dz = cell["firn_depth"] / cell["vert_grid"]
         dz_box = compute_box_dz(cell["vertical_profile"])
         alpha = surface_fluxes.sfc_albedo(cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
