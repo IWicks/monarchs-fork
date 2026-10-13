@@ -92,7 +92,8 @@ def heateqn(
     # Surface temperature equation (residual)
     residual[0] = k[0] * ((x[0] - x[1]) / dz) - (
         Q + Q_abs[0] * dz_box[0] - (epsilon_ice * sigma * x[0] ** 4)
-    )
+    ) # Q_abs[0] * dz_box[0] converts a volumetric term to a flux term (W/m^3 to W/m^2), adding the
+      # fraction of incoming energy applies to the surface cell, accounting for the zero-thickness skin
     
     # Calculate the temperature profile for the first 10 layers
     idx = np.arange(1, len(x) - 1)
