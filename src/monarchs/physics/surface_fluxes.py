@@ -141,8 +141,6 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     Documentation on how the saturation vapour pressure is calculated can be found in Section 12 of
     https://www.ecmwf.int/sites/default/files/elibrary/2021/20198-ifs-documentation-cy47r3-part-vi-physical-processes.pdf
 
-    TODO (Izzy) - update docstring with effective wind summary/ECMWF reference?
-
     =======
     """
     g = 9.8
@@ -157,14 +155,9 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     a3 = 17.502
     a4 = 32.19
     p_air *= 100  # convert hPa to Pa for consistency
-    
-    wind_min = 0.5  # m/s, free-convection velocity scale placeholder
-    # TODO (Izzy) - tune this/calculate based on the buoyancy flux?
-    wind_eff = np.sqrt(wind**2 + wind_min**2)
-    
     e_sat = a1 * np.exp(a3 * (T_dp - T_0) / (T_dp - a4))
     s_hum = R_dry / R_sat * e_sat / (p_air - e_sat * (1 - R_dry / R_sat))
-    if wind_eff == 0:
+    if wind == 0:
         Ri = 0
     else:
         Ri = g * (T_air - T_sfc) * dz / (T_air * wind**2)
@@ -181,7 +174,7 @@ def bulk_fluxes(wind, T_air, T_sfc, p_air, T_dp):
     else:
           q_0 = 0.622 * p_v / denom
           
-    Fsens = 1.275 * 1005 * CT * wind_eff * (T_air - T_sfc)
-    Flat = 1.275 * L * CT * wind_eff * (s_hum - q_0)
+    Fsens = 1.275 * 1005 * CT * wind * (T_air - T_sfc)
+    Flat = 1.275 * L * CT * wind * (s_hum - q_0)
     
     return Flat, Fsens
