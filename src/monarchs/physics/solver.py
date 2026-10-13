@@ -58,6 +58,8 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     T_dp = args[7]
     T_rock = args[8]
     wind = args[9]
+    Q_abs = args[10]
+    dz_box = args[11]
 
     if fixed_sfc:
         sol = np.array([273.15])
@@ -90,6 +92,8 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
             T_dp,
             T_rock,
             wind,
+            Q_abs,
+            dz_box,
          ),
         method=solver_method,
           )
