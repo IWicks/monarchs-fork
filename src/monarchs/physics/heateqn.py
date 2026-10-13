@@ -115,7 +115,7 @@ def heateqn(
     return residual
 
 
-def propagate_temperature(cell, dz, dt, T_bc_top, Q_abs N=10):
+def propagate_temperature(cell, dz, dt, T_bc_top, Q_abs, N=10):
     T_old = cell["firn_temperature"][N:]
     Sfrac = cell['Sfrac'][N:]
     Lfrac = cell['Lfrac'][N:]
