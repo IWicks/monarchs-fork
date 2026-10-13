@@ -249,7 +249,8 @@ def regrid_after_melt(cell, height_change, lake=False):
     assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
 
 
-def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, surf_T):
+def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, surf_T
+                      Q_abs, dz_box):
     """
     Determine the amount of firn height change that arises due to melting.
 
@@ -276,11 +277,17 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
     surf_T : float
         Calculated surface temperature of the firn from the initial (non-fixed surface) implementation of the heat
         equation. [K]
+    Q_abs : ndarray, dimension(cell.vert_grid)
+        The absorbed energy across the vertical column [W m^-3].
+    dz_box : float
+        Box thickness surrounding each vertical grid point, from box_dz.compute_box_dz(cell["vertical_profile"]) [m].
 
     Returns
     -------
-
+    dHdt: float
+        The height change over the vertical column [m].
     """
+
     epsilon_ice = 0.98
     sigma = 5.670374e-8
     dz = np.diff(cell["vertical_profile"])[0]
@@ -315,6 +322,11 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         cell["day"],
         cell["blue_ice_transition_day"],
     )
+
+    Q -= (1 - alpha) * SW_in  # Subtracting surface SW absorption, will be accounted for across column via Beer's law
+    Q += Q_abs[0] * dz_box[0] # Converting volumetric term to flux term (W/m^3 to W/m^2), adding the fraction of incoming energy
+                              # applies to the surface cell, accounting for the zero-thickness skin
+    
     dHdt = (
         timestep
         * (
