@@ -113,6 +113,8 @@ def firn_column(
 
         dz = cell["firn_depth"] / cell["vert_grid"]
         dz_box = compute_box_dz(cell["vertical_profile"])
+        alpha = surface_fluxes.sfc_albedo(cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
+                                      cell["lake_depth"], cell["blue_ice"], cell["day"], cell["blue_ice_transition_day"])
         Q_abs = sw_penetration(cell, SW_in, alpha, dz_box)
         args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, Q_abs, dz_box
         root, fvec, success_fixedsfc, info = solver.firn_heateqn_solver(
