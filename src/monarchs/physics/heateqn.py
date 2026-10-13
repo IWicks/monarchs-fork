@@ -49,6 +49,8 @@ def heateqn(
     T_dp,
     T_rock,
     wind,
+    Q_abs,
+    dz_box,
     epsilon_ice = 0.98,
     sigma = 5.670374e-8,
 ):
@@ -73,6 +75,9 @@ def heateqn(
         cell["day"],
         cell["blue_ice_transition_day"],
     )
+
+    Q -= (1 - alpha) * SW_in # Subtracting surface SW absorption, will be accounted for across column via Beer's law
+    
     N = len(x)
     T_old = cell["firn_temperature"][:N]
     Sfrac = cell['Sfrac'][:N]
@@ -83,8 +88,11 @@ def heateqn(
     k_water = cell['k_water']
     k, kappa = get_k_and_kappa(T_old, Sfrac, Lfrac, cp_air, cp_water, k_air, k_water)
     residual = np.zeros_like(x)
+    
     # Surface temperature equation (residual)
-    residual[0] = k[0] * ((x[0] - x[1]) / dz) - (Q - (epsilon_ice * sigma * x[0] ** 4))
+    residual[0] = k[0] * ((x[0] - x[1]) / dz) - (
+        Q + Q_abs[0] * dz_box[0] - (epsilon_ice * sigma * x[0] ** 4)
+    )
     
     # Calculate the temperature profile for the first 10 layers
     idx = np.arange(1, len(x) - 1)
@@ -93,11 +101,13 @@ def heateqn(
         cell["firn_temperature"][idx]
         - x[idx]
         + dt * (kappa[idx] / dz**2) * (x[idx + 1] - 2 * x[idx] + x[idx - 1])
+        + dt * Q_abs[idx] * kappa[idx] / k[idx] # Volumetric source term for the interior cells
     )
     residual[-1] = (
         cell["firn_temperature"][len(x) - 1]
         - x[len(x) - 1]
         + dt * (kappa[len(x) - 1] / dz**2) * (-x[len(x) - 1] + x[len(x) - 2])
+        + dt * Q_abs[len(x) - 1] * kappa[len(x) - 1] / k[len(x) - 1] # Volumetric source term for the bottom cell
     )
     # print(f"Residual for T_sfc = {x}: {residual}")
 
