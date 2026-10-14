@@ -290,7 +290,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
     Q_abs : ndarray, dimension(cell.vert_grid)
         The absorbed energy across the vertical column [W m^-3].
     dz_box : ndarray, dimension(cell.vert_grid)
-        Box thickness surrounding each vertical grid point, from box_dz.compute_box_dz(cell["vertical_profile"]) [m].
+        Box thickness surrounding each vertical grid point, from nonuniform_grid.compute_box_dz(cell["vertical_profile"]) [m].
 
     Returns
     -------
