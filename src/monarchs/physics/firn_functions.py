@@ -335,7 +335,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
 
     Q -= (1 - alpha) * SW_in  # Subtracting surface SW absorption, will be accounted for across column via Beer's law
     Q += Q_abs[0] * dz_box[0] # Converting volumetric term to flux term (W/m^3 to W/m^2), adding the fraction of incoming energy
-                              # applies to the surface cell, accounting for the zero-thickness skin
+                              # that applies to the surface cell, accounting for the zero-thickness skin.
     
     dHdt = (
         timestep
