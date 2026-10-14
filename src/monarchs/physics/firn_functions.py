@@ -9,7 +9,7 @@ from monarchs.physics import solver
 from monarchs.physics.grid_remap import nonuniform_remap
 from monarchs.physics.nonuniform_firn_funcs import lost_overlap, melt_retain_and_loss
 from monarchs.core import utils
-from monarchs.core.nonuniform_grid import compute_box_edges, generate_nonuniform_depth_scalar
+from monarchs.core.nonuniform_grid import compute_box_dz, compute_box_edges, generate_nonuniform_depth_scalar
 from monarchs.physics.beers_law import sw_penetration
 
 def firn_column(
