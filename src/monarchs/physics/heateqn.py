@@ -98,12 +98,21 @@ def heateqn(
     # Calculate the temperature profile for the first 10 layers
     idx = np.arange(1, len(x) - 1)
 
+    gaps = np.diff(cell["vertical_profile") # Calculate real point-to-point distances between vertical points
+    h_plus = gaps[idx] # Gap between point idx and idx+1
+    h_minus = gaps[idx - 1] # Gap between point idx and idx-1
+
+    d2T_dz2 = (2.0 / (h_plus + h_minus)) * (
+        (x[idx + 1] - x[idx]) / h_plus - (x[idx] - x[idx - 1]) / h_minus
+    )
+    
     residual[idx] = (
         cell["firn_temperature"][idx]
         - x[idx]
-        + dt * (kappa[idx] / dz**2) * (x[idx + 1] - 2 * x[idx] + x[idx - 1])
+        + dt * kappa[idx] * d2T_dz2
         + dt * Q_abs[idx] * kappa[idx] / k[idx] # Volumetric source term for the interior cells
     )
+    
     residual[-1] = (
         cell["firn_temperature"][len(x) - 1]
         - x[len(x) - 1]
