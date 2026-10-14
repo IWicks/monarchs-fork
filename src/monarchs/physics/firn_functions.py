@@ -259,7 +259,7 @@ def regrid_after_melt(cell, height_change, lake=False):
     assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
 
 
-def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, surf_T
+def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, surf_T,
                       Q_abs, dz_box):
     """
     Determine the amount of firn height change that arises due to melting.
@@ -289,7 +289,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         equation. [K]
     Q_abs : ndarray, dimension(cell.vert_grid)
         The absorbed energy across the vertical column [W m^-3].
-    dz_box : float
+    dz_box : ndarray, dimension(cell.vert_grid)
         Box thickness surrounding each vertical grid point, from box_dz.compute_box_dz(cell["vertical_profile"]) [m].
 
     Returns
