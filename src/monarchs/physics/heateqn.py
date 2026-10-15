@@ -102,6 +102,7 @@ def heateqn(
     h_plus = gaps[idx] # Gap between point idx and idx+1
     h_minus = gaps[idx - 1] # Gap between point idx and idx-1
 
+    # Define the generalised (non-uniform) second derivatrive for the conductive term
     d2T_dz2 = (2.0 / (h_plus + h_minus)) * (
         (x[idx + 1] - x[idx]) / h_plus - (x[idx] - x[idx - 1]) / h_minus
     )
