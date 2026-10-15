@@ -102,7 +102,7 @@ def heateqn(
     h_plus = gaps[idx] # Gap between point idx and idx+1
     h_minus = gaps[idx - 1] # Gap between point idx and idx-1
 
-    # Define the generalised (non-uniform) second derivatrive for the conductive term
+    # Define the generalised (non-uniform) second derivative for the interior conductive terms
     d2T_dz2 = (2.0 / (h_plus + h_minus)) * (
         (x[idx + 1] - x[idx]) / h_plus - (x[idx] - x[idx - 1]) / h_minus
     )
@@ -113,11 +113,17 @@ def heateqn(
         + dt * kappa[idx] * d2T_dz2
         + dt * Q_abs[idx] * kappa[idx] / k[idx] # Volumetric source term for the interior cells
     )
+
+    h_plus_bc = gaps[-1] # Gap between points N-1 and N
+    h_minus_bc = gaps[-2] # Gap between points N-2 and N-1
+
+    # Define the generalised (non-uniform) second derivative for the final conductive term
+    d2T_dz2_bc = -2.0 / (h_plus_bc + h_minus_bc) * (x[-1] - x[-2]) / h_minus_bc
     
     residual[-1] = (
         cell["firn_temperature"][len(x) - 1]
         - x[len(x) - 1]
-        + dt * (kappa[len(x) - 1] / dz**2) * (-x[len(x) - 1] + x[len(x) - 2])
+        + dt * kappa[len(x) - 1] * d2T_dz2_bc
         + dt * Q_abs[len(x) - 1] * kappa[len(x) - 1] / k[len(x) - 1] # Volumetric source term for the bottom cell
     )
     # print(f"Residual for T_sfc = {x}: {residual}")
