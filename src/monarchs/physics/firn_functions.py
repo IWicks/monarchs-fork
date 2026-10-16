@@ -258,7 +258,13 @@ def regrid_after_melt(cell, height_change, lake=False):
 
     cell["vertical_profile"] = np.linspace(0, cell["firn_depth"], cell["vert_grid"])
 
-    assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
+    mass_diff = abs(utils.calc_mass_sum(cell) - original_mass) # Revert to original assert after debugging
+    if mass_diff >= 1.5 * 10**-7:
+        with open("mass_conservation_anomaly.txt", "a") as f:
+            f.write(f"row={cell['row']} col={cell['column']} day={cell['day']} t_step={cell['t_step']} "
+                    f"original_mass={original_mass!r} new_mass={utils.calc_mass_sum(cell)!r} "
+                    f"diff={mass_diff!r} dHdt={height_change!r} firn_depth={cell['firn_depth']!r}\n")
+    assert mass_diff < 1.5 * 10**-7
 
 
 def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, surf_T):
