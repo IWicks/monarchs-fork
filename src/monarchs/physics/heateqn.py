@@ -142,6 +142,7 @@ def propagate_temperature(cell, dz, dt, T_bc_top, Q_abs, N=10):
     k_water = cell['k_water']
     k, kappa = get_k_and_kappa(T_old, Sfrac, Lfrac, cp_air, cp_water, k_air, k_water)
 
+    gaps = np.diff(cell["vertical_profile"]) # Real point-to-point distances for the whole profile
     total_len = np.shape(cell['firn_temperature'])[0]  # Total number of layers in the firn column
     n = total_len - N  # Number of layers below the nonlinear region
 
@@ -151,29 +152,32 @@ def propagate_temperature(cell, dz, dt, T_bc_top, Q_abs, N=10):
     C = np.zeros(n - 1, dtype=np.float64)  # Super-diagonal (upper)
     D = np.zeros(n, dtype=np.float64)  # RHS vector
 
-    factor = np.float64(dt / dz**2)
-
-    # First row: connect to top nonlinear region
+    # First row: real h_minus (to connect to top nonlinear region), real h_plus
     i = 0
-    alpha = factor * kappa[i]
-    B[i] = 1 + 2 * alpha
-    C[i] = -alpha
-    D[i] = T_old[i] + alpha * T_bc_top + dt * Q_abs_slice[i] * kappa[i] / k[i]
+    h_minus, h_plus = gaps[N - 1], gaps[N]
+    beta_minus = dt * kappa[i] * 2 / ((h_plus + h_minus) * h_minus)
+    beta_plus = dt * kappa[i] * 2 / ((h_plus + h_minus) * h_plus)
+    B[i] = 1 + beta_minus + beta_plus
+    C[i] = -beta_plus
+    D[i] = T_old[i] + beta_minus * T_bc_top + dt * Q_abs_slice[i] * kappa[i] / k[i]
     # Multiplication of Q_abs by dt and kappa/k converts from volumetric term to temperature change at a given timestep
 
-    # Interior rows
+    # Interior rows: real h_minus and h_plus from the vertical grid
     for i in np.arange(1, n - 1):
-        alpha = factor * kappa[i]
-        A[i - 1] = -alpha
-        B[i] = 1 + 2 * alpha
-        C[i] = -alpha
+        h_minus, h_plus = gaps[N + 1 -1], [N + i]
+        beta_minus = dt * kappa[i] * 2 / ((h_plus + h_minus) * h_minus)
+        beta_plus = dt * kappa[i] * 2 / ((h_plus + h_minus) * h_plus)
+        A[i - 1] = -beta_minus
+        B[i] = 1 + beta_minus + beta_plus
+        C[i] = -beta_plus
         D[i] = T_old[i] dt * Q_abs_slice[i] * kappa[i] / k[i]
 
-    # Last row: Neumann BC using backward difference
+    # Last row: h_minus only, Neumann BC using backward difference
     i = n - 1
-    alpha = factor * kappa[i]
-    A[i - 1] = -alpha
-    B[i] = 1 + alpha
+    h_minus = gaps[N + i -1]
+    beta_minus = dt * kappa[i] / h_minus**2
+    A[i - 1] = -beta_minus
+    B[i] = 1 + beta_minus
     D[i] = T_old[i] dt * Q_abs_slice[i] * kappa[i] / k[i]
 
     # Assemble banded matrix
