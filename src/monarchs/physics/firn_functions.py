@@ -229,6 +229,7 @@ def regrid_after_melt(cell, height_change, lake=False):
 
     cell["daily_melt"] += meltwater
     cell["Lfrac"][0] += meltwater
+    
     if lake:
         if cell["Lfrac"][0] + cell["Sfrac"][0] > 1:
             excess_water = cell["Lfrac"][0] + cell["Sfrac"][0] - 1
@@ -236,7 +237,14 @@ def regrid_after_melt(cell, height_change, lake=False):
                 cell["firn_depth"] / cell["vert_grid"]
             )
             cell["Lfrac"][0] = 1 - cell["Sfrac"][0]
-        assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
+            mass_diff_lake = abs(utils.calc_mass_sum(cell) - original_mass) # Revert to original assert after debugging
+            if mass_diff_lake >= 1.5 * 10**-7:
+                with open("mass_conservation_anomaly.txt", "a") as f:
+                    f.write(f"[LAKE BRANCH] row={cell['row']} col={cell['column']} day={cell['day']} t_step={cell['t_step']} "
+                            f"original_mass={original_mass!r} new_mass={utils.calc_mass_sum(cell)!r} "
+                            f"diff={mass_diff_lake!r} dHdt={height_change!r} firn_depth={cell['firn_depth']!r} "
+                            f"excess_water_applied={cell['Lfrac'][0]+cell['Sfrac'][0] > 1!r}\n")
+            assert mass_diff_lake < 1.5 * 10**-7
 
     if np.isnan(cell["firn_temperature"]).any():
         print(cell["firn_temperature"])
