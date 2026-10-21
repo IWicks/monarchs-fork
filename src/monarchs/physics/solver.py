@@ -116,13 +116,14 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         residual_norm = np.linalg.norm(
             heateqn.heateqn(soldict.x, cell, dt, dz, LW_in, SW_in, T_air, p_air,
                              T_dp, T_rock, wind)
-        )
-        surface_fluxes.set_solver_diagnostics(residual_norm, mesg) 
+        ) 
 
         sol = soldict.x
         ier = soldict.success
         mesg = soldict.message
         infodict = soldict.success
+
+        surface_fluxes.set_solver_diagnostics(residual_norm, mesg) # Remove after debugging
         
         #print(sol)
         # Take our root-finding algorithm output (from first N layers),
