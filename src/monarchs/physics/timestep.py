@@ -9,6 +9,8 @@ from monarchs.physics import snow_accumulation
 from monarchs.physics import firn_functions, lake_functions, solver, lid_functions
 from monarchs.core import utils
 
+from monarchs.physics import surface_fluxes # Remove after debugging
+
 def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict, x=None, y=None): # Remove x/y = None after debugging
     """
     Main timestepping loop applied to an instance of the model grid.
