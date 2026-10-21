@@ -98,7 +98,7 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict,
             global_idx = cell["day"] * t_steps_per_day + t_step
             if global_idx >= len(T_rock_data):
                 raise IndexError(
-                    f"T_rock_data exhausted at day={cell["day"]}, t_step={t_step} "
+                    f"T_rock_data exhausted at day={cell['day']}, t_step={t_step} "
                     f"(requested index {global_idx}, only {len(T_rock_data)} available). "
                     f"Provide a longer T_rock dataset covering the full model run length."
                 )
