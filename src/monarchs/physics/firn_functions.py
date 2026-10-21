@@ -8,8 +8,6 @@ from monarchs.physics import surface_fluxes
 from monarchs.physics import solver
 from monarchs.core import utils
 
-import os # Remove after debugging
-
 def firn_column(
     cell,
     dt,
@@ -239,14 +237,7 @@ def regrid_after_melt(cell, height_change, lake=False):
                 cell["firn_depth"] / cell["vert_grid"]
             )
             cell["Lfrac"][0] = 1 - cell["Sfrac"][0]
-            mass_diff_lake = abs(utils.calc_mass_sum(cell) - original_mass) # Revert to original assert after debugging
-            if mass_diff_lake >= 1.5 * 10**-7:
-                with open("mass_conservation_anomaly.txt", "a") as f:
-                    f.write(f"[LAKE BRANCH] row={cell['row']} col={cell['column']} day={cell['day']} t_step={cell['t_step']} "
-                            f"original_mass={original_mass!r} new_mass={utils.calc_mass_sum(cell)!r} "
-                            f"diff={mass_diff_lake!r} dHdt={height_change!r} firn_depth={cell['firn_depth']!r} "
-                            f"excess_water_applied={cell['Lfrac'][0]+cell['Sfrac'][0] > 1!r}\n")
-            assert mass_diff_lake < 1.5 * 10**-7
+        assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
 
     if np.isnan(cell["firn_temperature"]).any():
         print(cell["firn_temperature"])
@@ -265,13 +256,7 @@ def regrid_after_melt(cell, height_change, lake=False):
 
     cell["vertical_profile"] = np.linspace(0, cell["firn_depth"], cell["vert_grid"])
 
-    mass_diff = abs(utils.calc_mass_sum(cell) - original_mass) # Revert to original assert after debugging
-    if mass_diff >= 1.5 * 10**-7:
-        with open("mass_conservation_anomaly.txt", "a") as f:
-            f.write(f"row={cell['row']} col={cell['column']} day={cell['day']} t_step={cell['t_step']} "
-                    f"original_mass={original_mass!r} new_mass={utils.calc_mass_sum(cell)!r} "
-                    f"diff={mass_diff!r} dHdt={height_change!r} firn_depth={cell['firn_depth']!r}\n")
-    assert mass_diff < 1.5 * 10**-7
+    assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
 
 
 def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, surf_T):
@@ -347,9 +332,6 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         )
         / (cell["rho_ice"] * (cell["Sfrac"][0] * L_fus))
     )
-
-    # Remove after debugging
-    MAX_PHYS_DHDT = 0.5 * dz # capped at half a vertical cell per hour
     
     if 0 > dHdt > -0.01:
         dHdt = 0
@@ -357,13 +339,6 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         raise ValueError(
             "Height change during melt is negative, and outside the bounds of a numerical error"
         )
-    elif dHdt > MAX_PHYS_DHDT:
-        with open("norock_anomaly_log.txt", "a") as f:
-            f.write(f"ANOMALY row={cell['row']} col={cell['column']} day={cell['day']} "
-                    f"t_step={cell['t_step']} surf_T={surf_T:.3f} Q={Q:.3f} "
-                    f"Fsens={Fsens:.3f} Flat={Flat:.3f} wind={wind:.3f} T_air={T_air:.3f} "
-                    f"size_dx={cell['size_dx']:.3f} dHdt={dHdt:.5f}\n")
-        raise ValueError(f"Height change during melt ({dHdt:.4f} m) exceeds physically reasonable bounds") # Remove after debugging
     elif np.isnan(dHdt):
         pass
         print("...")
