@@ -137,8 +137,8 @@ def sfc_flux(
 
     """
     # Remove below after debugging
-    surface_fluxes.set_final_flag(is_final)
-    surface_fluxes.set_surface_state(melt, exposed_water, lid, lake, lake_depth)    
+    set_final_flag(is_final)
+    set_surface_state(melt, exposed_water, lid, lake, lake_depth)    
       
     alpha = sfc_albedo(melt, exposed_water, lid, lake, lake_depth)
     Flat, Fsens = bulk_fluxes(wind, T_air, xsurf, p_air, T_dp)
