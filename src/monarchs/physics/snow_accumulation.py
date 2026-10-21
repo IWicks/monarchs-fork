@@ -133,7 +133,7 @@ def snowfall(cell, snow_depth, snow_rho, snow_T):
             cell["Lfrac"] = lfrac_hold
             cell["firn_temperature"] = T_hold
             assert (
-                abs(utils.calc_mass_sum(cell) - (original_mass + snow_depth * snow_rho))
+                abs(utils.calc_mass_sum(cell) - (original_mass + snow_depth * snow_rho * (1 - cell["RVf"])))
                 < 1.5 * 10**-7
             )
 
