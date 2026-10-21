@@ -155,8 +155,7 @@ def regrid_after_melt(cell, height_change, lake=False):
         height_change
         * (cell["rho_ice"] / cell["rho_water"])
         * cell["Sfrac"][0]
-        / dz_new
-    )
+    ) # Keeping as volume in m^3 and not fractional
     sfrac_hold = np.zeros(np.shape(cell["Sfrac"]))
     lfrac_hold = np.zeros(np.shape(cell["Lfrac"]))
     T_hold = np.zeros(np.shape(cell["firn_temperature"]))
@@ -228,7 +227,7 @@ def regrid_after_melt(cell, height_change, lake=False):
         raise ValueError("NaN in firn temperature after regridding")
 
     cell["daily_melt"] += meltwater
-    cell["Lfrac"][0] += meltwater
+    cell["Lfrac"][0] += meltwater / dz_new # Convert to fraction here
     
     if lake:
         if cell["Lfrac"][0] + cell["Sfrac"][0] > 1:
