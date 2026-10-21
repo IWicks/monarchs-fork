@@ -227,7 +227,6 @@ def regrid_after_melt(cell, height_change, lake=False):
     cell["daily_melt"] += meltwater
     cell["Lfrac"][0] += meltwater / dz_new # Convert to fraction here
     
-    cell["Lfrac"][0] += meltwater
     if lake:
         if cell["Lfrac"][0] + cell["Sfrac"][0] > 1:
             excess_water = cell["Lfrac"][0] + cell["Sfrac"][0] - 1
