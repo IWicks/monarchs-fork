@@ -91,7 +91,18 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         T_dp = met_data['dew_point_temperature'][t_step]
         T_air = met_data['temperature'][t_step]
         p_air = met_data['surf_pressure'][t_step]
-        T_rock = T_rock_data[t_step] if T_rock_data is not None else None
+        
+        if T_rock_data is not None:
+            global_idx = cell["day"] * t_steps_per_day + t_step
+            if global_idx >= len(T_rock_data):
+                raise IndexError(
+                    f"T_rock_data exhausted at day={cell["day"]}, t_step={t_step} "
+                    f"(requested index {global_idx}, only {len(T_rock_data)} available). "
+                    f"Provide a longer T_rock dataset covering the full model run length."
+                )
+            T_rock = T_rock_data[global_idx]
+        else:
+            T_rock = None
 
         """
         # Two main paths - either no exposed water, in which case the dry firn evolves, or we have exposed water,
