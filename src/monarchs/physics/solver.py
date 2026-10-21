@@ -58,6 +58,8 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     T_dp = args[7]
     wind = args[8]
 
+    surface_fluxes.set_surface_state(v_lid=cell["v_lid"], fixed_sfc=fixed_sfc) # Remove after debugging
+
     if fixed_sfc:
         sol = np.array([273.15])
         infodict = {}
@@ -101,16 +103,20 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
             Q, Flat, Fsens = surface_fluxes.sfc_flux(
                 cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                 cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp,
-                wind, soldict.x[0],
+                wind, soldict.x[0], is_final=True, # Remove is_final after debugging
             )
             cell["Q"] = Q
             cell["Flat"] = Flat
             cell["Fsens"] = Fsens
             return soldict.x, soldict.success, soldict.message, soldict.success
-
+       
+        # Remove below after debugging
         residual_norm = np.linalg.norm(
-            heateqn.heateqn(soldict.x, cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, wind)
-        ) # Remove after debugging
+            heateqn.heateqn(soldict.x, cell, dt, dz, LW_in, SW_in, T_air, p_air,
+                             T_dp, T_rock, wind)
+        )
+        surface_fluxes.set_solver_diagnostics(residual_norm, mesg) 
+
 
         sol = soldict.x
         ier = soldict.success
@@ -132,7 +138,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     Q, Flat, Fsens = surface_fluxes.sfc_flux(
         cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
         cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp,
-        wind, T_sfc_final,
+        wind, T_sfc_final, is_final=True, # Remove is_final after debugging
     )
     cell["Q"] = Q
     cell["Flat"] = Flat
