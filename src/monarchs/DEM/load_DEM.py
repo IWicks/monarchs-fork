@@ -246,6 +246,12 @@ def get_xy_distance(latitudes, longitudes):
     print("  dx_metres shape:", dx_metres.shape)
     print("  dx_metres sample (first row):", dx_metres[0, :5])
     print("  dx_metres all zero?", np.all(dx_metres == 0))
+    if lat_grid.shape == (50, 50):
+        print("  dy_metres zero count:", np.sum(dy_metres == 0), "/", dy_metres.size)
+        print("  dx_metres zero count:", np.sum(dx_metres == 0), "/", dx_metres.size)
+        print("  dy_metres at (26,17):", dy_metres[26, 17])
+        print("  dx_metres at (26,17):", dx_metres[26, 17])
+        print("  dy_metres nonzero values:", dy_metres[dy_metres != 0])
     
     print("Grid cell sizes computed for all points!") # DON'T REMOVE THIS ONE
     return dx_metres, dy_metres
