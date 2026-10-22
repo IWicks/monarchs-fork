@@ -203,6 +203,11 @@ def get_xy_distance(latitudes, longitudes):
     import numpy as np
     from pyproj import Geod
 
+    # Remove print statements after testing
+    print("get_xy_distance called with:")
+    print("  latitudes shape:", np.shape(latitudes), "sample:", np.ravel(latitudes)[:5])
+    print("  longitudes shape:", np.shape(longitudes), "sample:", np.ravel(longitudes)[:5])
+    
     # Load the raster (already in EPSG:4326)
 
     # Define the WGS84 geodetic model
@@ -213,6 +218,13 @@ def get_xy_distance(latitudes, longitudes):
         lon_grid, lat_grid = np.meshgrid(longitudes, latitudes)
     else:
         lon_grid, lat_grid = longitudes, latitudes
+
+    # Remove print statements after testing
+    print("  lon_grid shape:", lon_grid.shape)
+    print("  lat_grid shape:", lat_grid.shape)
+    print("  lat_grid sample (first column):", lat_grid[:5, 0])
+    print("  lon_grid sample (first row):", lon_grid[0, :5])
+    
     # Compute dy (North-South size of each grid cell in metres)
     lat1_dy = lat_grid[:, :-1]  # Take all but last row
     lat2_dy = lat_grid[:, 1:]  # Take all but first row
@@ -227,7 +239,15 @@ def get_xy_distance(latitudes, longitudes):
     dy_metres = np.pad(dy_metres, ((0, 0), (0, 1)), mode='edge')  # Pad last row
     dx_metres = np.pad(dx_metres, ((0, 1), (0, 0)), mode='edge')  # Pad last column
 
-    print("Grid cell sizes computed for all points!")
+    # Remove print statement block below after testing 
+    print("  dy_metres shape:", dy_metres.shape)
+    print("  dy_metres sample (first column):", dy_metres[:5, 0])
+    print("  dy_metres all zero?", np.all(dy_metres == 0))
+    print("  dx_metres shape:", dx_metres.shape)
+    print("  dx_metres sample (first row):", dx_metres[0, :5])
+    print("  dx_metres all zero?", np.all(dx_metres == 0))
+    
+    print("Grid cell sizes computed for all points!") # DON'T REMOVE THIS ONE
     return dx_metres, dy_metres
 
 def bounding_box_diagnostic_plots(input_raster, subset_raster, lon_array, lat_array, lon_subset, lat_subset):
