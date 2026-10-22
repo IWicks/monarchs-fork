@@ -582,6 +582,9 @@ def initialise(model_setup):
         size_dy=dy,
     )
 
+    if np.any(dx <= 0) or np.any(dy <= 0): # Remove after testing
+       print("WARNING: non-positive grid spacing found at:", np.argwhere((dx<=0)|(dy<=0)))
+    
     if hasattr(model_setup, "T_rock_input_filepath"):
         return grid, T_rock_data
     else:
