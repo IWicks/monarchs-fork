@@ -581,10 +581,6 @@ def initialise(model_setup):
         size_dx=dx,
         size_dy=dy,
     )
-
-    # Remove print statements after testing
-    print("At call site: dx shape", dx.shape, "any zero?", np.any(dx == 0))
-    print("At call site: dy shape", dy.shape, "any zero?", np.any(dy == 0))
     
     if hasattr(model_setup, "T_rock_input_filepath"):
         return grid, T_rock_data
