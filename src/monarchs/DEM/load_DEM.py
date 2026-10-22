@@ -213,12 +213,6 @@ def get_xy_distance(latitudes, longitudes):
         lon_grid, lat_grid = np.meshgrid(longitudes, latitudes)
     else:
         lon_grid, lat_grid = longitudes, latitudes
-
-    # Remove print statements after testing
-    print("  lon_grid shape:", lon_grid.shape)
-    print("  lat_grid shape:", lat_grid.shape)
-    print("  lat_grid sample (first column):", lat_grid[:5, 0])
-    print("  lon_grid sample (first row):", lon_grid[0, :5])
     
     # Compute dy (North-South size of each grid cell in metres)
     lat1_dy = lat_grid[:-1, :]  # Take all but last row
@@ -233,20 +227,6 @@ def get_xy_distance(latitudes, longitudes):
     # Convert dx/dy to full-sized arrays by padding (so they match raster size)
     dy_metres = np.pad(dy_metres, ((0, 1), (0, 0)), mode='edge')  # Pad last row
     dx_metres = np.pad(dx_metres, ((0, 0), (0, 1)), mode='edge')  # Pad last column
-
-    # Remove print statement block below after testing 
-    print("  dy_metres shape:", dy_metres.shape)
-    print("  dy_metres sample (first column):", dy_metres[:5, 0])
-    print("  dy_metres all zero?", np.all(dy_metres == 0))
-    print("  dx_metres shape:", dx_metres.shape)
-    print("  dx_metres sample (first row):", dx_metres[0, :5])
-    print("  dx_metres all zero?", np.all(dx_metres == 0))
-    if lat_grid.shape == (50, 50):
-        print("  dy_metres zero count:", np.sum(dy_metres == 0), "/", dy_metres.size)
-        print("  dx_metres zero count:", np.sum(dx_metres == 0), "/", dx_metres.size)
-        print("  dy_metres at (26,17):", dy_metres[26, 17])
-        print("  dx_metres at (26,17):", dx_metres[26, 17])
-        print("  dy_metres nonzero values:", dy_metres[dy_metres != 0])
     
     print("Grid cell sizes computed for all points!") # DON'T REMOVE THIS ONE
     return dx_metres, dy_metres
