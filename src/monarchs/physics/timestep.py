@@ -9,9 +9,7 @@ from monarchs.physics import snow_accumulation
 from monarchs.physics import firn_functions, lake_functions, solver, lid_functions
 from monarchs.core import utils
 
-from monarchs.physics import surface_fluxes # Remove after debugging
-
-def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict, x=None, y=None): # Remove x/y = None after debugging
+def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict):
     """
     Main timestepping loop applied to an instance of the model grid.
     Called by loop_over_grid to work in parallel over multiple instances.
@@ -93,8 +91,6 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict,
         T_dp = met_data['dew_point_temperature'][t_step]
         T_air = met_data['temperature'][t_step]
         p_air = met_data['surf_pressure'][t_step]
-
-        surface_fluxes.set_debug_context(day=cell["day"], t_step=t_step, x=x, y=y) # Remove after debugging
         
         if T_rock_data is not None:
             global_idx = cell["day"] * t_steps_per_day + t_step
@@ -121,17 +117,17 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict,
 
         elif cell["exposed_water"]:
             args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
-            firn_temp_guess = cell["firn_temperature"] # Revert name to x after debugging here and below
+            x = cell["firn_temperature"]
 
             if firn_heat_toggle:
                 sol, fvec, success, info = solver.firn_heateqn_solver(
-                    firn_temp_guess, args, fixed_sfc=True, solver_method='hybr'
+                    x, args, fixed_sfc=True, solver_method='hybr'
                 )
                 if success:
                     cell["firn_temperature"] = sol
                 else:
                     print("Warning - solver failed to converge - lake development")
-                    print(firn_temp_guess)
+                    print(x)
                     print(cell["lake"])
                     print(cell["lid"])
                     print(cell["lake_depth"])
