@@ -58,8 +58,6 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     T_dp = args[7]
     T_rock = args[8]
     wind = args[9]
-
-    surface_fluxes.set_surface_state(v_lid=cell["v_lid"], fixed_sfc=fixed_sfc) # Remove after debugging
     
     if fixed_sfc:
         sol = np.array([273.15])
@@ -105,25 +103,17 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
             Q, Flat, Fsens = surface_fluxes.sfc_flux(
                 cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                 cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp, T_rock,
-                wind, soldict.x[0], cell["RVf"], cell["size_dx"], is_final=True, # Remove is_final after debugging
+                wind, soldict.x[0], cell["RVf"], cell["size_dx"],
             )
             cell["Q"] = Q
             cell["Flat"] = Flat
             cell["Fsens"] = Fsens
             return soldict.x, soldict.success, soldict.message, soldict.success
 
-        # Remove below after debugging
-        residual_norm = np.linalg.norm(
-            heateqn.heateqn(soldict.x, cell, dt, dz, LW_in, SW_in, T_air, p_air,
-                             T_dp, T_rock, wind)
-        ) 
-
         sol = soldict.x
         ier = soldict.success
         mesg = soldict.message
         infodict = soldict.success
-
-        surface_fluxes.set_solver_diagnostics(residual_norm, mesg) # Remove after debugging
         
         #print(sol)
         # Take our root-finding algorithm output (from first N layers),
@@ -140,7 +130,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     Q, Flat, Fsens = surface_fluxes.sfc_flux(
         cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
         cell["lake_depth"], LW_in, SW_in, T_air, p_air, T_dp, T_rock,
-        wind, T_sfc_final, cell["RVf"], cell["size_dx"], is_final=True, # Remove is_final after debugging
+        wind, T_sfc_final, cell["RVf"], cell["size_dx"],
     )
     cell["Q"] = Q
     cell["Flat"] = Flat
