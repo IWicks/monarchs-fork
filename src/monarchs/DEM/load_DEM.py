@@ -202,7 +202,7 @@ def export_DEM(
 def get_xy_distance(latitudes, longitudes):
     import numpy as np
     from pyproj import Geod
-
+    
     # Load the raster (already in EPSG:4326)
 
     # Define the WGS84 geodetic model
@@ -213,21 +213,22 @@ def get_xy_distance(latitudes, longitudes):
         lon_grid, lat_grid = np.meshgrid(longitudes, latitudes)
     else:
         lon_grid, lat_grid = longitudes, latitudes
+    
     # Compute dy (North-South size of each grid cell in metres)
-    lat1_dy = lat_grid[:, :-1]  # Take all but last row
-    lat2_dy = lat_grid[:, 1:]  # Take all but first row
-    dy_metres = geod.inv(lon_grid[:, :-1], lat1_dy, lon_grid[:, :-1], lat2_dy)[-1]
+    lat1_dy = lat_grid[:-1, :]  # Take all but last row
+    lat2_dy = lat_grid[1:, :]  # Take all but first row
+    dy_metres = geod.inv(lon_grid[:-1, :], lat1_dy, lon_grid[:-1, :], lat2_dy)[-1]
 
     # Compute dx (East-West size of each grid cell in metres)
-    lon1_dx = lon_grid[:-1, :]  # Take all but last column
-    lon2_dx = lon_grid[1:, :]  # Take all but first column
-    dx_metres = geod.inv(lon1_dx, lat_grid[:-1, :], lon2_dx, lat_grid[:-1, :])[-1]
+    lon1_dx = lon_grid[:, :-1]  # Take all but last column
+    lon2_dx = lon_grid[:, 1:]  # Take all but first column
+    dx_metres = geod.inv(lon1_dx, lat_grid[:, :-1], lon2_dx, lat_grid[:, :-1])[-1]
 
     # Convert dx/dy to full-sized arrays by padding (so they match raster size)
-    dy_metres = np.pad(dy_metres, ((0, 0), (0, 1)), mode='edge')  # Pad last row
-    dx_metres = np.pad(dx_metres, ((0, 1), (0, 0)), mode='edge')  # Pad last column
-
-    print("Grid cell sizes computed for all points!")
+    dy_metres = np.pad(dy_metres, ((0, 1), (0, 0)), mode='edge')  # Pad last row
+    dx_metres = np.pad(dx_metres, ((0, 0), (0, 1)), mode='edge')  # Pad last column
+    
+    print("Grid cell sizes computed for all points!") # DON'T REMOVE THIS ONE
     return dx_metres, dy_metres
 
 def bounding_box_diagnostic_plots(input_raster, subset_raster, lon_array, lat_array, lon_subset, lat_subset):
