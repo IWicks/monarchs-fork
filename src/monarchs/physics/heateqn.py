@@ -164,13 +164,13 @@ def propagate_temperature(cell, dz, dt, T_bc_top, Q_abs, N=10):
 
     # Interior rows: real h_minus and h_plus from the vertical grid
     for i in np.arange(1, n - 1):
-        h_minus, h_plus = gaps[N + 1 -1], [N + i]
+        h_minus, h_plus = gaps[N + i - 1], gaps[N + i]
         beta_minus = dt * kappa[i] * 2 / ((h_plus + h_minus) * h_minus)
         beta_plus = dt * kappa[i] * 2 / ((h_plus + h_minus) * h_plus)
         A[i - 1] = -beta_minus
         B[i] = 1 + beta_minus + beta_plus
         C[i] = -beta_plus
-        D[i] = T_old[i] dt * Q_abs_slice[i] * kappa[i] / k[i]
+        D[i] = T_old[i] + dt * Q_abs_slice[i] * kappa[i] / k[i]
 
     # Last row: h_minus only, Neumann BC using backward difference
     i = n - 1
@@ -178,7 +178,7 @@ def propagate_temperature(cell, dz, dt, T_bc_top, Q_abs, N=10):
     beta_minus = dt * kappa[i] / h_minus**2
     A[i - 1] = -beta_minus
     B[i] = 1 + beta_minus
-    D[i] = T_old[i] dt * Q_abs_slice[i] * kappa[i] / k[i]
+    D[i] = T_old[i] + dt * Q_abs_slice[i] * kappa[i] / k[i]
 
     # Assemble banded matrix
     # ab = np.zeros((3, n))
