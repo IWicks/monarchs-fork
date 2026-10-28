@@ -299,15 +299,6 @@ def water_fraction(cell, m, timestep, direction, flow_speed_scaling=1.0):
         water_frac = u * timestep / cell_size
         water_frac[np.where(water_frac > 1)] = 1
 
-        # --- start diagnostic ---
-        with open("water_frac_check.txt", "a") as f:
-            f.write(f"row={cell['row']} col={cell['column']} direction={direction} "
-                    f"cell_size={cell_size!r} m={m!r} "
-                    f"water_frac_before_clip={water_frac!r} "
-                    f"any_nan={np.any(np.isnan(water_frac))} "
-                    f"frac_pinned_at_1={np.mean(water_frac > 1) if water_frac.size else 'n/a'}\n")
-        # --- end diagnostic ---
-
         # JE - added flow_speed_scaling variable here.
         water_frac = water_frac * flow_speed_scaling
     return water_frac
