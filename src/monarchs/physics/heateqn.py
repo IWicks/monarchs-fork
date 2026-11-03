@@ -41,7 +41,6 @@ def heateqn(
     x,
     cell,
     dt,
-    dz,
     LW_in,
     SW_in,
     T_air,
@@ -88,9 +87,11 @@ def heateqn(
     k_water = cell['k_water']
     k, kappa = get_k_and_kappa(T_old, Sfrac, Lfrac, cp_air, cp_water, k_air, k_water)
     residual = np.zeros_like(x)
+
+    gaps = np.diff(cell["vertical_profile"]) # Calculate real point-to-point distances between vertical points
     
     # Surface temperature equation (residual)
-    residual[0] = k[0] * ((x[0] - x[1]) / dz) - (
+    residual[0] = k[0] * ((x[0] - x[1]) / gaps[0]) - (
         Q + Q_abs[0] * dz_box[0] - (epsilon_ice * sigma * x[0] ** 4)
     ) # Q_abs[0] * dz_box[0] converts a volumetric term to a flux term (W/m^3 to W/m^2), adding the
       # fraction of incoming SW applied to the surface cell, accounting for the zero-thickness skin
@@ -98,7 +99,6 @@ def heateqn(
     # Calculate the temperature profile for the first N layers (chosen as 50 in heateqn_solver)
     idx = np.arange(1, len(x) - 1)
 
-    gaps = np.diff(cell["vertical_profile") # Calculate real point-to-point distances between vertical points
     h_plus = gaps[idx] # Gap between point idx and idx+1
     h_minus = gaps[idx - 1] # Gap between point idx and idx-1
 
@@ -131,7 +131,7 @@ def heateqn(
     return residual
 
 
-def propagate_temperature(cell, dz, dt, T_bc_top, Q_abs, N=10):
+def propagate_temperature(cell, dt, T_bc_top, Q_abs, N=10):
     T_old = cell["firn_temperature"][N:]
     Sfrac = cell['Sfrac'][N:]
     Lfrac = cell['Lfrac'][N:]
