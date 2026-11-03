@@ -95,7 +95,7 @@ def heateqn(
     ) # Q_abs[0] * dz_box[0] converts a volumetric term to a flux term (W/m^3 to W/m^2), adding the
       # fraction of incoming SW applied to the surface cell, accounting for the zero-thickness skin
     
-    # Calculate the temperature profile for the first 10 layers
+    # Calculate the temperature profile for the first N layers (default: N = 50)
     idx = np.arange(1, len(x) - 1)
 
     gaps = np.diff(cell["vertical_profile") # Calculate real point-to-point distances between vertical points
