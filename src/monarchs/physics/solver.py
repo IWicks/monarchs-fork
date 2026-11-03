@@ -50,23 +50,22 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
     """
     cell = args[0]
     dt = args[1]
-    dz = args[2]
-    LW_in = args[3]
-    SW_in = args[4]
-    T_air = args[5]
-    p_air = args[6]
-    T_dp = args[7]
-    T_rock = args[8]
-    wind = args[9]
-    Q_abs = args[10]
-    dz_box = args[11]
+    LW_in = args[2]
+    SW_in = args[3]
+    T_air = args[4]
+    p_air = args[5]
+    T_dp = args[6]
+    T_rock = args[7]
+    wind = args[8]
+    Q_abs = args[9]
+    dz_box = args[10]
 
     if fixed_sfc:
         sol = np.array([273.15])
         infodict = {}
         ier = 1
         mesg = "Fixed surface temperature"
-        T_tri = heateqn.propagate_temperature(cell, dz, 273.15, Q_abs, N=1)
+        T_tri = heateqn.propagate_temperature(cell, 273.15, Q_abs, N=1)
         T = np.concatenate((np.array([273.15]), T_tri))
         T_sfc_final = 273.15
         # print('T fixed sfc = ', T)
@@ -84,7 +83,6 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         args=(
             cell,
             dt,
-            dz,
             LW_in,
             SW_in,
             T_air,
@@ -126,7 +124,7 @@ def firn_heateqn_solver(x, args, fixed_sfc=False, solver_method="hybr"):
         # then concatenate the two
         # Now use tridiagonal solver to solve the heat equation once we have the surface temp
 
-        T_tri = heateqn.propagate_temperature(cell, dz, sol[-1], Q_abs, N=N)
+        T_tri = heateqn.propagate_temperature(cell, sol[-1], Q_abs, N=N)
         T = np.concatenate((sol[:], T_tri))
         T_sfc_final = sol[0]
         # print('T free = ', T)
