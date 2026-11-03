@@ -79,7 +79,8 @@ def sfc_flux(
     sigma = 5.670374e-8
       
     # Calculate the fraction of each partial cell that will experience heating due to the rock (rock heating acts over 5 m, averaged over whole cell)
-    if size_dx > 0: # Guard against divide-by-zero error, capped at 1 (whole-cell heating)
+    min_size_dx = 1.0 # in m, smaller than grid spacing but larger than float noise
+    if size_dx > min_size_dx: # Guard against divide-by-zero error, capped at 1 (whole-cell heating)
           decay_factor = min(5 / size_dx, 1.0)
     else:
           decay_factor = 0.0
