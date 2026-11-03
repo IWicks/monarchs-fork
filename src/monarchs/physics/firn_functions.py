@@ -15,7 +15,6 @@ from monarchs.physics.beers_law import sw_penetration
 def firn_column(
     cell,
     dt,
-    dz,
     LW_in,
     SW_in,
     T_air,
@@ -50,8 +49,6 @@ def firn_column(
         Element of the model grid we are operating on.
     dt : int
         Number of seconds in the current timestep [s]
-    dz : float
-        Height of each vertical point in the cell. [m]
     LW_in : float
         Downwelling longwave radiation at the current timestep. [W m^-2]
     SW_in : float
@@ -87,7 +84,7 @@ def firn_column(
     # Compute variables needed for non-uniform grid calculations
     alpha = surface_fluxes.sfc_albedo(cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                                       cell["lake_depth"], cell["blue_ice"], cell["day"], cell["blue_ice_transition_day"])
-    dz_box = compute_box_dz(cell["vertical_profile"])
+    dz_box = compute_box_dz(cell["vertical_profile"]) # Compute box thicknesses surrounding each point in the vertical grid
     Q_abs = sw_penetration(cell, SW_in, alpha, dz_box)
     
     args = [cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, Q_abs, dz_box]
@@ -112,7 +109,6 @@ def firn_column(
             raise ValueError("Height change is NaN")
             
         # Recompute values as melting has occurred
-        dz = cell["firn_depth"] / cell["vert_grid"]
         dz_box = compute_box_dz(cell["vertical_profile"])
         alpha = surface_fluxes.sfc_albedo(cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                                       cell["lake_depth"], cell["blue_ice"], cell["day"], cell["blue_ice_transition_day"])
