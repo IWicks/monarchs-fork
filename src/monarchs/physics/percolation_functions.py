@@ -108,7 +108,7 @@ def percolation(cell, timestep, lateral_refreeze_flag=False, perc_time_toggle=Tr
                         calc_saturation(cell, i, dz_box, end=True)
 
 
-def calc_refreezing(cell, v_lev):
+def calc_refreezing(cell, v_lev, dz_box):
     """
     Calculate refreezing of water within the firn column at a specified layer v_lev.
     This refreezing changes Sfrac into Lfrac, accounting for expansion due to the different
@@ -120,6 +120,8 @@ def calc_refreezing(cell, v_lev):
         Element of the model grid we are operating on.
     v_lev : int
         Vertical level at which to calculate the refreezing of the firn.
+    dz_box : ndarray, shape (vert_grid,)
+        Box thickness surrounding each point [m].
 
     Returns
     -------
@@ -143,16 +145,16 @@ def calc_refreezing(cell, v_lev):
     )
     Vol_Rfrz_Max = (
     (1 - cell["Sfrac"][v_lev])
-    * (cell["firn_depth"] / cell["vert_grid"])
+    * dz_box[v_lev]
     / (cell["rho_water"] / cell["rho_ice"])
     )
     
-    if Vol_Rfrz_Max < cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"]):
+    if Vol_Rfrz_Max < cell["Lfrac"][v_lev] * dz_box[v_lev]:
         excess_water = (
-            cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"])
+            cell["Lfrac"][v_lev] * dz_box[v_lev]
             - Vol_Rfrz_Max
         )
-        cell["Lfrac"][v_lev] = Vol_Rfrz_Max / (cell["firn_depth"] / cell["vert_grid"])
+        cell["Lfrac"][v_lev] = Vol_Rfrz_Max / dz_box[v_lev]
         
     if T_change_all >= T_change_max:
         Vol_Change = (
@@ -160,24 +162,22 @@ def calc_refreezing(cell, v_lev):
             * cp
             * cell["Sfrac"][v_lev]
             * T_change_max
-            * (cell["firn_depth"] / cell["vert_grid"])
+            * dz_box[v_lev]
             / (cell["L_ice"] * cell["rho_water"])
         )
         if Vol_Change > Vol_Rfrz_Max:
             Vol_Change = Vol_Rfrz_Max
         cell["firn_temperature"][v_lev] = 273.15
         if cell["Lfrac"][v_lev] - Vol_Change < 0:
-            Vol_Change = cell["Lfrac"][v_lev] * (cell["firn_depth"] / cell["vert_grid"])
+            Vol_Change = cell["Lfrac"][v_lev] * dz_box[v_lev]
             cell["Lfrac"][v_lev] = 0
         else:
-            cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] - Vol_Change / (
-                cell["firn_depth"] / cell["vert_grid"]
-            )
+            cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] - Vol_Change / dz_box[v_lev]
         if cell["Lfrac"][v_lev] < 0:
             raise ValueError("Lfrac < 0 in saturation Sfrac > 1 calculation")
         cell["Sfrac"][v_lev] = cell["Sfrac"][v_lev] + Vol_Change * (
             cell["rho_water"] / cell["rho_ice"]
-        ) / (cell["firn_depth"] / cell["vert_grid"])
+        ) / dz_box[v_lev]
     else:
         cell["Sfrac"][v_lev] = cell["Sfrac"][v_lev] + cell["Lfrac"][v_lev] * (
             cell["rho_water"] / cell["rho_ice"]
@@ -187,12 +187,10 @@ def calc_refreezing(cell, v_lev):
         
     if cell["Lfrac"][v_lev] < 0:
         raise ValueError("Lfrac < 0 in saturation Sfrac > 1 calculation")
-    cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] + excess_water / (
-        cell["firn_depth"] / cell["vert_grid"]
-    )
+    cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] + excess_water / dz_box[v_lev]
 
 
-def calc_saturation(cell, v_lev_in, end=False):
+def calc_saturation(cell, v_lev_in, dz_box, end=False):
     """
     Determine whether the firn is saturated, calculating upwards from a vertical level
     specified by v_lev_in. If the firn is saturated, then water can no longer percolate
@@ -211,6 +209,8 @@ def calc_saturation(cell, v_lev_in, end=False):
         Element of the model grid we are operating on.
     v_lev_in : int
         Vertical level from which to determine whether the cell is saturated.
+    dz_box : ndarray, shape (vert_grid,)
+        Box thickness surrounding each point [m].
     end : bool, optional
         Flag that determines whether the function is called at the end of the percolation
         step, or not. If it is (i.e. the flag is True), then instead of saying the firn is
@@ -264,16 +264,14 @@ def calc_saturation(cell, v_lev_in, end=False):
                     cell["saturation"][0] = True
                     excess_water = cell["Lfrac"][0] - Lfrac_max
                     cell["Lfrac"][0] = Lfrac_max
-                    cell["lake_depth"] += excess_water * (
-                        cell["firn_depth"] / cell["vert_grid"]
-                    )
+                    cell["lake_depth"] += excess_water * dz_box[0]
                     if cell["lake"] and cell["lake_depth"] < 0:
                         raise ValueError("Lake depth is negative - problem...")
     elif cell["Lfrac"][v_lev] < Lfrac_max:
         cell["saturation"][v_lev] = 0
 
 
-def perc_time(cell, v_lev):
+def perc_time(cell, v_lev, dz_box):
     """
     Calculate the time it takes for water to percolate through the firn at vertical level v_lev.
     This will determine how long the model has in practice to percolate water down through
@@ -288,6 +286,8 @@ def perc_time(cell, v_lev):
     v_lev : int
         Vertical level of cell that we are looking at to determine the available percolation
         time for.
+    dz_box : ndarray, shape (vert_grid,)
+        Box thickness surrounding each point [m].
 
     Returns
     -------
@@ -302,10 +302,10 @@ def perc_time(cell, v_lev):
     perm_s = 0.077 * delta**2 * np.exp(-7.8 * rho_s_star)
     eta = 0.001787
     delta_p = cell["rho_water"] / (
-        cell["firn_depth"] / cell["vert_grid"] / cell["Lfrac"][v_lev]
+        dz_box[v_lev] / cell["Lfrac"][v_lev]
     )
     u = -perm_s / eta * delta_p
-    p_time = -(cell["firn_depth"] / cell["vert_grid"]) / u
+    p_time = -dz_box[v_lev] / u
     return p_time
 
 
