@@ -175,7 +175,7 @@ def propagate_temperature(cell, dz, dt, T_bc_top, Q_abs, N=10):
     # Last row: h_minus only, Neumann BC using backward difference
     i = n - 1
     h_minus = gaps[N + i -1]
-    beta_minus = dt * kappa[i] / h_minus**2
+    beta_minus = 2 * dt * kappa[i] / h_minus**2
     A[i - 1] = -beta_minus
     B[i] = 1 + beta_minus
     D[i] = T_old[i] + dt * Q_abs_slice[i] * kappa[i] / k[i]
