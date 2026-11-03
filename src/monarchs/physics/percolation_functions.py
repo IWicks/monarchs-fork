@@ -3,18 +3,20 @@ Module containing functions relating to the percolation of water through the fir
 """
 
 import numpy as np
-
+from core.nonuniform_grid import compute_box_dz
 
 def calc_solid_mass(cell):
     """Calculate the mass of the solid part of the column."""
+    dz_box = compute_box_dz(cell["vertical_profile"])
     return np.sum(
-            cell["Sfrac"] * cell["rho_ice"] * (cell["firn_depth"] / cell["vert_grid"])
+            cell["Sfrac"] * cell["rho_ice"] * dz_box
     )
 
 def calc_liquid_mass(cell):
     """Calculate the mass of the liquid part of the column."""
+    dz_box = compute_box_dz(cell["vertical_profile"])
     return np.sum(
-            cell["Lfrac"] * cell["rho_water"] * (cell["firn_depth"] / cell["vert_grid"])
+            cell["Lfrac"] * cell["rho_water"] * dz_box
     )
 
 def percolation(cell, timestep, lateral_refreeze_flag=False, perc_time_toggle=True):
