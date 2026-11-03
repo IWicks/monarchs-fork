@@ -51,26 +51,29 @@ def percolation(cell, timestep, lateral_refreeze_flag=False, perc_time_toggle=Tr
     -------
     None (amends Cell inplace)
     """
+
+    dz_box = compute_box_dz(cell["vertical_profile"])
+    
     for point in range(0, len(cell["firn_temperature"])):
         v_lev = len(cell["firn_temperature"]) - (point + 1)
         if cell["meltflag"][v_lev] and cell["Lfrac"][v_lev] != 0:
             time_remaining = timestep
             while time_remaining > 0:
                 if not lateral_refreeze_flag:
-                    calc_refreezing(cell, v_lev)
+                    calc_refreezing(cell, v_lev, dz_box)
                 if cell["Sfrac"][v_lev] * cell["rho_ice"] > cell["pore_closure"]:
                     cell["ice_lens"] = True
                     cell["saturation"][v_lev] = True
                     if v_lev < cell["ice_lens_depth"]:
                         cell["ice_lens_depth"] = v_lev
-                    calc_saturation(cell, v_lev)
+                    calc_saturation(cell, v_lev, dz_box)
                     time_remaining = 0
                 elif cell["saturation"][v_lev] == 1 or cell["ice_lens_depth"] == v_lev:
-                    calc_saturation(cell, v_lev)
+                    calc_saturation(cell, v_lev, dz_box)
                     time_remaining = 0
                 elif cell["Lfrac"][v_lev] > 0:
                     if perc_time_toggle:
-                        p_time = perc_time(cell, v_lev)
+                        p_time = perc_time(cell, v_lev, dz_box)
                     else:
                         p_time = 0
                     time_remaining = time_remaining - p_time
@@ -92,17 +95,17 @@ def percolation(cell, timestep, lateral_refreeze_flag=False, perc_time_toggle=Tr
 
                         else:
                             for i in np.arange(v_lev + 1)[::-1]:
-                                calc_saturation(cell, i, end=True)
+                                calc_saturation(cell, i, dz_box, end=True)
                             time_remaining = 0
                             break
                     else:
                         for i in np.arange(v_lev + 1)[::-1]:
-                            calc_saturation(cell, i, end=True)
+                            calc_saturation(cell, i, dz_box, end=True)
                 else:
                     cell["meltflag"][v_lev] = 0
                     time_remaining = 0
                     for i in np.arange(v_lev + 1)[::-1]:
-                        calc_saturation(cell, i, end=True)
+                        calc_saturation(cell, i, dz_box, end=True)
 
 
 def calc_refreezing(cell, v_lev):
