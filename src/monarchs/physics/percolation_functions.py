@@ -52,7 +52,7 @@ def percolation(cell, timestep, lateral_refreeze_flag=False, perc_time_toggle=Tr
     None (amends Cell inplace)
     """
 
-    dz_box = compute_box_dz(cell["vertical_profile"])
+    dz_box = compute_box_dz(cell["vertical_profile"]) # Calculates the box thickness for each point in the non-uniform vertical_profile
     
     for point in range(0, len(cell["firn_temperature"])):
         v_lev = len(cell["firn_temperature"]) - (point + 1)
