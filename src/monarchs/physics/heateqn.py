@@ -84,7 +84,7 @@ def heateqn(
     # Surface temperature equation (residual)
     residual[0] = k[0] * ((x[0] - x[1]) / dz) - (Q - (epsilon_ice * sigma * x[0] ** 4))
     
-    # Calculate the temperature profile for the first 10 layers
+    # Calculate the temperature profile for the first N layers (chosen as 50 in heateqn_solver)
     idx = np.arange(1, len(x) - 1)
 
     residual[idx] = (
