@@ -52,8 +52,8 @@ def initialise_iceshelf(
     lat=0,
     lon=0,
     numba=False,
-    size_dx=1000,
-    size_dy=1000,
+    size_dx=250,
+    size_dy=250,
 ):
     """
     Initialize a NumPy structured array representing the ice shelf.
