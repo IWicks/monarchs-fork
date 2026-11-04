@@ -1,6 +1,6 @@
 import numpy as np
 from functools import wraps
-from nonuniform_grid import compute_box_dz
+from core.nonuniform_grid import compute_box_dz
 
 def do_not_jit(function):
     """
