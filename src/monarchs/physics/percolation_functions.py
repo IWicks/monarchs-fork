@@ -3,7 +3,7 @@ Module containing functions relating to the percolation of water through the fir
 """
 
 import numpy as np
-from core.nonuniform_grid import compute_box_dz
+from monarchs.core.nonuniform_grid import compute_box_dz
 
 def calc_solid_mass(cell):
     """Calculate the mass of the solid part of the column."""
