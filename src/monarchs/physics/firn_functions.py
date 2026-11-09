@@ -170,7 +170,7 @@ def regrid_after_melt(cell, height_change, lake=False):
         raise ValueError(
             f"regrid_after_melt: height change ({height_change}) >= "
             f"firn depth ({old_firn_depth}) - whole-column melt, "
-            f"x={cell["column"]}, y={cell["row"]}"
+            f"x={cell['column']}, y={cell['row']}"
             )
     
     old_vertical_profile = cell["vertical_profile"].copy()
