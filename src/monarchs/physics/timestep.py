@@ -8,6 +8,7 @@ import numpy as np
 from monarchs.physics import snow_accumulation
 from monarchs.physics import firn_functions, lake_functions, solver, lid_functions
 from monarchs.core import utils
+from monarchs.core.nonuniform_grid import compute_box_dz
 
 def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict):
     """
@@ -121,11 +122,13 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         if not cell["exposed_water"] and not cell["saturation"][0]:
             if firn_column_toggle:
                 root0 = firn_functions.firn_column(
-                    cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, toggle_dict
+                    cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, toggle_dict
                 )
 
         elif cell["exposed_water"]:
-            args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
+            dz_box = compute_box_dz(cell["vertical_profile"])
+            Q_abs = np.zeros(cell["vert_grid"])  # no SW penetrates firn beneath a lake/lid
+            args = cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, Q_abs, dz_box
             x = cell["firn_temperature"]
 
             if firn_heat_toggle:
