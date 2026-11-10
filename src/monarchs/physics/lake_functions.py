@@ -1,5 +1,6 @@
 import numpy as np
 from monarchs.physics import firn_functions
+from monarchs.physics.firn_functions import MAX_PHYS_DHDT
 from monarchs.physics import surface_fluxes
 from monarchs.physics import solver
 from monarchs.core.utils import calc_mass_sum
@@ -194,6 +195,11 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, tog
         dHdt = (Q - kdTdz) / (cell["Sfrac"][0] * cell["L_ice"] * cell["rho_ice"]) * dt
         if dHdt < 0:
             raise ValueError("Error in surface temperature in lake formation \n")
+        elif dHdt > MAX_PHYS_DHDT:
+            raise ValueError(
+                f"Height change during lake formation ({dHdt:.4f} m) "
+                f"exceeds physically reasonable bounds"
+                )
         cell["melt_hours"] += 1
         firn_functions.regrid_after_melt(cell, dHdt, lake=True)
         new_mass = calc_mass_sum(cell)
@@ -303,6 +309,10 @@ def lake_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, t
             boundary_change = (
                 -kdTdz / (cell["Sfrac"][0] * cell["L_ice"] * cell["rho_ice"]) * dt
             )
+            if boundary_change > MAX_PHYS_DHDT:
+                raise ValueError(f"Boundary change during lake development "
+                     f"({boundary_change:.4f} m) exceeds physically reasonable bounds"
+                     )
             firn_functions.regrid_after_melt(cell, boundary_change, lake=True)
         else:
             raise ValueError("Firn has all completely melted")
