@@ -12,6 +12,8 @@ from monarchs.core import utils
 from monarchs.core.nonuniform_grid import compute_box_dz, compute_box_edges, generate_nonuniform_depth_scalar
 from monarchs.physics.beers_law import sw_penetration
 
+MAX_PHYS_DHDT = 1.0 # m per timestep, deliberately extreme value to catch unphysical melt events
+
 def firn_column(
     cell,
     dt,
@@ -162,13 +164,20 @@ def regrid_after_melt(cell, height_change, lake=False):
     -------
     None
     """
+    
+    if height_change > MAX_PHYS_DHDT:
+        raise ValueError(
+            f"Height change during melt ({height_change:.4f} m) "
+            f"exceeds physically reasonable bounds"
+            )
+    
     original_mass = utils.calc_mass_sum(cell)
     old_firn_depth = cell["firn_depth"] + 0
 
     tol = 1e-9
     if height_change >= old_firn_depth - tol:
         raise ValueError(
-            f"regrid_after_melt: height change ({height_change}) >= "
+            f"Height change ({height_change}) >= "
             f"firn depth ({old_firn_depth}) - whole-column melt, "
             f"x={cell['column']}, y={cell['row']}"
             )
@@ -350,6 +359,10 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         raise ValueError(
             "Height change during melt is negative, and outside the bounds of a numerical error"
         )
+    elif dHdt > MAX_PHYS_DHDT:
+        raise ValueError(
+            f"Height change during melt ({dHdt:.4f} m) exceeds physically reasonable bounds"
+            )
     elif np.isnan(dHdt):
         pass
         print("...")
