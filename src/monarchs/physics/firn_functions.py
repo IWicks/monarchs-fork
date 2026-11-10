@@ -8,6 +8,8 @@ from monarchs.physics import surface_fluxes
 from monarchs.physics import solver
 from monarchs.core import utils
 
+MAX_PHYS_DHDT = 1.0 # m per timestep, deliberately extreme value to catch unphysical melt events
+
 def firn_column(
     cell,
     dt,
@@ -141,6 +143,13 @@ def regrid_after_melt(cell, height_change, lake=False):
     -------
     None
     """
+    
+    if height_change > MAX_PHYS_DHDT:
+        raise ValueError(
+            f"Height change during melt ({height_change:.4f} m) "
+            f"exceeds physically reasonable bounds"
+            )
+    
     original_mass = utils.calc_mass_sum(cell)
     dz_old = cell["firn_depth"] / cell["vert_grid"]
     old_firn_depth = cell["firn_depth"] + 0
@@ -331,6 +340,10 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, wind, s
         raise ValueError(
             "Height change during melt is negative, and outside the bounds of a numerical error"
         )
+    elif dHdt > MAX_PHYS_DHDT:
+        raise ValueError(
+            f"Height change during melt ({dHdt:.4f} m) exceeds physically reasonable bounds"
+            )
     elif np.isnan(dHdt):
         pass
         print("...")
