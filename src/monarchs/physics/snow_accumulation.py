@@ -6,6 +6,8 @@ Created on Tue May  9 17:04:04 2023
 
 import numpy as np
 from monarchs.core import utils
+from monarchs.core.nonuniform_grid import compute_box_edges, generate_nonuniform_depth_scalar
+from monarchs.physics.grid_remap import nonuniform_remap
 
 
 def snowfall(cell, snow_depth, snow_rho, snow_T):
@@ -14,6 +16,10 @@ def snowfall(cell, snow_depth, snow_rho, snow_T):
     depth, depending on the current state of the cell.
     Called in <timestep_loop>.
     TODO - what happens if we have a lid? Gets added to top and we just regrid as normal.
+
+    For the firn case, fresh snow is incorporated via nonuniform_remap, treating it as one additional 'virtual
+    box' at the top of the old column, appended to old grid properties (Sfrac/Lfrac/firn_temperature) before
+    remapping onto a newly generated (non-(uniform) grid for the increased firn depth.
 
     Parameters
     ----------
@@ -38,100 +44,65 @@ def snowfall(cell, snow_depth, snow_rho, snow_T):
         
         if cell["lake"]:
             cell["lake_depth"] += snow_depth * snow_rho / cell["rho_water"]
+            
         else:
             original_mass = utils.calc_mass_sum(cell)
-            orig_liquid = np.sum(
-                cell["Lfrac"]
-                * cell["rho_water"]
-                * (cell["firn_depth"] / cell["vert_grid"])
-            )
-            orig_solid = np.sum(
-                cell["Sfrac"]
-                * cell["rho_ice"]
-                * (cell["firn_depth"] / cell["vert_grid"])
-            )
-            old_sfrac = np.copy(cell["Sfrac"])
-            old_sfrac_0 = cell["Sfrac"][0]
+            
             if snow_T > 273.15:
                 snow_T = 273.149
-            dz_old = cell["firn_depth"] / cell["vert_grid"]
+                
             old_firn_depth = cell["firn_depth"] + 0
+            old_vertical_profile = cell["vertical_profile"].copy()
+            old_edges = compute_box_edges(old_vertical_profile)
+            
             cell["firn_depth"] += snow_depth
-            dz_new = cell["firn_depth"] / cell["vert_grid"]
-            sfrac_hold = np.zeros(np.shape(cell["Sfrac"]))
-            lfrac_hold = np.zeros(np.shape(cell["Lfrac"]))
-            T_hold = np.zeros(np.shape(cell["firn_temperature"]))
-            weight1 = dz_old * (
-                cell["Sfrac"][0] * cell["rho_ice"]
-                + cell["Lfrac"][0] * cell["rho_water"]
-            )
-            weight2 = snow_depth * snow_rho
-            cell["firn_temperature"][0] = (
-                weight1 * cell["firn_temperature"][0] + weight2 * snow_T
-            ) / (weight1 + weight2)
-            weight1 = snow_depth
-            weight2 = dz_old
-            cell["Sfrac"][0] = (
-                weight1 * (snow_rho / cell["rho_ice"]) + weight2 * cell["Sfrac"][0]
-            ) / (weight1 + weight2)
-            if np.any(cell["Lfrac"] < -0.001):
-                print(np.where(lfrac_hold < -0.001))
-                raise ValueError("Lfrac before snow < 0")
-            cell["Lfrac"][0] = (weight1 * 0 + weight2 * cell["Lfrac"][0]) / (
-                weight1 + weight2
-            )
-            if np.any(cell["Lfrac"] < -0.001):
-                print(np.where(lfrac_hold < -0.001))
-                print(cell["Lfrac"])
-                print(lfrac_hold)
-                raise ValueError("Lfrac before hold < 0")
+            new_firn_depth = cell["firn_depth"]
+            
+            # Regenerate non-uniform point positions for the new, taller grid
+            new_vertical_profile = generate_nonuniform_depth_scalar(new_firn_depth, cell["vert_grid"])
+            new_edges = compute_box_edges(new_vertical_profile)
+
+            # Anchoring grid reference points to the fixed base of the column
+            old_edges_b = old_firn_depth - old_edges[::-1]
+            new_edges_b = new_firn_depth - new_edges[::-1]
+            
+            Sfrac_b = cell["Sfrac"][::-1]
+            Lfrac_b = cell["Lfrac"][::-1]
+            firn_T_b = cell["firn_temperature"][::-1]
+            
+            # Extend the old column data with one virtual box spanning [old_firn_depth, new_firn_depth]
+            ext_old_edges_b = np.concatenate([old_edges_b, [new_firn_depth]])
+            ext_Sfrac_b = np.concatenate([Sfrac_b, [snow_rho / cell["rho_ice"]]])
+            ext_Lfrac_b = np.concatenate([Lfrac_b, [0.0]])
+            ext_firn_T_b = np.concatenate([firn_T_b, [snow_T]])
+            
+            Sfrac_new = nonuniform_remap(ext_old_edges_b, ext_Sfrac_b, new_edges_b)[::-1]
+            Lfrac_new = nonuniform_remap(ext_old_edges_b, ext_Lfrac_b, new_edges_b)[::-1]
+            firn_T_new = nonuniform_remap(ext_old_edges_b, ext_firn_T_b, new_edges_b)[::-1]
+
+            
             if np.any(cell["Sfrac"] < -0.001):
                 print(np.where(cell["Sfrac"] < -0.001))
                 raise ValueError("Sfrac before snow > 0")
             if np.any(cell["Sfrac"] > 1.001):
                 print(np.where(cell["Sfrac"] > 1.001))
                 raise ValueError("Sfrac before snow > 1")
-            for i in range(1, len(cell["Sfrac"])):
-                weight_1 = (
-                    cell["firn_depth"] - i * dz_new - (old_firn_depth - i * dz_old)
-                )
-                weight_2 = (
-                    old_firn_depth
-                    - i * dz_old
-                    - (cell["firn_depth"] - (i + 1) * dz_new)
-                )
-                lfrac_hold[i] = (
-                    cell["Lfrac"][i - 1] * weight_1 + cell["Lfrac"][i] * weight_2
-                ) / (weight_1 + weight_2)
-                sfrac_hold[i] = (
-                    cell["Sfrac"][i - 1] * weight_1 + cell["Sfrac"][i] * weight_2
-                ) / (weight_1 + weight_2)
-                T_hold[i] = (
-                    cell["firn_temperature"][i - 1] * weight_1
-                    + cell["firn_temperature"][i] * weight_2
-                ) / (weight_1 + weight_2)
-            lfrac_hold[0] = cell["Lfrac"][0]
-            sfrac_hold[0] = cell["Sfrac"][0]
-            T_hold[0] = cell["firn_temperature"][0]
-            if np.any(lfrac_hold < -0.001):
-                w = np.where(lfrac_hold < -0.001)
-                print(w[0][0])
-                print("New Lfrac = ", lfrac_hold[: w[0][0] + 2])
-                print("Old Lfrac = ", cell["Lfrac"][: w[0][0] + 2])
-                raise ValueError("Lfrac hold > 0")
-            if np.any(sfrac_hold < -0.001):
-                w = np.where(sfrac_hold < 0)
-                print(w[0][0])
-                print("New Sfrac = ", sfrac_hold[: w[0][0] + 2])
-                print("Old Sfrac = ", cell["Sfrac"][: w[0][0] + 2])
-                raise ValueError("Sfrac hold > 0")
-            if np.any(sfrac_hold > 1.001):
-                print(np.where(sfrac_hold > 1))
-                print(sfrac_hold)
-                raise ValueError("Sfrac before snow > 1")
-            cell["Sfrac"] = sfrac_hold
-            cell["Lfrac"] = lfrac_hold
-            cell["firn_temperature"] = T_hold
+            
+            if np.any(Sfrac_new < -0.001):
+                print(np.where(Sfrac_new < -0.001))
+                raise ValueError("Sfrac after snow < 0")
+            if np.any(Sfrac_new > 1.001):
+                print(np.where(Sfrac_new > 1.001))
+                raise ValueError("Sfrac after snow > 1")
+            if np.any(Lfrac_new < -0.001):
+                print(np.where(Lfrac_new < -0.001))
+                raise ValueError("Lfrac after snow < 0")
+                
+            cell["Sfrac"] = Sfrac_new
+            cell["Lfrac"] = Lfrac_new
+            cell["firn_temperature"] = firn_T_new
+            cell["vertical_profile"] = new_vertical_profile
+            
             assert (
                 abs(utils.calc_mass_sum(cell) - (original_mass + snow_depth * snow_rho * (1 - cell["RVf"])))
                 < 1.5 * 10**-7
