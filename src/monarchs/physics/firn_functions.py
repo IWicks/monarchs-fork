@@ -364,9 +364,18 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
             f"Height change during melt ({dHdt:.4f} m) exceeds physically reasonable bounds"
             )
     elif np.isnan(dHdt):
+        print(f"NaN height change diagnostic — column={cell['column']}, row={cell['row']}")
+        print(f"  Q={Q}, T[0]={cell['firn_temperature'][0]}, T[1]={cell['firn_temperature'][1]}")
+        print(f"  k_sfc={k_sfc}, Sfrac[0]={cell['Sfrac'][0]}")
+        print(f"  Q_abs[0]={Q_abs[0]}, dz_box[0]={dz_box[0]}")
+        print(f"  vertical_profile[:5]={cell['vertical_profile'][:5]}")
+        print(f"  firn_depth={cell['firn_depth']}")
+        raise ValueError("Height change during melt is NaN")
+        """
         pass
         print("...")
         raise ValueError("Height change during melt is NaN")
+        """
     return dHdt
 
 
