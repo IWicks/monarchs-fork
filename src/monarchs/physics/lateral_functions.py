@@ -1,5 +1,6 @@
 import numpy as np
 from monarchs.core.utils import find_nearest
+from monarchs.core.nonuniform_grid import compute_box_dz
 from monarchs.physics.percolation_functions import percolation, calc_saturation
 from numba.typed import Dict
 from numba import types, float64
@@ -35,8 +36,10 @@ def update_water_level(cell):
         # Invalid cell - not interested so set water level to something unreasonably high
         cell["water_level"] = 999
         return
+    
+    dz_box = compute_box_dz(cell["vertical_profile"])
 
-    elif not cell["lake"] and not cell["lid"]:
+    if not cell["lake"] and not cell["lid"]:
         if cell["ice_lens"]:
 
             # We find the water level by the topmost bit of saturated firn above the ice lens.
@@ -54,25 +57,25 @@ def update_water_level(cell):
 
         # cell.water is only used for the lateral movement. So we first need to update it based on Lfrac,
         # which is used in the rest of MONARCHS.
-        cell["water"] = cell["Lfrac"] * (cell["firn_depth"] / cell["vert_grid"])
+        cell["water"] = cell["Lfrac"] * dz_box
 
     # Add lake depth into water for the purposes of moving it around if a lake is present.
     elif cell["lake"] and not cell["lid"]:
         cell["water_level"] = cell["lake_depth"] + cell["firn_depth"]
         # Determine the water level from the water on top + the firn depth.
-        cell["water"] = cell["Lfrac"] * (cell["firn_depth"] / cell["vert_grid"])
+        cell["water"] = cell["Lfrac"] * dz_box
 
 
     elif cell["lake_depth"] > 0.1 and not cell["lid"]:
         # Same again - account for a bug where lake switch doesn't activate
         cell["water_level"] = cell["lake_depth"] + cell["firn_depth"]
-        cell["water"] = cell["Lfrac"] * (cell["firn_depth"] / cell["vert_grid"])
+        cell["water"] = cell["Lfrac"] * dz_box
         cell["water"][0] += cell.lake_depth
 
     elif cell["lid"]:
         # shouldn't matter, as water can't move from a lid
         cell["water_level"] = cell['lid_depth'] + cell["firn_depth"] + cell['lake_depth']
-        cell["water"] = cell["Lfrac"] * (cell["firn_depth"] / cell["vert_grid"])
+        cell["water"] = cell["Lfrac"] * dz_box
 
 
 def get_neighbour_water_levels(cell, grid, col, row, max_grid_col, max_grid_row):
@@ -851,17 +854,18 @@ def move_water(
             cell["meltflag"] = temporary_cell['meltflag']
             new_water += np.sum(cell["water"]) + cell["lake_depth"]
             if cell["valid_cell"]:
+                dz_box = compute_box_dz(cell["vertical_profile"])
                 # Once all water has moved, update the Lfrac of each cell based on where the water now is.
                 # The water level is calculated at the beginning of the next call to move_water, and is not
                 # used anywhere else in the code.
-                cell["Lfrac"] = cell["water"] / (cell["firn_depth"] / cell["vert_grid"])
+                cell["Lfrac"] = cell["water"] / dz_box
                 # We have put all the water at one level in the firn - we need to percolate it to make sure that
                 # the water fills out the available pore space.
                 if lateral_movement_percolation_toggle:
                     # assume the percolation happens within 1 hour.
                     percolation(cell, 3600, lateral_refreeze_flag=True)
                     for k in np.arange(cell["vert_grid"])[::-1]:
-                        calc_saturation(cell, k, end=True)
+                        calc_saturation(cell, k, dz_box, end=True)
             # update_water_level(cell)  # commented out as only affects lateral functions and can be updated at
             # start of next lateral timestep
 
