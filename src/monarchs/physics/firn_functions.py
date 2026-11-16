@@ -401,3 +401,64 @@ def interp_nb(x_vals, x, y):
     """
     res = np.interp(x_vals, x, y)
     return res
+
+
+def calc_interior_melt(cell, v_lev, dz_box):
+    """
+    The mirror of percolation_functions.calc_refreezing. Calculates melting of water within the
+    firn column at a specified layer v_lev due to SW penetration. This melting changes Sfrac into
+    Lfrac, and adds any excess energy into any remaining liquid water to heat it up.
+
+    Parameters
+    ----------
+    cell : numpy structured array
+        Element of the model grid we are operating on.
+    v_lev : int
+        Vertical level at which to calculate the refreezing of the firn.
+    dz_box : ndarray, shape (vert_grid,)
+        Box thickness surrounding each point [m].
+        
+    Raises
+    ------
+    ValueError
+        If Sfrac is less than 0 or Lfrac is greater than 1, raise a ValueError as the model
+        has entered an unphysical state.
+        
+    Returns
+    -------
+    None (amends cell inplace)
+    """
+    
+    T_excess = cell["firn_temperature"][v_lev] - 273.15
+    cp = 7.16 * cell["firn_temperature"][v_lev] + 138
+    T_melt_all = cell["L_ice"] / cp
+    
+    # If the cell doesn't have enough thermal mass to absorb all of the excess heat, and the whole cell melts
+    if T_excess >= T_melt_all:
+        melt_vol = (
+            cell["Sfrac"][v_lev]
+            * cell["rho_ice"]
+            * dz_box[v_lev]
+            / cell["rho_water"]
+        )
+        cell["Lfrac"][v_lev] += melt_vol / dz_box[v_lev]
+        if cell["Lfrac"][v_lev] > 1:
+            raise ValueError("Lfrac > 1 in interior melt calculation")
+        cell["Sfrac"][v_lev] = 0
+        cell["firn_temperature"][v_lev] = cell["firn_temperature"][v_lev] - T_melt_all
+    # If the cell has enough thermal mass to absorb the excess heat, and only some of the cell melts
+    else:
+        melt_vol = (
+            cell["Sfrac"][v_lev]
+            * cp
+            * dz_box[v_lev]
+            * T_excess
+            / cell["L_ice"]
+        )
+        cell["Sfrac"][v_lev] = cell["Sfrac"][v_lev] - (melt_vol / dz_box[v_lev])
+        if cell["Sfrac"][v_lev] < 0:
+            raise ValueError("Sfrac < 0 in interior melt calculation")
+        cell["Lfrac"][v_lev] = cell["Lfrac"][v_lev] + (
+            melt_vol / dz_box[v_lev] * (cell["rho_ice"] / cell["rho_water"])
+        )
+        cell["firn_temperature"][v_lev] = 273.15
