@@ -450,7 +450,8 @@ def calc_interior_melt(cell, v_lev, dz_box):
         if cell["Lfrac"][v_lev] > 1:
             raise ValueError("Lfrac > 1 in interior melt calculation")
         cell["Sfrac"][v_lev] = 0
-        cell["firn_temperature"][v_lev] = cell["firn_temperature"][v_lev] - T_melt_all
+        # Heating now applies to water, so use the specific heat capacity of water instead
+        cell["firn_temperature"][v_lev] = 273.15 + (cp * T_excess - cell["L_ice"]) / cell["cp_water"] 
     # If the cell has enough thermal mass to absorb the excess heat, and only some of the cell melts
     else:
         melt_vol = (
