@@ -131,6 +131,11 @@ def firn_column(
         pass
 
     if percolation_toggle:
+        dz_box = compute_box_dz(cell["vertical_profile"])
+        for v_lev in range (1, cell["vert_grid"]): # Ignoring the zero-thickness surface skin
+            if cell["firn_temperature"][v_lev] > 273.15: # Scan for interior cells that are at the melt temperature
+                cell["meltflag"][v_lev] = 1
+                calc_interior_melt(cell, v_lev, dz_box) # Calculate the melting and adjust Sfrac/Lfrac/T in that cell
         percolation_functions.percolation(cell, dt, perc_time_toggle=perc_time_toggle)
 
     cell["rho"] = cell["Sfrac"] * cell["rho_ice"] + cell["Lfrac"] * cell["rho_water"]
