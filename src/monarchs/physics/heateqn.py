@@ -48,7 +48,7 @@ def heateqn(
     T_dp,
     T_rock,
     wind,
-    Q_abs,
+    SW_abs,
     dz_box,
     epsilon_ice = 0.98,
     sigma = 5.670374e-8,
@@ -92,7 +92,7 @@ def heateqn(
     
     # Surface temperature equation (residual)
     residual[0] = k[0] * ((x[0] - x[1]) / gaps[0]) - (
-        Q + Q_abs[0] * dz_box[0] - (epsilon_ice * sigma * x[0] ** 4)
+        Q + SW_abs[0] * dz_box[0] - (epsilon_ice * sigma * x[0] ** 4)
     ) # Q_abs[0] * dz_box[0] converts a volumetric term to a flux term (W/m^3 to W/m^2), adding the
       # fraction of incoming SW applied to the surface cell, accounting for the zero-thickness skin
     
@@ -111,7 +111,7 @@ def heateqn(
         cell["firn_temperature"][idx]
         - x[idx]
         + dt * kappa[idx] * d2T_dz2
-        + dt * Q_abs[idx] * kappa[idx] / k[idx] # Volumetric source term for the interior cells
+        + dt * SW_abs[idx] * kappa[idx] / k[idx] # Volumetric source term for the interior cells
     )
 
     h_plus_bc = gaps[-1] # Gap between points N-1 and N
@@ -124,18 +124,18 @@ def heateqn(
         cell["firn_temperature"][len(x) - 1]
         - x[len(x) - 1]
         + dt * kappa[len(x) - 1] * d2T_dz2_bc
-        + dt * Q_abs[len(x) - 1] * kappa[len(x) - 1] / k[len(x) - 1] # Volumetric source term for the bottom cell
+        + dt * SW_abs[len(x) - 1] * kappa[len(x) - 1] / k[len(x) - 1] # Volumetric source term for the bottom cell
     )
     # print(f"Residual for T_sfc = {x}: {residual}")
 
     return residual
 
 
-def propagate_temperature(cell, dt, T_bc_top, Q_abs, N=10):
+def propagate_temperature(cell, dt, T_bc_top, SW_abs, N=10):
     T_old = cell["firn_temperature"][N:]
     Sfrac = cell['Sfrac'][N:]
     Lfrac = cell['Lfrac'][N:]
-    Q_abs_slice = Q_abs[N:]
+    SW_abs_slice = SW_abs[N:]
     cp_air = cell['cp_air']
     cp_water = cell['cp_water']
     k_air = cell['k_air']
@@ -159,8 +159,8 @@ def propagate_temperature(cell, dt, T_bc_top, Q_abs, N=10):
     beta_plus = dt * kappa[i] * 2 / ((h_plus + h_minus) * h_plus)
     B[i] = 1 + beta_minus + beta_plus
     C[i] = -beta_plus
-    D[i] = T_old[i] + beta_minus * T_bc_top + dt * Q_abs_slice[i] * kappa[i] / k[i]
-    # Multiplication of Q_abs by dt and kappa/k converts from volumetric term to temperature change at a given timestep
+    D[i] = T_old[i] + beta_minus * T_bc_top + dt * SW_abs_slice[i] * kappa[i] / k[i]
+    # Multiplication of SW_abs by dt and kappa/k converts from volumetric term to temperature change at a given timestep
 
     # Interior rows: real h_minus and h_plus from the vertical grid
     for i in np.arange(1, n - 1):
@@ -170,7 +170,7 @@ def propagate_temperature(cell, dt, T_bc_top, Q_abs, N=10):
         A[i - 1] = -beta_minus
         B[i] = 1 + beta_minus + beta_plus
         C[i] = -beta_plus
-        D[i] = T_old[i] + dt * Q_abs_slice[i] * kappa[i] / k[i]
+        D[i] = T_old[i] + dt * SW_abs_slice[i] * kappa[i] / k[i]
 
     # Last row: h_minus only, Neumann BC using backward difference
     i = n - 1
@@ -178,7 +178,7 @@ def propagate_temperature(cell, dt, T_bc_top, Q_abs, N=10):
     beta_minus = 2 * dt * kappa[i] / h_minus**2
     A[i - 1] = -beta_minus
     B[i] = 1 + beta_minus
-    D[i] = T_old[i] + dt * Q_abs_slice[i] * kappa[i] / k[i]
+    D[i] = T_old[i] + dt * SW_abs_slice[i] * kappa[i] / k[i]
 
     # Assemble banded matrix
     # ab = np.zeros((3, n))

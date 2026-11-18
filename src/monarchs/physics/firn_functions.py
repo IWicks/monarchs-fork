@@ -87,9 +87,9 @@ def firn_column(
     alpha = surface_fluxes.sfc_albedo(cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                                       cell["lake_depth"], cell["blue_ice"], cell["day"], cell["blue_ice_transition_day"])
     dz_box = compute_box_dz(cell["vertical_profile"]) # Compute box thicknesses surrounding each point in the vertical grid
-    Q_abs = sw_penetration(cell, SW_in, alpha, dz_box)
+    SW_abs = sw_penetration(cell, SW_in, alpha, dz_box)
     
-    args = [cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, Q_abs, dz_box]
+    args = [cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, SW_abs, dz_box]
     root, fvec, success, info = solver.firn_heateqn_solver(
         x, args, fixed_sfc=False, solver_method=heateqn_solver
     )
@@ -102,7 +102,7 @@ def firn_column(
             cell["blue_ice"] = 1
             cell["blue_ice_transition_day"] = np.nan
         height_change = calc_height_change(
-            cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, root[0], Q_abs, dz_box
+            cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, root[0], SW_abs, dz_box
         )
 
         if prescribed_height_change is not False:
@@ -114,8 +114,8 @@ def firn_column(
         dz_box = compute_box_dz(cell["vertical_profile"])
         alpha = surface_fluxes.sfc_albedo(cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                                       cell["lake_depth"], cell["blue_ice"], cell["day"], cell["blue_ice_transition_day"])
-        Q_abs = sw_penetration(cell, SW_in, alpha, dz_box)
-        args = cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, Q_abs, dz_box
+        SW_abs = sw_penetration(cell, SW_in, alpha, dz_box)
+        args = cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, SW_abs, dz_box
         root, fvec, success_fixedsfc, info = solver.firn_heateqn_solver(
             x, args, fixed_sfc=True, solver_method=heateqn_solver
         )
@@ -271,7 +271,7 @@ def regrid_after_melt(cell, height_change, lake=False):
 
 
 def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, surf_T,
-                      Q_abs, dz_box):
+                      SW_abs, dz_box):
     """
     Determine the amount of firn height change that arises due to melting.
 
@@ -298,8 +298,8 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
     surf_T : float
         Calculated surface temperature of the firn from the initial (non-fixed surface) implementation of the heat
         equation. [K]
-    Q_abs : ndarray, dimension(cell.vert_grid)
-        The absorbed energy across the vertical column [W m^-3].
+    SW_abs : ndarray, dimension(cell.vert_grid)
+        The absorbed shortwave radiation across the vertical column [W m^-3].
     dz_box : ndarray, dimension(cell.vert_grid)
         Box thickness surrounding each vertical grid point, from nonuniform_grid.compute_box_dz(cell["vertical_profile"]) [m].
 
@@ -345,7 +345,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
     )
 
     Q -= (1 - alpha) * SW_in  # Subtracting surface SW absorption, will be accounted for across column via Beer's law
-    Q += Q_abs[0] * dz_box[0] # Converting volumetric term to flux term (W/m^3 to W/m^2), adding the fraction of incoming energy
+    Q += SW_abs[0] * dz_box[0] # Converting volumetric term to flux term (W/m^3 to W/m^2), adding the fraction of incoming energy
                               # that applies to the surface cell, accounting for the zero-thickness skin.
     
     dHdt = (
@@ -372,7 +372,7 @@ def calc_height_change(cell, timestep, LW_in, SW_in, T_air, p_air, T_dp, T_rock,
         print(f"NaN height change diagnostic — column={cell['column']}, row={cell['row']}")
         print(f"  Q={Q}, T[0]={cell['firn_temperature'][0]}, T[1]={cell['firn_temperature'][1]}")
         print(f"  k_sfc={k_sfc}, Sfrac[0]={cell['Sfrac'][0]}")
-        print(f"  Q_abs[0]={Q_abs[0]}, dz_box[0]={dz_box[0]}")
+        print(f"  SW_abs[0]={SW_abs[0]}, dz_box[0]={dz_box[0]}")
         print(f"  vertical_profile[:5]={cell['vertical_profile'][:5]}")
         print(f"  firn_depth={cell['firn_depth']}")
         raise ValueError("Height change during melt is NaN")

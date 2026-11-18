@@ -127,8 +127,8 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
 
         elif cell["exposed_water"]:
             dz_box = compute_box_dz(cell["vertical_profile"])
-            Q_abs = np.zeros(cell["vert_grid"])  # no SW penetrates firn beneath a lake/lid
-            args = cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, Q_abs, dz_box
+            SW_abs = np.zeros(cell["vert_grid"])  # no SW penetrates firn beneath a lake/lid
+            args = cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, SW_abs, dz_box
             x = cell["firn_temperature"]
 
             if firn_heat_toggle:
