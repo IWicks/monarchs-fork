@@ -4,9 +4,9 @@ Isabelle Wicks, Northumbria University (9/10/2026)
 Functions to generate a non-uniform vertical grid and vertical boxes used for near-surface
 processes.
 
-Default surface_depth=0.25 is tuned against the worst-case extinction coefficient in the model
-(beta_snow=17.1 m^-1, e-fold depth ~0.0585 m) for 400 vertical points. This covers ~4.3 e-folds
-(98.6% of absorbed shortwave) at ~7 grid cells per e-fold.
+Default surface_depth=0.25 is tuned to the shortest e-folding depth in the model (beta_snow=17.1 m^-1,
+e-folding depth ~0.0585 m) for 400 vertical points. This covers ~4.3 e-folds (98.6% of absorbed shortwave)
+at ~7 grid cells per e-fold.
 
 If beta_snow or the number of vertical points changes, surface_depth may need to be re-tuned for
 your specific model setup. n_surface can be adjusted to increase near-surface resolution.
