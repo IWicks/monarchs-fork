@@ -53,7 +53,7 @@ def nonuniform_remap(old_edges, q_old, new_edges, tol=1e-9):
 
     for j in range(n_new):
         L_j, R_j = new_edges[j], new_edges[j + 1]
-        new_box_length = R_j - L_j
+        new_box_width = R_j - L_j
 
         # Overlap with every old box - a large negative value is not itself an error, but means
         # this particular old box doesn't overlap this particular new box at all, which is expected
@@ -62,6 +62,6 @@ def nonuniform_remap(old_edges, q_old, new_edges, tol=1e-9):
         overlap_right = np.minimum(R_j, old_edges[1:])
         overlap_length = np.clip(overlap_right - overlap_left, 0, None)
 
-        q_new[j] = np.sum(overlap_length * q_old) / new_box_length
+        q_new[j] = np.sum(overlap_length * q_old) / new_box_width
 
     return q_new
