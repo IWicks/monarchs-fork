@@ -100,7 +100,7 @@ def _nonuniform_depth_core(flat_depth, n_points, surface_depth, n_surface):
         zone1 = np.outer(np.ones_like(depths), surface_depth * frac1)
 
         remaining = depths - surface_depth
-        # Drop 0 to avoid repeating last point of zone1
+        # Drop 0 to avoid repeating last point of fine near-surface zone
         frac2 = np.linspace(0.0, 1.0, n_deep + 1)[1:]
         zone2 = surface_depth + np.outer(remaining, frac2)
 
