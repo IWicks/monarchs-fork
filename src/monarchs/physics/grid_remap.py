@@ -60,8 +60,8 @@ def nonuniform_remap(old_edges, q_old, new_edges, tol=1e-9):
         # for most box pairs
         overlap_left = np.maximum(L_j, old_edges[:-1])
         overlap_right = np.minimum(R_j, old_edges[1:])
-        overlap_length = np.clip(overlap_right - overlap_left, 0, None)
+        overlap_width = np.clip(overlap_right - overlap_left, 0, None)
 
-        q_new[j] = np.sum(overlap_length * q_old) / new_box_width
+        q_new[j] = np.sum(overlap_width * q_old) / new_box_width
 
     return q_new
