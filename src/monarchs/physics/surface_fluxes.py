@@ -17,6 +17,7 @@ def sfc_flux(
     wind,
     xsurf,
     RVf,
+    size_dx,
     blue_ice,
     day,
     blue_ice_transition_day,
@@ -59,6 +60,8 @@ def sfc_flux(
         Surface temperature. Taken from our initial guess x (i.e. x[0]) [K].
     RVf : float
         The rock view fraction of the cell.
+    size_dx : float
+        The lateral size of the cell [m].
     blue_ice : float
         The surface type of the cell.
     day : int
@@ -85,10 +88,16 @@ def sfc_flux(
     epsilon_ice = 0.98
     epsilon_rock = 0.95 # (from Rubio et al. (1997), reflective of geology of Amery Ice Shelf)
     sigma = 5.670374e-8
+    
+    # Calculate the fraction of each partial cell that will experience heating due to the rock (rock heating acts over 5 m, averaged over whole cell)
+    min_size_dx = 1.0 # in m, smaller than grid spacing but larger than float noise
+    if size_dx > min_size_dx: # Guard against divide-by-zero error, capped at 1 (whole-cell heating)
+          decay_factor = min(5 / size_dx, 1.0)
+    
     if RVf == 0.0:
         Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens
     else:
-        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens + (epsilon_rock * T_rock**4 * sigma * RVf)
+        Q = epsilon_ice * LW_in + (1 - alpha) * SW_in + Flat + Fsens + (epsilon_rock * T_rock**4 * sigma * RVf * decay_factor)
     return Q, Flat, Fsens, alpha
 
 
