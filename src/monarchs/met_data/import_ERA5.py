@@ -70,6 +70,10 @@ def ERA5_to_variables(ERA5_input, met_timestep, total_days, start_index=0, chunk
                 'Pressure variable "sp" or "msl" not found in the input ERA5 netCDF. Check your input data,or amend <monarchs.met_data.import_ERA5.ERA5_to_variables> to use the key that is in your data.'
             )
     var_dict["snowfall"] = ERA5_data.variables["sf"][start_index:end_index]
+    if np.any(var_dict["snowfall"] > 0.05):
+        raise ValueError(
+            "A snowfall event exceeds the maximum sensible range (0.05 m.w.e./hr)"
+            )
     try:
         var_dict["SW_surf"] = ERA5_data.variables["ssrd"][start_index:end_index] / 3600
     except KeyError:
