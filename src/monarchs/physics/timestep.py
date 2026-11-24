@@ -8,6 +8,8 @@ import numpy as np
 from monarchs.physics import snow_accumulation
 from monarchs.physics import firn_functions, lake_functions, solver, lid_functions
 from monarchs.core import utils
+import csv # Remove after conservation testing
+import os # Remove after conservation testing
 
 def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict):
     """
@@ -68,6 +70,9 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         raise ValueError("NaN in firn temperature")
     cell["t_step"] = 1
     cell["daily_melt"] = 0.0
+    
+    mass_before = utils.calc_mass_sum(cell) # Remove after mass conservation testing
+    
     for t_step in range(t_steps_per_day):
         
         if cell["lake_depth"] == 0:
@@ -201,10 +206,19 @@ def timestep_loop(cell, dt, met_data, T_rock_data, t_steps_per_day, toggle_dict)
         cell["rho"] = (
             cell["Sfrac"] * cell["rho_ice"] + cell["Lfrac"] * cell["rho_water"]
         )
+        
+        mass_after = utils.calc_mass_sum(cell) # Remove after mass conservation testing
+        
+        # Remove below after mass conservation testing
+        write_header = not os.path.exists("mass_conservation.csv")
+        with open("mass_conservation.csv", 'a', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            fieldnames = ["day", "timestep", "mass before", "mass after", "precipitation"]
+            if write_header:
+                writer.writerow(fieldnames)
+            writer.writerow([cell["day"], cell["t_step"], mass_before, mass_after, met_data["snowfall"][t_step]])
 
         cell["t_step"] += 1
-
-
 
     cell["day"] += 1
 
