@@ -87,6 +87,9 @@ def firn_column(
     alpha = surface_fluxes.sfc_albedo(cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                                       cell["lake_depth"], cell["blue_ice"], cell["day"], cell["blue_ice_transition_day"])
     dz_box = compute_box_dz(cell["vertical_profile"]) # Compute box thicknesses surrounding each point in the vertical grid
+    old_edges = compute_box_edges(cell["vertical_profile"])
+    old_firn_depth = cell["firn_depth"]
+    height_change_surface = 0.0
     SW_abs = sw_penetration(cell, SW_in, alpha, dz_box)
     
     args = [cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, SW_abs, dz_box]
@@ -101,17 +104,16 @@ def firn_column(
         if cell["blue_ice"] == 2:
             cell["blue_ice"] = 1
             cell["blue_ice_transition_day"] = np.nan
-        height_change = calc_height_change(
+        height_change_surface = calc_height_change(
             cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, root[0], SW_abs, dz_box
         )
 
         if prescribed_height_change is not False:
-            height_change = 0.05
-        if np.isnan(height_change):
+            height_change_surface = 0.05
+        if np.isnan(height_change_surface):
             raise ValueError("Height change is NaN")
             
         # Recompute values as melting has occurred
-        dz_box = compute_box_dz(cell["vertical_profile"])
         alpha = surface_fluxes.sfc_albedo(cell["melt"], cell["exposed_water"], cell["lid"], cell["lake"],
                                       cell["lake_depth"], cell["blue_ice"], cell["day"], cell["blue_ice_transition_day"])
         SW_abs = sw_penetration(cell, SW_in, alpha, dz_box)
@@ -122,7 +124,6 @@ def firn_column(
 
         if success_fixedsfc:
             cell["firn_temperature"] = root
-        regrid_after_melt(cell, height_change)
 
     elif success:
         cell["firn_temperature"] = root
@@ -130,20 +131,22 @@ def firn_column(
     else:
         pass
 
-    dz_box = compute_box_dz(cell["vertical_profile"])
-    compaction = np.zeros(cell["vert_grid"]) # Initialise array of zeroes for internal compaction calculation
+    # Determining column compaction due to internal melting
+    compaction = np.zeros(cell["vert_grid"]) # Initialise array of zeroes for internal compaction
     for v_lev in range (1, cell["vert_grid"]): # Ignoring the zero-thickness surface skin
-        if cell["firn_temperature"][v_lev] > 273.15: # Scan for interior cells that are at the melt temperature
+        if cell["firn_temperature"][v_lev] > 273.15: # Scan for internal cells that are at the melt temperature
             Sfrac_before = cell["Sfrac"][v_lev]    
             cell["meltflag"][v_lev] = 1
             calc_interior_melt(cell, v_lev, dz_box) # Calculate the melting and adjust Sfrac/Lfrac/T in that cell
             Sfrac_after = cell["Sfrac"][v_lev]
             # Fractional change of Sfrac, multiplied by the cell's width
             compaction[v_lev] = ((Sfrac_before - Sfrac_after) / Sfrac_before) * dz_box[v_lev]
-    height_change_compaction = np.sum(compaction)
+    melt_indices = np.nonzero(compaction)[0] # Find the locations where internal melting occurred
+    melt_widths = compaction[melt_indices]
+    melt_positions = old_firn_depth - old_edges[melt_indices] # Find the base-anchored position of the melt events
     
-    if height_change_compaction >= 1e-9:
-        regrid_after_melt(cell, height_change_compaction)
+    if height_change_surface > 0 or len(melt_widths) > 0:
+        regrid_combined_melt(cell, melt_positions, melt_widths, height_change_surface)
 
     if percolation_toggle:
         percolation_functions.percolation(cell, dt, perc_time_toggle=perc_time_toggle)
@@ -156,7 +159,7 @@ def firn_column(
 
 def regrid_after_melt(cell, height_change, lake=False):
     """
-    After melting occurs, subtract the amount of melting from the firn height, convert it into meltwater,
+    After melting occurs at the surface, subtract the amount of melting from the firn height, convert it into meltwater,
     and interpolate the entire column to the new (non-uniform) vertical profile accounting for this height change.
     
     Liquid water retention physics are preserved and generalised: a partially-consumed old box has its liquid
@@ -225,7 +228,7 @@ def regrid_after_melt(cell, height_change, lake=False):
     # Calculate how many old/new boxes overlap
     lost_overlap_b = lost_overlap(old_edges_b, new_firn_depth, old_firn_depth)
     Lfrac_b_adj, meltwater = melt_retain_and_loss(Sfrac_b, Lfrac_b, old_box_widths_b,
-        lost_overlap_b, cell["rho_ice"], cell["rho_water"],)
+        lost_overlap_b, cell["rho_ice"], cell["rho_water"])
 
     # Returning to surface-anchored grid reference points
     Sfrac_hold = nonuniform_remap(old_edges_b, Sfrac_b, new_edges_b)[::-1]
@@ -420,6 +423,7 @@ def interp_nb(x_vals, x, y):
 
 
 def calc_interior_melt(cell, v_lev, dz_box):
+    
     """
     The mirror of percolation_functions.calc_refreezing. Calculates melting of water within the
     firn column at a specified layer v_lev due to SW penetration. This melting changes Sfrac into
@@ -481,3 +485,169 @@ def calc_interior_melt(cell, v_lev, dz_box):
         )
         cell["daily_melt"] += melt_vol * (cell["rho_ice"] / cell["rho_water"])
         cell["firn_temperature"][v_lev] = 273.15
+
+
+def cumulative_loss(query_points, melt_positions, melt_widths):
+    
+    """
+    For every upper box edge, computes the cumulative width lost at or below the edge's position. Used to track
+    the height change due to internal melting and firn compaction.
+
+    Parameters
+    ----------
+    query_points : ndarray, shape (m,)
+        The base-anchored positions at which to evaluate the cumulative loss function, independent of the number
+        of melt events, typically every edge of the old grid.
+    melt_positions : ndarray, shape (n_events,)
+        The base-anchored positions where the melt events occurred.
+    melt_widths : ndarray, shape (n_events,)
+        The widths removed by each melt event. melt_positions[i] and melt_widths[i] refer to the same event, with
+        the two arrays being the same length and correspondingly ordered [m].
+        
+    Returns
+    -------
+    padded_total_width : ndarray, shape (m,)
+        The height change at a given point due to compaction at or beneath that point [m]. 
+    """
+    
+    # Sorting the melt events by depth, then ordering both the positions and widths by this indexing
+    sort = np.argsort(melt_positions) 
+    sorted_positions = melt_positions[sort]
+    sorted_widths = melt_widths[sort]
+    
+    # Finding the running total lost width, padded with 0 to represent "zero melt events yet"
+    padded_total_width = np.concatenate(([0.0], np.cumsum(sorted_widths)))
+    
+    # Finding the number of melt events at or below query_points[i]
+    counts = np.searchsorted(sorted_positions, query_points, side='right')
+    
+    return padded_total_width[counts]
+
+
+def regrid_combined_melt(cell, melt_positions, melt_widths, height_change_surface, lake=False):
+    
+    """
+    After melting occurs in the column interior, find the cumulative shift of positions within the column due to
+    melting beneath their location, then compact these boxes, retaining their solid fraction and concentrating their
+    liquid fraction (water either present in the cell beforehand, or produced by internal melting in this timestep,
+    via calc_interior_melt). Then add the surface melting contribution to this height change, and interpolate the
+    entire column to the new (non-uniform) vertical profile accounting for this cumulative height change.
+
+    Parameters
+    ----------
+    cell : numpy structured array
+        Element of the model grid we are operating on.
+    melt_positions : ndarray, shape (n_events,)
+        The base-anchored positions where the melt events occurred.
+    melt_widths : ndarray, shape (n_events,)
+        The widths removed by each melt event. melt_positions[i] and melt_widths[i] refer to the same event, with
+        the two arrays being the same length and correspondingly ordered [m].
+    height_change_surface : float
+        The height change at the surface due to surface melting [m].
+    lake : bool, optional
+        Flag to determine whether a lake is present or not. This is contained here so that we can re-use the bulk
+        of this algorithm, but with some small changes to reflect the different situation that occurs when a lake is
+        present.
+    
+    Returns
+    -------
+    None
+
+    """
+    
+    original_mass = utils.calc_mass_sum(cell)
+    bs = cell["Sfrac"].copy() # Retained for Sfrac>1 diagnostic message
+    old_firn_depth = cell["firn_depth"] + 0
+    old_vertical_profile = cell["vertical_profile"].copy()
+    old_edges = compute_box_edges(old_vertical_profile)
+    tol = 1e-9
+    
+    # Anchoring grid reference points to the fixed base of the column
+    old_edges_b = old_firn_depth - old_edges[::-1]
+    Sfrac_b = cell["Sfrac"][::-1]
+    Lfrac_b = cell["Lfrac"][::-1]
+    firn_T_b = cell["firn_temperature"][::-1]
+    
+    old_box_widths_b = np.diff(old_edges_b)
+    
+    # Finding the total shift in all positions in the column due to compaction
+    cumulative_shift = cumulative_loss(old_edges_b, melt_positions, melt_widths)
+    
+    # Find the base-anchored edge positions after the total shift, and the new firn height after all melting
+    old_edges_b_shift = old_edges_b - cumulative_shift
+    new_firn_depth = old_edges_b_shift[-1] - height_change_surface
+    
+    # Regenerate non-uniform point positions for the new, shorter grid
+    new_vertical_profile = generate_nonuniform_depth_scalar(new_firn_depth, cell["vert_grid"])
+    new_edges = compute_box_edges(new_vertical_profile)
+    new_edges_b = new_firn_depth - new_edges[::-1]
+    new_box_widths = np.diff(new_edges)
+    
+    if np.isnan(cell["firn_temperature"]).any():
+        raise ValueError("NaN in firn temperature before regridding")
+
+    # Calculate the width lost of all boxes, then adjust the interior cells' Sfrac and Lfrac based on this loss width,
+    # retaining and concentrating any meltwater into the column
+    box_losses = np.diff(cumulative_shift)
+    effective_box_widths_b = old_box_widths_b - box_losses
+    Sfrac_b_adj = Sfrac_b * (old_box_widths_b / (old_box_widths_b - box_losses))
+    Lfrac_b_adj_compaction = Lfrac_b * (old_box_widths_b / (old_box_widths_b - box_losses))
+    
+    # Find the lost region from the surface in base-anchored coordinates
+    lost_overlap_b_surface = lost_overlap(old_edges_b_shift, new_firn_depth, old_edges_b_shift[-1])
+    
+    # Find the resulting meltwater and adjusted Lfrac at the surface
+    Lfrac_b_adj, meltwater = melt_retain_and_loss(Sfrac_b_adj, Lfrac_b_adj_compaction, effective_box_widths_b,
+        lost_overlap_b_surface, cell["rho_ice"], cell["rho_water"])
+
+    # Returning to surface-anchored grid reference points
+    Sfrac_hold = nonuniform_remap(old_edges_b_shift, Sfrac_b_adj, new_edges_b)[::-1]
+    Lfrac_hold = nonuniform_remap(old_edges_b_shift, Lfrac_b_adj, new_edges_b)[::-1]
+    firn_T_hold = nonuniform_remap(old_edges_b_shift, firn_T_b, new_edges_b)[::-1]
+    
+    cell["Sfrac"] = Sfrac_hold
+    cell["Lfrac"] = Lfrac_hold
+    cell["firn_temperature"] = firn_T_hold
+    
+    if np.isnan(firn_T_hold).any():
+        print(firn_T_hold)
+        print(cell["firn_temperature"])
+        print(cell["column"])
+        print(cell["row"])
+        raise ValueError("NaN in firn temperature after regridding")
+
+    cell["daily_melt"] += meltwater
+    cell["Lfrac"][0] += meltwater / new_box_widths[0] # Convert to fraction here
+    
+    if lake:
+        if cell["Lfrac"][0] + cell["Sfrac"][0] > 1:
+            excess_water = cell["Lfrac"][0] + cell["Sfrac"][0] - 1
+            cell["lake_depth"] += excess_water * new_box_widths[0]
+            cell["Lfrac"][0] = 1 - cell["Sfrac"][0]
+        assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
+
+    if np.isnan(cell["firn_temperature"]).any():
+        print(cell["firn_temperature"])
+        raise ValueError("NaN in firn temperature after regridding")
+
+    if np.any(cell["Sfrac"] > 1.00000000001):
+        where = np.where(cell["Sfrac"] > 1)
+        print(where[0])
+        print("Old Sfrac = ", bs[where])
+        print("Sfrac = ", cell["Sfrac"][where])
+        print("x = ", cell["column"], "y = ", cell["row"])
+        print("total height change = ", np.sum(melt_widths))
+        print("melt positions = ", melt_positions)
+        print("melt widths = ", melt_widths)
+        print("firn depth = ", cell["firn_depth"])
+        raise ValueError("Sfrac > 1 in firn regridding")
+    
+    # Flag oversaturation to be treated by percolation_functions.percolation, like regrid_after_melt
+    oversaturated = (cell["Sfrac"] + cell["Lfrac"]) > (1 + tol)
+    cell["meltflag"][oversaturated] = 1
+    
+    cell["vertical_profile"] = new_vertical_profile
+    cell["firn_depth"] = new_firn_depth
+
+    assert abs(utils.calc_mass_sum(cell) - original_mass) < 1.5 * 10**-7
+    
