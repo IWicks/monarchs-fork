@@ -83,10 +83,9 @@ def percolation(cell, timestep, lateral_refreeze_flag=False, perc_time_toggle=Tr
                         if capillary_remain < cell["Lfrac"][v_lev]:
                             if v_lev == cell["vert_grid"] - 2:
                                 time_remaining = 0
+                            volume_leaving = (cell["Lfrac"][v_lev] - capillary_remain) * dz_box[v_lev]
                             cell["Lfrac"][v_lev + 1] = (
-                                cell["Lfrac"][v_lev + 1]
-                                + cell["Lfrac"][v_lev]
-                                - capillary_remain
+                                cell["Lfrac"][v_lev + 1] + volume_leaving / dz_box[v_lev + 1]
                             )
                             cell["Lfrac"][v_lev] = capillary_remain
                             cell["meltflag"][v_lev] = 0
