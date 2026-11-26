@@ -573,7 +573,7 @@ def regrid_combined_melt(cell, melt_positions, melt_widths, height_change_surfac
     # Finding the total shift in all positions in the column due to compaction
     cumulative_shift = cumulative_loss(old_edges_b, melt_positions, melt_widths)
     
-    # Find the base-anchored edge positions after the total shift, and the new firn height after all melting
+    # Find the base-anchored edge positions after the total shift, and the new firn height after internal melting
     old_edges_b_shift = old_edges_b - cumulative_shift
     new_firn_depth = old_edges_b_shift[-1] - height_change_surface
     
