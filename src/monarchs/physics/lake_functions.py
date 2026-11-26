@@ -4,6 +4,7 @@ from monarchs.physics.firn_functions import MAX_PHYS_DHDT
 from monarchs.physics import surface_fluxes
 from monarchs.physics import solver
 from monarchs.core.utils import calc_mass_sum
+from monarchs.core.nonuniform_grid import compute_box_dz
 
 
 def sfc_energy_lake(J, Q, cell):
@@ -147,7 +148,6 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, tog
     None (amends cell inplace).
     """
     original_mass = calc_mass_sum(cell)
-    dz = cell["firn_depth"] / cell["vert_grid"]
     cp_ice = np.zeros(cell["vert_grid"])
     k_ice = np.zeros(cell["vert_grid"])
     air = np.zeros(cell["vert_grid"])
@@ -196,7 +196,7 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, tog
         kdTdz = (
             (cell["firn_temperature"][0] - cell["firn_temperature"][1])
             * abs(k[0])
-            / (cell["firn_depth"] / cell["vert_grid"])
+            / np.diff(cell["vertical_profile"])[0]
         )
         dHdt = (Q - kdTdz) / (cell["Sfrac"][0] * cell["L_ice"] * cell["rho_ice"]) * dt
         if dHdt < 0:
@@ -213,7 +213,9 @@ def lake_formation(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, tog
         air[i] = 1 - cell["Sfrac"][i] - cell["Lfrac"][i]
     cell["vertical_profile"] = np.linspace(0, cell["firn_depth"], cell["vert_grid"])
     x = cell["firn_temperature"]
-    args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
+    dz_box = compute_box_dz(cell["vertical_profile"])
+    SW_abs = np.zeros(cell["vert_grid"])  # no SW penetrates firn beneath a forming lake
+    args = cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, SW_abs, dz_box
     root, fvec, success, info = solver.firn_heateqn_solver(
         x, args, fixed_sfc=True, solver_method='hybr'
     )
@@ -313,7 +315,7 @@ def lake_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, t
             kdTdz = (
                 (273.15 - cell["lake_temperature"][-2])
                 * abs(k[0])
-                / (2 * (cell["firn_depth"] / cell["vert_grid"]))
+                / (2 * np.diff(cell["vertical_profile"]))
             )
             boundary_change = (
                 -kdTdz / (cell["Sfrac"][0] * cell["L_ice"] * cell["rho_ice"]) * dt
@@ -344,8 +346,9 @@ def lake_development(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, t
         new_depth_grid, old_depth_grid, cell["lake_temperature"]
     )
     x = cell["firn_temperature"]
-    dz = cell["firn_depth"] / cell["vert_grid"]
-    args = cell, dt, dz, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind
+    dz_box = compute_box_dz(cell["vertical_profile"])
+    SW_abs = np.zeros(cell["vert_grid"])  # no SW penetrates firn beneath a lake
+    args = cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind, SW_abs, dz_box
     root, fvec, success, info = solver.firn_heateqn_solver(
         x, args, fixed_sfc=True, solver_method='hybr'
     )

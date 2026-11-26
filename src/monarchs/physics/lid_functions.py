@@ -2,6 +2,7 @@ import numpy as np
 from monarchs.physics import surface_fluxes
 from monarchs.physics import solver
 from monarchs.core import utils
+from monarchs.core.nonuniform_grid import compute_box_dz, generate_nonuniform_depth_scalar
 
 
 def virtual_lid(cell, dt, LW_in, SW_in, T_air, p_air, T_dp, T_rock, wind):
@@ -508,7 +509,7 @@ def mass_conserving_profile(cell, var='Sfrac'):
         var_lid = np.zeros(cell['vert_grid_lid'])
         rho = cell['rho_water']
 
-    column_dz = np.full(cell['vert_grid'], cell['firn_depth'] / cell['vert_grid'])
+    column_dz = compute_box_dz(cell["vertical_profile"])
     var_column = cell[var]
 
     # Combine into full profile
@@ -522,8 +523,9 @@ def mass_conserving_profile(cell, var='Sfrac'):
     total_depth = np.sum(dz_full)
 
     num_layers_new = cell['vert_grid']
-    dz_new = np.full(num_layers_new, total_depth / num_layers_new)
-    z_edges_new = np.linspace(0, total_depth, num_layers_new + 1)
+    new_profile = generate_nonuniform_depth_scalar(total_depth, num_layers_new)
+    dz_new = compute_box_dz(new_profile)
+    z_edges_new = np.diff(dz_new)
 
     # Solid mass per layer in old grid
     mass_old = sfrac_full * dz_full * rho
