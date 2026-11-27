@@ -150,10 +150,10 @@ def firn_column(
 
     if percolation_toggle:
         percolation_functions.percolation(cell, dt, perc_time_toggle=perc_time_toggle)
-
+        
     cell["rho"] = cell["Sfrac"] * cell["rho_ice"] + cell["Lfrac"] * cell["rho_water"]
     new_mass = utils.calc_mass_sum(cell)
-
+    
     assert abs(original_mass - new_mass) < 1.5 * 10**-7
     return root0
 
@@ -592,7 +592,7 @@ def regrid_combined_melt(cell, melt_positions, melt_widths, height_change_surfac
     effective_box_widths_b = old_box_widths_b - box_losses
     Sfrac_b_adj = Sfrac_b * (old_box_widths_b / (old_box_widths_b - box_losses))
     Lfrac_b_adj_compaction = Lfrac_b * (old_box_widths_b / (old_box_widths_b - box_losses))
-    
+
     # Find the lost region from the surface in base-anchored coordinates
     lost_overlap_b_surface = lost_overlap(old_edges_b_shift, new_firn_depth, old_edges_b_shift[-1])
     
@@ -608,6 +608,7 @@ def regrid_combined_melt(cell, melt_positions, melt_widths, height_change_surfac
     cell["Sfrac"] = Sfrac_hold
     cell["Lfrac"] = Lfrac_hold
     cell["firn_temperature"] = firn_T_hold
+    
     
     if np.isnan(firn_T_hold).any():
         print(firn_T_hold)
